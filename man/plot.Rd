@@ -44,8 +44,7 @@ relative to the default}
 \item{parCompVi}{Integer vector of length 2: indices of the two components
 to be displayed on the score plot (first two components by default)}
 
-\item{parDevNewL}{Should the graphics be displayed in a new window
-[default]; If FALSE, parLayL must be set to FALSE also}
+\item{parDevNewL}{Should the graphics be displayed in a new window? [default]}
 
 \item{parEllipsesL}{Should the Mahalanobis ellipses be drawn? If 'NA'
 [default], ellipses are drawn when either a character parAsColVcn is
@@ -60,8 +59,7 @@ the plot; default is NA [ie row names of 'x', if available, or indices of
 the user wishes to add specific titles a posteriori}
 
 \item{file.pdfC}{Figure filename (e.g. in case of batch mode) ending with
-'.pdf'; for multiple graphics, set parLayL to TRUE; default is NULL (no
-saving; displaying instead)}
+'.pdf'; default is NULL (no saving; displaying instead)}
 
 \item{.sinkC}{Character: Name of the file for R output diversion [default =
 NULL: no diversion]; Diversion of messages is required for the integration

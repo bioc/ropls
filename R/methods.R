@@ -755,8 +755,8 @@ setMethod("print", "opls",
 #' relative to the default
 #' @param parCompVi Integer vector of length 2: indices of the two components
 #' to be displayed on the score plot (first two components by default)
-#' @param parDevNewL Should the graphics be displayed in a new window
-#' [default]; If FALSE, parLayL must be set to FALSE also
+#' @param parDevNewL Should the graphics be displayed in a new window? 
+#' [default]
 #' @param parEllipsesL Should the Mahalanobis ellipses be drawn? If 'NA'
 #' [default], ellipses are drawn when either a character parAsColVcn is
 #' provided (PCA case), or when 'y' is a character factor ((O)PLS-DA cases).
@@ -767,7 +767,7 @@ setMethod("print", "opls",
 #' (default = TRUE); It may be convenient to set this argument to FALSE when
 #' the user wishes to add specific titles a posteriori
 #' @param file.pdfC Figure filename (e.g. in case of batch mode) ending with
-#' '.pdf'; for multiple graphics, set parLayL to TRUE; default is NULL (no
+#' '.pdf'; default is NULL (no
 #' saving; displaying instead)
 #' @param .sinkC Character: Name of the file for R output diversion [default =
 #' NULL: no diversion]; Diversion of messages is required for the integration

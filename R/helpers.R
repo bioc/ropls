@@ -1774,7 +1774,7 @@
              xlab = "Score distance (SD)",
              xlim = c(0, max(pcaResMN[, 1]) * 1.1),
              xpd = TRUE,
-             ylab = "Orthgonal distance (OD)",
+             ylab = "Orthogonal distance (OD)",
              ylim = c(0, max(pcaResMN[, 2]) * 1.1))
         abline(v = pcaResThrVn[1],
                lty = "dashed")

@@ -6,9 +6,6 @@
 \alias{opls,ExpressionSet-method}
 \alias{opls,data.frame-method}
 \alias{opls,matrix-method}
-\alias{opls,ExpressionSet-method}
-\alias{opls,data.frame-method}
-\alias{opls,matrix-method}
 \title{PCA, PLS(-DA), and OPLS(-DA)}
 \usage{
 opls(x, ...)
@@ -18,9 +15,10 @@ opls(x, ...)
 \S4method{opls}{data.frame}(x, ...)
 
 \S4method{opls}{matrix}(x, y = NULL, predI = NA, orthoI = 0,
-  algoC = c("default", "nipals", "svd")[1], crossvalI = 7, log10L = FALSE,
-  permI = 20, scaleC = c("none", "center", "pareto", "standard")[4],
-  subset = NULL, printL = TRUE, plotL = TRUE, .sinkC = NULL, ...)
+  algoC = c("default", "nipals", "svd")[1], crossvalI = 7,
+  log10L = FALSE, permI = 20, scaleC = c("none", "center", "pareto",
+  "standard")[4], subset = NULL, printL = TRUE, plotL = TRUE,
+  .sinkC = NULL, ...)
 }
 \arguments{
 \item{x}{Numerical data frame or matrix (observations x variables; NAs are

@@ -4,7 +4,6 @@
 \name{getWeightMN}
 \alias{getWeightMN}
 \alias{getWeightMN,opls-method}
-\alias{getWeightMN,opls-method}
 \title{getWeightMN method for (O)PLS(-DA) models}
 \usage{
 getWeightMN(object, ...)

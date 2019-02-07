@@ -12,9 +12,7 @@
 
     epsN <- .Machine[["double.eps"]] ## [1] 2.22e-16
 
-    ##------------------------------------
-    ##   Initialization
-    ##------------------------------------
+    ####   Initialization   ####
 
     varVn <- numeric()      ## PCA only
     yMeanVn <- numeric()    ## (O)PLS only
@@ -37,7 +35,6 @@
 
 
     ## Missing values
-    ##---------------
 
 
     naxVi <- which(is.na(c(xMN)))
@@ -81,7 +78,6 @@
 
 
     ## Observation names
-    ##------------------
 
     if(!is.null(rownames(xMN))) {
         obsNamVc <- rownames(xMN)
@@ -90,7 +86,6 @@
 
 
     ## Autofit
-    ##---------------
 
     autNcoL <- autNcpL <- FALSE
     autMaxN <- min(c(10, dim(xMN)))
@@ -123,19 +118,15 @@
     }
 
 
-    ##------------------------------------
-    ##   Preprocessing
-    ##------------------------------------
+    ####   Preprocessing   ####
 
 
     ## X variable variances
-    ##---------------------
 
     xVarVn <- apply(xMN, 2, function(colVn) var(colVn, na.rm = TRUE))
 
 
     ## X-Scaling
-    ##---------------
 
     xMeanVn <- apply(xMN, 2, function(colVn) mean(colVn, na.rm = TRUE))
 
@@ -180,9 +171,7 @@
     if(is.null(yMCN)) {
 
 
-        ##------------------------------------
-        ##   PCA
-        ##------------------------------------
+        ####   PCA   ####
 
 
         varVn <- numeric(predI)
@@ -198,7 +187,6 @@
                nipals = {
 
                    ## NIPALS
-                   ##-------
 
                    xOldMN <- xMN
 
@@ -264,7 +252,6 @@
 
                    ## SVD algorithm
                    ## PCA (svd, Wehrens11, p48)
-                   ##-----------------------------
 
                    pcaSvdLs <- svd(tcrossprod(xMN))
 
@@ -316,7 +303,6 @@
 
 
         ## Y-Scaling
-        ##---------------
 
         yMeanVn <- apply(yMN, 2, function(colVn) mean(colVn, na.rm = TRUE))
 
@@ -384,9 +370,7 @@
 
         if(orthoI == 0) {
 
-            ##------------------------------------
-            ##   PLS
-            ##------------------------------------
+            ####   PLS   ####
 
 
             xnMN <- xMN
@@ -734,9 +718,7 @@
         } else { ## orthoI > 0
 
 
-            ##------------------------------------
-            ##   OPLS
-            ##------------------------------------
+            ###   OPLS   ####
 
 
             ## Trygg and Wold (2002).
@@ -1284,9 +1266,7 @@
     for(namC in intersect(colnames(summaryDF), sigNamVc))
         summaryDF[, namC] <- signif(summaryDF[, namC], 3)
 
-    ##------------------------------------
-    ##   Returning
-    ##------------------------------------
+    ####   Returning   ####
 
     opl <- new("opls")
     opl@typeC <- character()
@@ -1738,7 +1718,6 @@
         warning("No ", ploC, " plotting", call. = FALSE)
 
     ## Hotteling's T2 (Tenenhaus98, p86)
-    ##----------------------------------
 
     if(!is.null(tCompMN))
         hotFisN <- (nrow(tCompMN) - 1) * 2 * (nrow(tCompMN)^2 - 1) / (nrow(tCompMN) * nrow(tCompMN) * (nrow(tCompMN) - 2)) * qf(0.95, 2, nrow(tCompMN) - 2)
@@ -1751,7 +1730,6 @@
 
         ## Observation diagnostics
         ## see Hubert2005 p66
-        ##------------------------
 
         mahInvCovMN <- solve(cov(tCompMN))
 

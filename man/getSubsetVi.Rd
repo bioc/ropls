@@ -4,7 +4,6 @@
 \name{getSubsetVi}
 \alias{getSubsetVi}
 \alias{getSubsetVi,opls-method}
-\alias{getSubsetVi,opls-method}
 \title{getSubsetVi method for (O)PLS(-DA) models}
 \usage{
 getSubsetVi(object, ...)

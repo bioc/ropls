@@ -8,8 +8,8 @@
 \usage{
 toW4M(eset, ...)
 
-\S4method{toW4M}{ExpressionSet}(eset, filePrefixC = paste0(getwd(), "/out_"),
-  verboseL = TRUE, ...)
+\S4method{toW4M}{ExpressionSet}(eset, filePrefixC = paste0(getwd(),
+  "/out_"), verboseL = TRUE, ...)
 }
 \arguments{
 \item{eset}{An S4 object of class \code{ExpressionSet}

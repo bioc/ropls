@@ -4,7 +4,6 @@
 \name{getVipVn}
 \alias{getVipVn}
 \alias{getVipVn,opls-method}
-\alias{getVipVn,opls-method}
 \title{getVipVn method for (O)PLS(-DA) models}
 \usage{
 getVipVn(object, ...)

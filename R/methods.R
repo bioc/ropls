@@ -46,501 +46,491 @@ setMethod("opls", signature(x = "matrix"),
                    y = NULL,
                    predI = NA,
                    orthoI = 0,
-
+                   
                    algoC = c("default", "nipals", "svd")[1],
                    crossvalI = 7,
                    log10L = FALSE,
                    permI = 20,
                    scaleC = c("none", "center", "pareto", "standard")[4],
                    subset = NULL,
-
+                   
                    printL = TRUE,
                    plotL = TRUE,
-
+                   
                    .sinkC = NULL,
                    ...) {
-
-    if(!is.null(.sinkC)) ##  Diversion of messages is required for the integration into Galaxy
-        sink(.sinkC, append = TRUE)
-
-    ## Checking arguments
-    ##-------------------
-
-    ## x -> xMN
-
-    if(is.data.frame(x)) {
-        if(!all(sapply(x, data.class) == "numeric")) {
-            stop("'x' data frame must contain columns of 'numeric' vectors only", call. = FALSE)
-        } else
-            x <- as.matrix(x)
-    } else if(is.matrix(x)) {
-        if(mode(x) != "numeric")
-            stop("'x' matrix must be of 'numeric' mode", call. = FALSE)
-    } else
-        stop("'x' must be either a data.frame or a matrix", call. = FALSE)
-
-    if(any(apply(x, 2, function(colVn) all(is.na(colVn)))))
-        stop("'x' contains columns with 'NA' only", call. = FALSE)
-
-    xMN <- x
-
-    ## y -> yMCN
-
-    yLevelVc <- NULL
-
-    if(!is.null(y)) {
-
-        if(is.vector(y)) {
-
-            if(!(mode(y) %in% c("character", "numeric")))
-                stop("'y' vector must be of 'character' or 'numeric' type", call. = FALSE)
-
-            if(length(y) != nrow(xMN))
-                stop("'y' vector length must be equal to the number of rows of 'x'", call. = FALSE)
-
-            yMCN <- matrix(y, ncol = 1)
-
-        } else if(is.factor(y)) {
-
-            if(length(y) != nrow(xMN))
-                stop("'y' factor length must be equal to the number of rows of 'x'", call. = FALSE)
-
-            yLevelVc <- levels(y)
-
-            yMCN <- matrix(as.character(y), ncol = 1)
-
-        } else if(is.matrix(y)) {
-
-            if(!(mode(y) %in% c("character", "numeric")))
-                stop("'y' matrix must be of 'character' or 'numeric' type", call. = FALSE)
-
-            if(nrow(y) != nrow(xMN))
-                stop("'x' and 'y' must have the same number of rows", call. = FALSE)
-
-            if(ncol(y) > 1 && mode(y) != "numeric")
-                stop("Multiple response 'y' matrices must be of numeric type", call. = FALSE)
-
-            yMCN <- y
-
-        } else
-            stop("'y' must be either a vector, a factor, or a matrix", call. = FALSE)
-
-    } else
-        yMCN <- NULL
-
-
-    ## NA in Y only possible for multi-response regression (i.e., Y is a numeric matrix)
-
-    if(!is.null(yMCN) &&
-       ncol(yMCN) == 1 &&
-       any(is.na(drop(yMCN))))
-        stop("In case of single response modeling, 'y' must not contain missing values", call. = FALSE)
-
-    if(!is.logical(log10L))
-        stop("'log10L' must be a logical", call. = FALSE)
-
-    if(permI < 0 || (permI - floor(permI)) > 1e-10)
-        stop("'permI' must be an integer", call. = FALSE)
-
-    if(permI > 0 && (is.null(yMCN) || ncol(yMCN) > 1)) {
-        ## warning("Permutation testing available for single response (O)PLS(-DA) models only", call. = FALSE)
-        permI <- 0
-    }
-
-    if(permI > 0 && !is.null(subset)) {
-        permI <- 0
-        warning("'permI' set to 0 because train/test partition is selected", call. = FALSE)
-    }
-
-    if(!(algoC %in% c('default', 'nipals', 'svd')))
-        stop("'algoC' must be either 'default', 'nipals', or 'svd'", call. = FALSE)
-
-    if(algoC == "default")
-        algoC <- ifelse(is.null(yMCN) && !any(is.na(c(xMN))), "svd", "nipals")
-
-    if(!is.null(yMCN) && algoC != "nipals")
-        stop("'nipals' algorithm must be used for (O)PLS(-DA)", call. = FALSE)
-
-    if((is.na(orthoI) || orthoI > 0) && is.null(yMCN))
-        stop("'y' response cannot be NULL for OPLS(-DA) modeling", call. = FALSE)
-
-    if(!is.null(yMCN)) {
-        if(is.na(orthoI) || orthoI > 0) {
-            if(ncol(yMCN) > 1) {
-                stop("OPLS regression only available for a single 'y' response", call. = FALSE)
-            } else if(mode(yMCN) == "character" && length(unique(drop(yMCN))) > 2)
-                stop("OPLS-DA only available for binary classification (use PLS-DA for multiple classes)", call. = FALSE)
-        }
-    }
-
-    if(is.na(orthoI) || orthoI > 0)
-        if(is.na(predI) || predI > 1) {
-            predI <- 1
-            warning("OPLS: number of predictive components ('predI' argument) set to 1", call. = FALSE)
-        }
-
-    if(!is.na(predI) && !is.na(orthoI) && ((predI + orthoI) > min(dim(xMN))))
-        stop("The sum of 'predI' (", predI, ") and 'orthoI' (", orthoI, ") exceeds the minimum dimension of the 'x' data matrix (", min(dim(xMN)), ")" , call. = FALSE)
-
-    if(!(length(scaleC) == 1 && scaleC %in% c('none', 'center', 'pareto', 'standard')))
-        stop("'scaleC' must be either 'none', 'center', 'pareto', or 'standard'", call. = FALSE)
-
-    if(!is.null(subset) && (is.null(yMCN) || ncol(yMCN) > 1))
-        stop("train/test partition with 'subset' only available for (O)PLS(-DA) models of a single 'y' response", call. = FALSE)
-
-    if(!is.null(subset) &&
-       !(mode(subset) == 'character' && subset == 'odd') &&
-       !all(subset %in% 1:nrow(xMN)))
-        stop("'subset' must be either set to 'odd' or an integer vector of 'x' row numbers", call. = FALSE)
-
-    if(crossvalI > nrow(xMN))
-        stop("'crossvalI' must be less than the row number of 'x'", call. = FALSE)
-
-
-    ## Constants
-    ##----------
-
-    epsN <- .Machine[["double.eps"]] ## [1] 2.22e-16
-
-
-    ## Character to numeric convertion function (for classification)
-    ##--------------------------------------------------------------
-
-    if(!is.null(yMCN) && mode(yMCN) == "character") {
-
-        if(!is.null(yLevelVc)) {
-            claVc <- yLevelVc
-        } else
-            claVc <- sort(unique(drop(yMCN)))
-
-        if(length(claVc) == 2) {
-            ## binary response kept as a single vector for OPLS-DA computations
-            .char2numF <- function(inpMCN,
-                                   c2nL = TRUE) {
-
-                if(c2nL) {
-
+            
+            if(!is.null(.sinkC)) ##  Diversion of messages is required for the integration into Galaxy
+              sink(.sinkC, append = TRUE)
+            
+            ## Checking arguments
+            
+            ## x -> xMN
+            
+            if(is.data.frame(x)) {
+              if(!all(sapply(x, data.class) == "numeric")) {
+                stop("'x' data frame must contain columns of 'numeric' vectors only", call. = FALSE)
+              } else
+                x <- as.matrix(x)
+            } else if(is.matrix(x)) {
+              if(mode(x) != "numeric")
+                stop("'x' matrix must be of 'numeric' mode", call. = FALSE)
+            } else
+              stop("'x' must be either a data.frame or a matrix", call. = FALSE)
+            
+            if(any(apply(x, 2, function(colVn) all(is.na(colVn)))))
+              stop("'x' contains columns with 'NA' only", call. = FALSE)
+            
+            if(any(is.infinite(x)))
+              stop("'x' contains infinite values", call. = FALSE)
+            
+            if(any(is.nan(x)))
+              stop("'x' contains NaN values", call. = FALSE)
+            
+            xMN <- x
+            
+            ## y -> yMCN
+            
+            yLevelVc <- NULL
+            
+            if(!is.null(y)) {
+              
+              if(is.vector(y)) {
+                
+                if(!(mode(y) %in% c("character", "numeric")))
+                  stop("'y' vector must be of 'character' or 'numeric' type", call. = FALSE)
+                
+                if(length(y) != nrow(xMN))
+                  stop("'y' vector length must be equal to the number of rows of 'x'", call. = FALSE)
+                
+                yMCN <- matrix(y, ncol = 1)
+                
+              } else if(is.factor(y)) {
+                
+                if(length(y) != nrow(xMN))
+                  stop("'y' factor length must be equal to the number of rows of 'x'", call. = FALSE)
+                
+                yLevelVc <- levels(y)
+                
+                yMCN <- matrix(as.character(y), ncol = 1)
+                
+              } else if(is.matrix(y)) {
+                
+                if(!(mode(y) %in% c("character", "numeric")))
+                  stop("'y' matrix must be of 'character' or 'numeric' type", call. = FALSE)
+                
+                if(nrow(y) != nrow(xMN))
+                  stop("'x' and 'y' must have the same number of rows", call. = FALSE)
+                
+                if(ncol(y) > 1 && mode(y) != "numeric")
+                  stop("Multiple response 'y' matrices must be of numeric type", call. = FALSE)
+                
+                yMCN <- y
+                
+              } else
+                stop("'y' must be either a vector, a factor, or a matrix", call. = FALSE)
+              
+            } else
+              yMCN <- NULL
+            
+            
+            ## NA in Y only possible for multi-response regression (i.e., Y is a numeric matrix)
+            
+            if(!is.null(yMCN) &&
+               ncol(yMCN) == 1 &&
+               any(is.na(drop(yMCN))))
+              stop("In case of single response modeling, 'y' must not contain missing values", call. = FALSE)
+            
+            if(!is.logical(log10L))
+              stop("'log10L' must be a logical", call. = FALSE)
+            
+            if(permI < 0 || (permI - floor(permI)) > 1e-10)
+              stop("'permI' must be an integer", call. = FALSE)
+            
+            if(permI > 0 && (is.null(yMCN) || ncol(yMCN) > 1)) {
+              ## warning("Permutation testing available for single response (O)PLS(-DA) models only", call. = FALSE)
+              permI <- 0
+            }
+            
+            if(permI > 0 && !is.null(subset)) {
+              permI <- 0
+              warning("'permI' set to 0 because train/test partition is selected", call. = FALSE)
+            }
+            
+            if(!(algoC %in% c('default', 'nipals', 'svd')))
+              stop("'algoC' must be either 'default', 'nipals', or 'svd'", call. = FALSE)
+            
+            if(algoC == "default")
+              algoC <- ifelse(is.null(yMCN) && !any(is.na(c(xMN))), "svd", "nipals")
+            
+            if(!is.null(yMCN) && algoC != "nipals")
+              stop("'nipals' algorithm must be used for (O)PLS(-DA)", call. = FALSE)
+            
+            if((is.na(orthoI) || orthoI > 0) && is.null(yMCN))
+              stop("'y' response cannot be NULL for OPLS(-DA) modeling", call. = FALSE)
+            
+            if(!is.null(yMCN)) {
+              if(is.na(orthoI) || orthoI > 0) {
+                if(ncol(yMCN) > 1) {
+                  stop("OPLS regression only available for a single 'y' response", call. = FALSE)
+                } else if(mode(yMCN) == "character" && length(unique(drop(yMCN))) > 2)
+                  stop("OPLS-DA only available for binary classification (use PLS-DA for multiple classes)", call. = FALSE)
+              }
+            }
+            
+            if(is.na(orthoI) || orthoI > 0)
+              if(is.na(predI) || predI > 1) {
+                predI <- 1
+                warning("OPLS: number of predictive components ('predI' argument) set to 1", call. = FALSE)
+              }
+            
+            if(!is.na(predI) && !is.na(orthoI) && ((predI + orthoI) > min(dim(xMN))))
+              stop("The sum of 'predI' (", predI, ") and 'orthoI' (", orthoI, ") exceeds the minimum dimension of the 'x' data matrix (", min(dim(xMN)), ")" , call. = FALSE)
+            
+            if(!(length(scaleC) == 1 && scaleC %in% c('none', 'center', 'pareto', 'standard')))
+              stop("'scaleC' must be either 'none', 'center', 'pareto', or 'standard'", call. = FALSE)
+            
+            if(!is.null(subset) && (is.null(yMCN) || ncol(yMCN) > 1))
+              stop("train/test partition with 'subset' only available for (O)PLS(-DA) models of a single 'y' response", call. = FALSE)
+            
+            if(!is.null(subset) &&
+               !(mode(subset) == 'character' && subset == 'odd') &&
+               !all(subset %in% 1:nrow(xMN)))
+              stop("'subset' must be either set to 'odd' or an integer vector of 'x' row numbers", call. = FALSE)
+            
+            if(crossvalI > nrow(xMN))
+              stop("'crossvalI' must be less than the row number of 'x'", call. = FALSE)
+            
+            
+            ## Constants
+            
+            epsN <- .Machine[["double.eps"]] ## [1] 2.22e-16
+            
+            
+            ## Character to numeric convertion function (for classification)
+            
+            if(!is.null(yMCN) && mode(yMCN) == "character") {
+              
+              if(!is.null(yLevelVc)) {
+                claVc <- yLevelVc
+              } else
+                claVc <- sort(unique(drop(yMCN)))
+              
+              if(length(claVc) == 2) {
+                ## binary response kept as a single vector for OPLS-DA computations
+                .char2numF <- function(inpMCN,
+                                       c2nL = TRUE) {
+                  
+                  if(c2nL) {
+                    
                     outMCN <- inpMCN == claVc[2]
                     mode(outMCN) <- "numeric"
-
-                } else {
-
+                    
+                  } else {
+                    
                     outMCN <- matrix(claVc[as.numeric(inpMCN > 0.5) + 1],
                                      ncol = 1,
                                      dimnames = dimnames(inpMCN))
-
+                    
+                  }
+                  
+                  return(outMCN)
+                  
                 }
-
-                return(outMCN)
-
-            }
-
-        } else
-            .char2numF <- function(inpMCN,
-                                   c2nL = TRUE) {
-
-                if(c2nL) {
-
+                
+              } else
+                .char2numF <- function(inpMCN,
+                                       c2nL = TRUE) {
+                  
+                  if(c2nL) {
+                    
                     outMCN  <- t(sapply(drop(inpMCN),
                                         function(claC) as.numeric(claVc == claC)))
                     colnames(outMCN) <- claVc
-
-
-                } else {
-
+                    
+                    
+                  } else {
+                    
                     outMCN <- t(t(apply(inpMCN, 1,
                                         function(rowVn) claVc[which(rowVn == max(rowVn))[1]])))
                     colnames(outMCN) <- "y1"
-
+                    
+                  }
+                  
+                  return(outMCN)
+                  
                 }
-
-                return(outMCN)
-
+              
+            } else
+              .char2numF <- NULL
+            
+            
+            ####   Computations   ####
+            
+            
+            ## rownames and colnames
+            
+            if(is.null(rownames(xMN)))
+              if(!is.null(yMCN) && !is.null(rownames(yMCN))) {
+                rownames(xMN) <- rownames(yMCN)
+              } else
+                rownames(xMN) <- paste0("s", 1:nrow(xMN))
+            if(is.null(colnames(xMN)))
+              colnames(xMN) <- paste0("x", 1:ncol(xMN))
+            
+            if(!is.null(yMCN)) {
+              if(is.null(rownames(yMCN)))
+                rownames(yMCN) <- rownames(xMN)
+              if(is.null(colnames(yMCN)))
+                colnames(yMCN) <- paste0("y", 1:ncol(yMCN))
             }
-
-    } else
-        .char2numF <- NULL
-
-
-    ##------------------------------------
-    ##   Computations
-    ##------------------------------------
-
-
-    ## rownames and colnames
-
-    if(is.null(rownames(xMN)))
-        if(!is.null(yMCN) && !is.null(rownames(yMCN))) {
-            rownames(xMN) <- rownames(yMCN)
-        } else
-            rownames(xMN) <- paste0("s", 1:nrow(xMN))
-    if(is.null(colnames(xMN)))
-        colnames(xMN) <- paste0("x", 1:ncol(xMN))
-
-    if(!is.null(yMCN)) {
-        if(is.null(rownames(yMCN)))
-            rownames(yMCN) <- rownames(xMN)
-        if(is.null(colnames(yMCN)))
-            colnames(yMCN) <- paste0("y", 1:ncol(yMCN))
-    }
-
-    ## Log10 transformation
-    ##---------------------
-
-    if(log10L)
-        xMN <- .log10F(xMN)
-
-
-    ## Test indices
-    ##-------------
-
-    obsIniVi <- 1:nrow(xMN)
-
-    if(!is.null(subset)) {
-        subsetL <- TRUE
-        if(length(subset) == 1 && subset == "odd") {
-
-            if(mode(yMCN) == "numeric")
-                subsetVi <- seq(1, nrow(xMN), by = 2)
-            else {
-                subsetVi <- integer()
-                for(claC in unique(drop(yMCN)))
+            
+            ## Log10 transformation
+            
+            if(log10L)
+              xMN <- .log10F(xMN)
+            
+            
+            ## Test indices
+            
+            obsIniVi <- 1:nrow(xMN)
+            
+            if(!is.null(subset)) {
+              subsetL <- TRUE
+              if(length(subset) == 1 && subset == "odd") {
+                
+                if(mode(yMCN) == "numeric")
+                  subsetVi <- seq(1, nrow(xMN), by = 2)
+                else {
+                  subsetVi <- integer()
+                  for(claC in unique(drop(yMCN)))
                     subsetVi <- c(subsetVi,
                                   which(drop(yMCN) == claC)[seq(1, sum(drop(yMCN) == claC), by = 2)])
-                subsetVi <- sort(subsetVi)
-            }
-        } else
-            subsetVi <- subset
-        if(crossvalI > length(subsetVi))
-            stop("'crossvalI' must be less than the number of samples in the subset", call. = FALSE)
-    } else {
-        subsetL <- FALSE
-        subsetVi <- numeric()
-    }
-
-
-    ## Filtering out zero variance variables
-    ##--------------------------------------
-
-    xVarIndLs <- list()
-    xVarIndLs[[1]] <- 1:nrow(xMN)
-
-    if(subsetL) {
-        xVarIndLs[[1]] <- subsetVi
-    } ## else if(!is.null(yMCN) && ncol(yMCN) == 1 && nrow(xMN) >= 2 * crossvalI)
-      ##   for(cvkN in 1:crossvalI)
-      ##       xVarIndLs <- c(xVarIndLs, list(setdiff(1:nrow(xMN), cvaOutLs[[cvkN]])))
-
-    xVarVarLs <- lapply(xVarIndLs,
-                        function(xVarVi) {
-                            apply(xMN[xVarVi, , drop = FALSE],
-                                  2,
-                                  function(colVn) var(colVn, na.rm = TRUE))
-                        })
-
-    xZeroVarVi <- integer()
-    for(k in 1:length(xVarVarLs))
-        xZeroVarVi <- union(xZeroVarVi, which(xVarVarLs[[k]] < epsN))
-
-    if(length(xZeroVarVi) > 0) {
-        names(xZeroVarVi) <- colnames(xMN)[xZeroVarVi]
-        xMN <- xMN[, -xZeroVarVi, drop = FALSE]
-        warning("The variance of the ",
-                length(xZeroVarVi),
-                " following variables is less than ",
-                signif(epsN, 2),
-                " in the full or partial (cross-validation) dataset: these variables will be removed:\n",
-                paste(names(xZeroVarVi), collapse = ", "),
-                call. = FALSE)
-    }
-
-
-    ## Core
-    ##-----
-
-    opl <- .coreF(xMN = xMN,
-                  yMCN = yMCN,
-                  orthoI = orthoI,
-                  predI = predI,
-                  scaleC = scaleC,
-                  algoC = algoC,
-                  crossvalI = crossvalI,
-                  subsetL = subsetL,
-                  subsetVi = subsetVi,
-                  .char2numF = .char2numF)
-
-    opl@suppLs[["y"]] <- y
-
-    if(is.null(opl@suppLs[["yMCN"]])) {
-        opl@typeC <- "PCA"
-    } else {
-        if(ncol(opl@suppLs[["yMCN"]]) > 1 || mode(opl@suppLs[["yMCN"]]) == "numeric")
-            opl@typeC <- "PLS"
-        else
-            opl@typeC <- "PLS-DA"
-    }
-    if(opl@summaryDF[, "ort"] > 0)
-        opl@typeC <- paste("O", opl@typeC, sep = "")
-
-    opl@xZeroVarVi <- xZeroVarVi
-    ## opl@suppLs[["yLevelVc"]] <- yLevelVc
-
-
-    ## Permutation testing (Szymanska et al, 2012)
-
-    if(permI > 0) {
-
-        modSumVc <- colnames(opl@summaryDF)
-
-        permMN <- matrix(0,
-                         nrow = 1 + permI,
-                         ncol = length(modSumVc),
-                         dimnames = list(NULL, modSumVc))
-
-        perSimVn <- numeric(1 + permI)
-        perSimVn[1] <- 1
-
-
-        permMN[1, ] <- as.matrix(opl@summaryDF)
-
-        for(k in 1:permI) {
-
-            yVcn <- drop(opl@suppLs[["yMCN"]])
-            if(!subsetL) {
-                yPerVcn <- sample(yVcn)
+                  subsetVi <- sort(subsetVi)
+                }
+              } else
+                subsetVi <- subset
+              if(crossvalI > length(subsetVi))
+                stop("'crossvalI' must be less than the number of samples in the subset", call. = FALSE)
             } else {
-                yPerVcn <- numeric(nrow(xMN))
-                refVi <- opl@subsetVi
-                tesVi <- setdiff(1:nrow(xMN), refVi)
-                yPerVcn[refVi] <- sample(yVcn[refVi])
-                yPerVcn[tesVi] <- yVcn[tesVi]
+              subsetL <- FALSE
+              subsetVi <- numeric()
             }
-            yPerMCN <- matrix(yPerVcn, ncol = 1)
-
-            perOpl <- .coreF(xMN = xMN,
-                             yMCN = yPerMCN,
-                             orthoI = opl@summaryDF[, "ort"],
-                             predI = opl@summaryDF[, "pre"],
-                             scaleC = scaleC,
-                             algoC = algoC,
-                             crossvalI = crossvalI,
-                             subsetL = subsetL,
-                             subsetVi = opl@subsetVi,
-                             .char2numF = .char2numF)
-
-            permMN[1 + k, ] <- as.matrix(perOpl@summaryDF)
-
-            perSimVn[1 + k] <- .similarityF(opl@suppLs[["yMCN"]], yPerMCN,
-                                            .char2numF = .char2numF,
-                                            charL = mode(opl@suppLs[["yMCN"]]) == "character")
-
-        }
-
-        permMN <- cbind(permMN, sim = perSimVn)
-
-        perPvaVn <- c(pR2Y = (1 + length(which(permMN[-1, "R2Y(cum)"] >= permMN[1, "R2Y(cum)"]))) / (nrow(permMN) - 1),
-                      pQ2 = (1 + length(which(permMN[-1, "Q2(cum)"] >= permMN[1, "Q2(cum)"]))) / (nrow(permMN) - 1))
-        opl@summaryDF[, "pR2Y"] <- perPvaVn["pR2Y"]
-        opl@summaryDF[, "pQ2"] <- perPvaVn["pQ2"]
-
-        opl@suppLs[["permMN"]] <- permMN
-
-    }
-
-    ##------------------------------------
-    ##   Numerical results
-    ##------------------------------------
-
-    opl@descriptionMC <- rbind(samples = ifelse(!subsetL,
-                                   nrow(xMN),
-                                   length(subsetVi)),
-                               X_variables = ncol(xMN),
-                               near_zero_excluded_X_variables = length(opl@xZeroVarVi))
-
-    totN <- length(c(xMN))
-    nasN <- sum(is.na(c(xMN)))
-
-    if(!is.null(opl@suppLs[["yMCN"]])) {
-
-        opl@descriptionMC <- rbind(opl@descriptionMC,
+            
+            
+            ## Filtering out zero variance variables
+            
+            xVarIndLs <- list()
+            xVarIndLs[[1]] <- 1:nrow(xMN)
+            
+            if(subsetL) {
+              xVarIndLs[[1]] <- subsetVi
+            } ## else if(!is.null(yMCN) && ncol(yMCN) == 1 && nrow(xMN) >= 2 * crossvalI)
+            ##   for(cvkN in 1:crossvalI)
+            ##       xVarIndLs <- c(xVarIndLs, list(setdiff(1:nrow(xMN), cvaOutLs[[cvkN]])))
+            
+            xVarVarLs <- lapply(xVarIndLs,
+                                function(xVarVi) {
+                                  apply(xMN[xVarVi, , drop = FALSE],
+                                        2,
+                                        function(colVn) var(colVn, na.rm = TRUE))
+                                })
+            
+            xZeroVarVi <- integer()
+            for(k in 1:length(xVarVarLs))
+              xZeroVarVi <- union(xZeroVarVi, which(xVarVarLs[[k]] < epsN))
+            
+            if(length(xZeroVarVi) > 0) {
+              names(xZeroVarVi) <- colnames(xMN)[xZeroVarVi]
+              xMN <- xMN[, -xZeroVarVi, drop = FALSE]
+              warning("The variance of the ",
+                      length(xZeroVarVi),
+                      " following variables is less than ",
+                      signif(epsN, 2),
+                      " in the full or partial (cross-validation) dataset: these variables will be removed:\n",
+                      paste(names(xZeroVarVi), collapse = ", "),
+                      call. = FALSE)
+            }
+            
+            
+            ## Core
+            
+            opl <- .coreF(xMN = xMN,
+                          yMCN = yMCN,
+                          orthoI = orthoI,
+                          predI = predI,
+                          scaleC = scaleC,
+                          algoC = algoC,
+                          crossvalI = crossvalI,
+                          subsetL = subsetL,
+                          subsetVi = subsetVi,
+                          .char2numF = .char2numF)
+            
+            opl@suppLs[["y"]] <- y
+            
+            if(is.null(opl@suppLs[["yMCN"]])) {
+              opl@typeC <- "PCA"
+            } else {
+              if(ncol(opl@suppLs[["yMCN"]]) > 1 || mode(opl@suppLs[["yMCN"]]) == "numeric")
+                opl@typeC <- "PLS"
+              else
+                opl@typeC <- "PLS-DA"
+            }
+            if(opl@summaryDF[, "ort"] > 0)
+              opl@typeC <- paste("O", opl@typeC, sep = "")
+            
+            opl@xZeroVarVi <- xZeroVarVi
+            ## opl@suppLs[["yLevelVc"]] <- yLevelVc
+            
+            
+            ## Permutation testing (Szymanska et al, 2012)
+            
+            if(permI > 0) {
+              
+              modSumVc <- colnames(opl@summaryDF)
+              
+              permMN <- matrix(0,
+                               nrow = 1 + permI,
+                               ncol = length(modSumVc),
+                               dimnames = list(NULL, modSumVc))
+              
+              perSimVn <- numeric(1 + permI)
+              perSimVn[1] <- 1
+              
+              
+              permMN[1, ] <- as.matrix(opl@summaryDF)
+              
+              for(k in 1:permI) {
+                
+                yVcn <- drop(opl@suppLs[["yMCN"]])
+                if(!subsetL) {
+                  yPerVcn <- sample(yVcn)
+                } else {
+                  yPerVcn <- numeric(nrow(xMN))
+                  refVi <- opl@subsetVi
+                  tesVi <- setdiff(1:nrow(xMN), refVi)
+                  yPerVcn[refVi] <- sample(yVcn[refVi])
+                  yPerVcn[tesVi] <- yVcn[tesVi]
+                }
+                yPerMCN <- matrix(yPerVcn, ncol = 1)
+                
+                perOpl <- .coreF(xMN = xMN,
+                                 yMCN = yPerMCN,
+                                 orthoI = opl@summaryDF[, "ort"],
+                                 predI = opl@summaryDF[, "pre"],
+                                 scaleC = scaleC,
+                                 algoC = algoC,
+                                 crossvalI = crossvalI,
+                                 subsetL = subsetL,
+                                 subsetVi = opl@subsetVi,
+                                 .char2numF = .char2numF)
+                
+                permMN[1 + k, ] <- as.matrix(perOpl@summaryDF)
+                
+                perSimVn[1 + k] <- .similarityF(opl@suppLs[["yMCN"]], yPerMCN,
+                                                .char2numF = .char2numF,
+                                                charL = mode(opl@suppLs[["yMCN"]]) == "character")
+                
+              }
+              
+              permMN <- cbind(permMN, sim = perSimVn)
+              
+              perPvaVn <- c(pR2Y = (1 + length(which(permMN[-1, "R2Y(cum)"] >= permMN[1, "R2Y(cum)"]))) / (nrow(permMN) - 1),
+                            pQ2 = (1 + length(which(permMN[-1, "Q2(cum)"] >= permMN[1, "Q2(cum)"]))) / (nrow(permMN) - 1))
+              opl@summaryDF[, "pR2Y"] <- perPvaVn["pR2Y"]
+              opl@summaryDF[, "pQ2"] <- perPvaVn["pQ2"]
+              
+              opl@suppLs[["permMN"]] <- permMN
+              
+            }
+            
+            ####   Numerical results   ####
+            
+            opl@descriptionMC <- rbind(samples = ifelse(!subsetL,
+                                                        nrow(xMN),
+                                                        length(subsetVi)),
+                                       X_variables = ncol(xMN),
+                                       near_zero_excluded_X_variables = length(opl@xZeroVarVi))
+            
+            totN <- length(c(xMN))
+            nasN <- sum(is.na(c(xMN)))
+            
+            if(!is.null(opl@suppLs[["yMCN"]])) {
+              
+              opl@descriptionMC <- rbind(opl@descriptionMC,
                                          Y_variables = ncol(opl@suppLs[["yMCN"]]))
-        totN <- totN + length(c(opl@suppLs[["yMCN"]]))
-        nasN <- nasN + sum(is.na(c(opl@suppLs[["yMCN"]])))
-
-    }
-
-    opl@descriptionMC <- rbind(opl@descriptionMC,
-                               missing_values = paste0(nasN, " (", round(nasN / totN * 100), "%)"))
-
-
-    ## Raw summary
-    ##------------
-
-    opl@suppLs[["topLoadI"]] <- 3
-
-    if(ncol(xMN) > opl@suppLs[["topLoadI"]]) {
-        xVarVn <- apply(xMN, 2, var)
-        names(xVarVn) <- 1:length(xVarVn)
-        xVarVn <- sort(xVarVn)
-        xVarSorVin <- as.numeric(names(xVarVn[seq(1, length(xVarVn), length = opl@suppLs[["topLoadI"]])]))
-        opl@suppLs[["xSubIncVarMN"]] <- xMN[, xVarSorVin, drop = FALSE]
-    } else
-        opl@suppLs[["xSubIncVarMN"]] <- xMN
-
-    if(ncol(xMN) <= 100) {
-
-        xCorMN <- cor(xMN, use = "pairwise.complete.obs")
-        xCorMN[lower.tri(xCorMN, diag = TRUE)] <- 0
-
-        if(ncol(xMN) > opl@suppLs[["topLoadI"]]) {
-
-            xCorNexDF <- which(abs(xCorMN) >= sort(abs(xCorMN), decreasing = TRUE)[opl@suppLs[["topLoadI"]] + 1],
-                               arr.ind = TRUE)
-
-            xCorDisMN <- matrix(0,
-                                nrow = nrow(xCorNexDF),
-                                ncol = nrow(xCorNexDF),
-                                dimnames = list(colnames(xMN)[xCorNexDF[, "row"]],
-                                    colnames(xMN)[xCorNexDF[, "col"]]))
-
-            for(k in 1:nrow(xCorDisMN))
-                xCorDisMN[k, k] <- xCorMN[xCorNexDF[k, "row"], xCorNexDF[k, "col"]]
-
-        } else
-            xCorDisMN <- xCorMN
-
-        opl@suppLs[["xCorMN"]] <- xCorDisMN
-
-        rm(xCorDisMN)
-
-    }
-
-    ## Printing
-    ##---------
-
-    if(printL) {
-        show(opl)
-        warnings()
-    }
-
-    ## Plotting
-    ##---------
-
-    if(plotL)
-        plot(opl, typeVc = "summary")
-
-    ## Closing connection
-    ##-------------------
-
-    if(!is.null(.sinkC)) ## Used in the Galaxy module
-        sink()
-
-    ## Returning
-    ##----------
-
-    return(invisible(opl))
-
-})
+              totN <- totN + length(c(opl@suppLs[["yMCN"]]))
+              nasN <- nasN + sum(is.na(c(opl@suppLs[["yMCN"]])))
+              
+            }
+            
+            opl@descriptionMC <- rbind(opl@descriptionMC,
+                                       missing_values = paste0(nasN, " (", round(nasN / totN * 100), "%)"))
+            
+            
+            ## Raw summary
+            
+            opl@suppLs[["topLoadI"]] <- 3
+            
+            if(ncol(xMN) > opl@suppLs[["topLoadI"]]) {
+              xVarVn <- apply(xMN, 2, var)
+              names(xVarVn) <- 1:length(xVarVn)
+              xVarVn <- sort(xVarVn)
+              xVarSorVin <- as.numeric(names(xVarVn[seq(1, length(xVarVn), length = opl@suppLs[["topLoadI"]])]))
+              opl@suppLs[["xSubIncVarMN"]] <- xMN[, xVarSorVin, drop = FALSE]
+            } else
+              opl@suppLs[["xSubIncVarMN"]] <- xMN
+            
+            if(ncol(xMN) <= 100) {
+              
+              xCorMN <- cor(xMN, use = "pairwise.complete.obs")
+              xCorMN[lower.tri(xCorMN, diag = TRUE)] <- 0
+              
+              if(ncol(xMN) > opl@suppLs[["topLoadI"]]) {
+                
+                xCorNexDF <- which(abs(xCorMN) >= sort(abs(xCorMN), decreasing = TRUE)[opl@suppLs[["topLoadI"]] + 1],
+                                   arr.ind = TRUE)
+                
+                xCorDisMN <- matrix(0,
+                                    nrow = nrow(xCorNexDF),
+                                    ncol = nrow(xCorNexDF),
+                                    dimnames = list(colnames(xMN)[xCorNexDF[, "row"]],
+                                                    colnames(xMN)[xCorNexDF[, "col"]]))
+                
+                for(k in 1:nrow(xCorDisMN))
+                  xCorDisMN[k, k] <- xCorMN[xCorNexDF[k, "row"], xCorNexDF[k, "col"]]
+                
+              } else
+                xCorDisMN <- xCorMN
+              
+              opl@suppLs[["xCorMN"]] <- xCorDisMN
+              
+              rm(xCorDisMN)
+              
+            }
+            
+            ## Printing
+            
+            if(printL) {
+              show(opl)
+              warnings()
+            }
+            
+            ## Plotting
+            
+            if(plotL)
+              plot(opl, typeVc = "summary")
+            
+            ## Closing connection
+            
+            if(!is.null(.sinkC)) ## Used in the Galaxy module
+              sink()
+            
+            ## Returning
+            
+            return(invisible(opl))
+            
+          })
 
 
 #' Show method for 'opls' objects
@@ -853,7 +843,6 @@ setMethod("plot", signature(x = "opls"),
 
 
     ## Checking arguments
-    ##-------------------
 
     if(!all(typeVc %in% c('correlation', 'outlier', 'overview', 'permutation', 'predict-train', 'predict-test', 'x-loading', 'x-score', 'x-variance', 'xy-score', 'xy-weight')))
         stop("'typeVc' elements must be either 'correlation', 'outlier', 'overview', 'permutation', 'predict-train', 'predict-test', 'x-loading', 'x-score', 'x-variance', 'xy-score', 'xy-weight'", call. = FALSE)
@@ -1008,7 +997,6 @@ setMethod("plot", signature(x = "opls"),
 
 
     ## Observation and variable names and colors
-    ##------------------------------------------
 
     ## obsLabVc
 
@@ -1055,7 +1043,6 @@ setMethod("plot", signature(x = "opls"),
 
 
     ## Layout
-    ##-------
 
     if(!parDevNewL && length(typeVc) != 1)
         stop("'typeVc' must be of length 1 when 'parDevNewL' is set to FALSE", call. = FALSE)
@@ -1073,7 +1060,6 @@ setMethod("plot", signature(x = "opls"),
 
 
     ## Par
-    ##----
 
     if(layL) {
         marVn <- c(4.6, 4.1, 2.6, 1.6)
@@ -1086,7 +1072,6 @@ setMethod("plot", signature(x = "opls"),
 
 
     ## Graph
-    ##------
 
     for(ploC in typeVc)
         .plotF(ploC,
@@ -1121,7 +1106,6 @@ setMethod("plot", signature(x = "opls"),
 
 
     ## Closing connection
-    ##-------------------
 
     if(!is.null(.sinkC)) ## Used in the Galaxy module
         sink()

@@ -6,12 +6,12 @@
 \alias{plot.opls}
 \title{Plot Method for (O)PLS(-DA)}
 \usage{
-\S4method{plot}{opls}(x, y, typeVc = c("correlation", "outlier", "overview",
-  "permutation", "predict-train", "predict-test", "summary", "x-loading",
-  "x-score", "x-variance", "xy-score", "xy-weight")[7], parAsColFcVn = NA,
-  parCexN = 0.8, parCompVi = c(1, 2), parDevNewL = TRUE,
-  parEllipsesL = NA, parLabVc = NA, parTitleL = TRUE, file.pdfC = NULL,
-  .sinkC = NULL, ...)
+\S4method{plot}{opls}(x, y, typeVc = c("correlation", "outlier",
+  "overview", "permutation", "predict-train", "predict-test", "summary",
+  "x-loading", "x-score", "x-variance", "xy-score", "xy-weight")[7],
+  parAsColFcVn = NA, parCexN = 0.8, parCompVi = c(1, 2),
+  parDevNewL = TRUE, parEllipsesL = NA, parLabVc = NA,
+  parTitleL = TRUE, file.pdfC = NULL, .sinkC = NULL, ...)
 }
 \arguments{
 \item{x}{An S4 object of class \code{opls}, created by the \code{opls}

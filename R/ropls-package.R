@@ -67,6 +67,7 @@
 #' data(sacurine)
 #' attach(sacurine)
 #' sacurine.plsda <- opls(dataMatrix, sampleMetadata[, "gender"])
+#' plot(sacurine.plsda, parPaletteVc = c("green4", "magenta"))
 #'
 #' #### OPLS-DA
 #'
@@ -83,6 +84,9 @@
 #'                                                       title = "sacurine"))
 #'                                                       
 #' sacPlsda <- opls(sacSet, "gender")
+#' sacSet <- getEset(sacPlsda)
+#' head(Biobase::pData(sacSet))
+#' head(Biobase::fData(sacSet))
 #' 
 #' detach(sacurine)
 #'

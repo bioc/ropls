@@ -1,7 +1,6 @@
 Package: ropls
 Type: Package
-Title: PCA, PLS(-DA) and OPLS(-DA) for multivariate analysis and
-    feature selection of omics data
+Title: PCA, PLS(-DA) and OPLS(-DA) for multivariate analysis and feature selection of omics data
 Version: 1.15.8
 Date: 2019-02-09
 Author: Etienne A. Thevenot <etienne.thevenot@cea.fr>

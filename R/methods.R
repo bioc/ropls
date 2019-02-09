@@ -1002,6 +1002,7 @@ setMethod("print", "opls",
 #' @param parLabVc Optional character vector for the labels of observations on
 #' the plot; default is NA [ie row names of 'x', if available, or indices of
 #' 'x', otherwise, will be used]
+#' @param parPaletteVc Optional character vector of colors to be used in the plots
 #' @param parTitleL Should the titles of the plots be printed on the graphics
 #' (default = TRUE); It may be convenient to set this argument to FALSE when
 #' the user wishes to add specific titles a posteriori
@@ -1030,16 +1031,19 @@ setMethod("print", "opls",
 #'     else
 #'         subset <- NULL
 #'
-#'     opLs <- opls(dataMatrix, sampleMetadata[, "gender"],
-#'                  predI = ifelse(typeC != "xy-weight", 1, 2),
-#'                  orthoI = ifelse(typeC != "xy-weight", 1, 0),
-#'                  permI = ifelse(typeC == "permutation", 10, 0),
-#'                  subset = subset,
-#'                  printL = FALSE, plotL = FALSE)
+#'     plsModel <- opls(dataMatrix, sampleMetadata[, "gender"],
+#'                      predI = ifelse(typeC != "xy-weight", 1, 2),
+#'                      orthoI = ifelse(typeC != "xy-weight", 1, 0),
+#'                      permI = ifelse(typeC == "permutation", 10, 0),
+#'                      subset = subset,
+#'                      printL = FALSE, plotL = FALSE)
 #'
-#'     plot(opLs, typeVc = typeC)
+#'     plot(plsModel, typeVc = typeC)
 #'
 #' }
+#' 
+#' sacPlsda <- opls(dataMatrix, sampleMetadata[, "gender"])
+#' plot(sacPlsda, parPaletteVc = c("green4", "magenta"))
 #'
 #' detach(sacurine)
 #'
@@ -1264,7 +1268,7 @@ setMethod("plot", signature(x = "opls"),
              call. = FALSE)
       
       if(any(is.na(palChkVl)))
-        stop("The following elements from 'parPaletteVc' could not be interpreted as colors:\n",
+        stop("The following element(s) from 'parPaletteVc' could not be interpreted as colors:\n",
              paste(names(palChkVl)[is.na(palChkVl)], collapse = ", "),
              call. = FALSE)
       

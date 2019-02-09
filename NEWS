@@ -1,3 +1,23 @@
+CHANGES IN VERSION 1.15.8
+------------------------------
+
+NEW FEATURE
+
+    o 'plot' method: parPaletteVc argument to specify colors
+    
+
+CHANGES IN VERSION 1.15.6
+------------------------------
+
+NEW FEATURE
+
+    o Application to ExpressionSet: first 2 scores and loadings, as well as fitted values and VIP now returned in the pData and fData
+    
+INTERNAL MODIFICATION
+
+    o Unit testing switched from 'RUnit' to 'testthat'
+
+
 CHANGES IN VERSION 1.15.4
 ------------------------------
 

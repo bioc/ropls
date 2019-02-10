@@ -60,6 +60,10 @@ An S4 class to store PCA and (O)PLS(-DA) models: Objects can be created by calls
 \item{\code{weightStarMN}}{Numerical matrix of projections (W*; same dimensions as loadingMN); whereas columns of weightMN are derived from successively deflated matrices, columns of weightStarMN relate to the original 'x' matrix: T = XW*; W*=W(P'W)inv}
 
 \item{\code{suppLs}}{List of additional objects to be used internally by the 'print', 'plot', and 'predict' methods}
+
+\item{\code{eset}}{ExpressionSet: when 'opls' has been applied to an ExpressionSet, the instance with additional
+columns in pData containing the scores and predictions, and in fData containing the loadings, VIP, coefficients
+are stored here}
 }}
 
 \section{Objects from the Class}{

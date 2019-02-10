@@ -1,13 +1,24 @@
 Package: ropls
 Type: Package
 Title: PCA, PLS(-DA) and OPLS(-DA) for multivariate analysis and feature selection of omics data
-Version: 1.15.8
-Date: 2019-02-09
+Version: 1.15.10
+Date: 2019-02-10
 Author: Etienne A. Thevenot <etienne.thevenot@cea.fr>
 Maintainer: Etienne A. Thevenot <etienne.thevenot@cea.fr>
-biocViews: Regression, Classification, PrincipalComponent, Transcriptomics,
-    Proteomics, Metabolomics, Lipidomics, MassSpectrometry, ImmunoOncology
-Description: Latent variable modeling with Principal Component Analysis(PCA) and Partial Least Squares (PLS) are powerful methods for visualization, regression, classification, and feature selection of omics data where the number of variables exceeds the number of samples and with multicollinearity among variables. Orthogonal Partial Least Squares (OPLS) enables to separately model the variation correlated (predictive) to the factor of interest and the uncorrelated (orthogonal) variation. While performing similarly to PLS, OPLS facilitates interpretation. Successful applications of these chemometrics techniques include spectroscopic data such as Raman spectroscopy, nuclear magnetic resonance (NMR), mass spectrometry (MS) in metabolomics and proteomics, but also transcriptomics data. In addition to scores, loadings and weights plots, the package provides metrics and graphics to determine the optimal number of components (e.g. with the R2 and Q2 coefficients), check the validity of the model by permutation testing, detect outliers, and perform feature selection (e.g. with Variable Importance in Projection or regression coefficients). The package can be accessed via a user interface on the Workflow4Metabolomics.org online resource for computational metabolomics (built upon the Galaxy environment).
+biocViews: Regression, Classification, PrincipalComponent, Transcriptomics, Proteomics, Metabolomics,
+    Lipidomics, MassSpectrometry, ImmunoOncology
+Description: Latent variable modeling with Principal Component Analysis(PCA) and Partial Least Squares (PLS) are
+    powerful methods for visualization, regression, classification, and feature selection of omics data where the
+    number of variables exceeds the number of samples and with multicollinearity among variables. Orthogonal Partial
+    Least Squares (OPLS) enables to separately model the variation correlated (predictive) to the factor of interest
+    and the uncorrelated (orthogonal) variation. While performing similarly to PLS, OPLS facilitates interpretation.
+    Successful applications of these chemometrics techniques include spectroscopic data such as Raman spectroscopy,
+    nuclear magnetic resonance (NMR), mass spectrometry (MS) in metabolomics and proteomics, but also transcriptomics
+    data. In addition to scores, loadings and weights plots, the package provides metrics and graphics to determine 
+    the optimal number of components (e.g. with the R2 and Q2 coefficients), check the validity of the model by 
+    permutation testing, detect outliers, and perform feature selection (e.g. with Variable Importance in Projection 
+    or regression coefficients). The package can be accessed via a user interface on the Workflow4Metabolomics.org 
+    online resource for computational metabolomics (built upon the Galaxy environment).
 Imports:
     Biobase,
     methods
@@ -20,7 +31,7 @@ Suggests:
     testthat
 VignetteBuilder: knitr
 License: CeCILL
-Lazy data: yes
+LazyLoad: yes
 URL: http://dx.doi.org/10.1021/acs.jproteome.5b00354
 NeedsCompilation: no
 RoxygenNote: 6.1.1

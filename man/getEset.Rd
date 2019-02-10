@@ -19,11 +19,10 @@ function.}
 \value{
 An S4 object of class \code{ExpressionSet} which contains the dataMatrix (t(exprs(eset))),
 and the sampleMetadata (pData(eset)) and variableMetadata (fData(eset)) with the additional columns
-containing the scores, loadings, VIP, etc.
+containing the scores, predictions, loadings, VIP, coefficients etc.
 }
 \description{
-Extracts the indices of the samples used for building the model (when a
-subset argument has been specified)
+Extracts the complemented ExpressionSet when opls has been applied to an ExpressionSet
 }
 \examples{
 

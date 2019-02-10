@@ -1,3 +1,10 @@
+CHANGES IN VERSION 1.15.10
+------------------------------
+
+INTERNAL MODIFICATION
+
+    o 'eset' is now a slot of the 'opls' class (used when the 'opls' method is applied to an ExpressionSet instance)
+
 CHANGES IN VERSION 1.15.8
 ------------------------------
 

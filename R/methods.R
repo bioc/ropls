@@ -13,7 +13,7 @@ setMethod("opls", signature(x = "ExpressionSet"),
                           stop("'y' must be the name of a column of the sampleMetadata slot of the 'ExpressionSet' instance")
                       } else {
                           rspFcVcn <- pData(x)[, y]
-                          opl <- opls(t(exprs(x)), rspFcVcn, ...)
+                          opl <- ropls::opls(t(exprs(x)), rspFcVcn, ...)
                       }
                   }
               }
@@ -69,7 +69,7 @@ setMethod("opls", signature(x = "ExpressionSet"),
 
                 fitMCN <- fitted(opl)
 
-                fitDF <- as.data.frame(fitMCN)[sampleNames(x), , drop = FALSE]
+                fitDF <- as.data.frame(fitMCN, stringsAsFactors = FALSE)[sampleNames(x), , drop = FALSE]
                 
                 colnames(fitDF) <- paste0(rspModC,
                                            "_fitted")
@@ -78,7 +78,7 @@ setMethod("opls", signature(x = "ExpressionSet"),
                 
               }
 
-              pData(x) <- cbind.data.frame(pData(x), tCompDF)
+              pData(x) <- Biobase::combine(pData(x), tCompDF)
 
               ## x-loadings and VIP
 
@@ -104,9 +104,9 @@ setMethod("opls", signature(x = "ExpressionSet"),
                   colnames(pCompMN)[(ncol(pCompMN) - ncol(coeMN) + 1):ncol(pCompMN)] <- paste0(rspModC, "_", colnames(coeMN), "-COEFF")
               }
               pCompDF <- as.data.frame(pCompMN)[featureNames(x), , drop = FALSE]
-              fData(x) <- cbind.data.frame(fData(x), pCompDF)
+              fData(x) <- Biobase::combine(fData(x), pCompDF)
 
-              opl@suppLs$eset <- x
+              opl@eset <- x
               
               opl
 
@@ -1807,15 +1807,14 @@ setMethod("predict", "opls",
 
 #' getEset method
 #'
-#' Extracts the indices of the samples used for building the model (when a
-#' subset argument has been specified)
+#' Extracts the complemented ExpressionSet when opls has been applied to an ExpressionSet
 #'
 #' @aliases getEset getEset, opls-method
 #' @param object An S4 object of class \code{opls}, created by \code{opls}
 #' function.
 #' @return An S4 object of class \code{ExpressionSet} which contains the dataMatrix (t(exprs(eset))),
 #' and the sampleMetadata (pData(eset)) and variableMetadata (fData(eset)) with the additional columns
-#' containing the scores, loadings, VIP, etc.
+#' containing the scores, predictions, loadings, VIP, coefficients etc.
 #' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
 #' @examples
 #'
@@ -1841,7 +1840,7 @@ setMethod("predict", "opls",
 #' @export
 setMethod("getEset", "opls",
           function(object) {
-            return(object@suppLs$eset)
+            return(object@eset)
           })
 
 

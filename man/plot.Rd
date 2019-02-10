@@ -55,6 +55,8 @@ provided (PCA case), or when 'y' is a character factor ((O)PLS-DA cases).}
 the plot; default is NA [ie row names of 'x', if available, or indices of
 'x', otherwise, will be used]}
 
+\item{parPaletteVc}{Optional character vector of colors to be used in the plots}
+
 \item{parTitleL}{Should the titles of the plots be printed on the graphics
 (default = TRUE); It may be convenient to set this argument to FALSE when
 the user wishes to add specific titles a posteriori}
@@ -89,16 +91,19 @@ for(typeC in c("correlation", "outlier", "overview",
     else
         subset <- NULL
 
-    opLs <- opls(dataMatrix, sampleMetadata[, "gender"],
-                 predI = ifelse(typeC != "xy-weight", 1, 2),
-                 orthoI = ifelse(typeC != "xy-weight", 1, 0),
-                 permI = ifelse(typeC == "permutation", 10, 0),
-                 subset = subset,
-                 printL = FALSE, plotL = FALSE)
+    plsModel <- opls(dataMatrix, sampleMetadata[, "gender"],
+                     predI = ifelse(typeC != "xy-weight", 1, 2),
+                     orthoI = ifelse(typeC != "xy-weight", 1, 0),
+                     permI = ifelse(typeC == "permutation", 10, 0),
+                     subset = subset,
+                     printL = FALSE, plotL = FALSE)
 
-    plot(opLs, typeVc = typeC)
+    plot(plsModel, typeVc = typeC)
 
 }
+
+sacPlsda <- opls(dataMatrix, sampleMetadata[, "gender"])
+plot(sacPlsda, parPaletteVc = c("green4", "magenta"))
 
 detach(sacurine)
 

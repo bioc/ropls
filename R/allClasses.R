@@ -29,6 +29,9 @@
 #' @slot uMN (O)PLS: Numerical matrix of Y scores (U; same dimensions as scoreMN); Y = UC' + G
 #' @slot weightStarMN Numerical matrix of projections (W*; same dimensions as loadingMN); whereas columns of weightMN are derived from successively deflated matrices, columns of weightStarMN relate to the original 'x' matrix: T = XW*; W*=W(P'W)inv
 #' @slot suppLs List of additional objects to be used internally by the 'print', 'plot', and 'predict' methods
+#' @slot eset ExpressionSet: when 'opls' has been applied to an ExpressionSet, the instance with additional
+#' columns in pData containing the scores and predictions, and in fData containing the loadings, VIP, coefficients
+#' are stored here
 #' @name opls-class
 #' @rdname opls-class
 #' @docType class
@@ -104,4 +107,5 @@ setClass(Class = "opls",
              uMN = "matrix",
              weightStarMN = "matrix",
              coMN = "matrix",
-             suppLs = "list"))
+             suppLs = "list",
+             eset = "ExpressionSet"))

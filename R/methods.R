@@ -138,7 +138,7 @@ setMethod("opls", signature(x = "data.frame"),
 #' opls,matrix-method
 #' @docType methods
 #' @param x Numerical data frame or matrix (observations x variables; NAs are
-#' allowed); or ExpressionSet object with non empty assayData, for PCA, and
+#' allowed); or ExpressionSet object with non empty exprs, for PCA, and
 #' phenoData@data, for (O)PLS(-DA), slots
 #' @param y Response to be modelled: Either 1) 'NULL' for PCA (default) or 2) a
 #' numerical vector (same length as 'x' row number) for single response (O)PLS,
@@ -267,7 +267,8 @@ setMethod("opls", signature(x = "data.frame"),
 #'
 #' #### Application to an ExpressionSet
 #' 
-#' sacSet <- Biobase::ExpressionSet(assayData = t(dataMatrix), 
+#' exprs <- t(dataMatrix)
+#' sacSet <- Biobase::ExpressionSet(assayData = exprs, 
 #'                                  phenoData = new("AnnotatedDataFrame", 
 #'                                                  data = sampleMetadata), 
 #'                                  featureData = new("AnnotatedDataFrame", 
@@ -1821,7 +1822,8 @@ setMethod("predict", "opls",
 #' data(sacurine)
 #' attach(sacurine)
 #' 
-#' sacSet <- Biobase::ExpressionSet(assayData = t(dataMatrix), 
+#' exprs <- t(dataMatrix)
+#' sacSet <- Biobase::ExpressionSet(assayData = exprs, 
 #'                                  phenoData = new("AnnotatedDataFrame", 
 #'                                                  data = sampleMetadata), 
 #'                                  featureData = new("AnnotatedDataFrame", 

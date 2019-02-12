@@ -508,7 +508,7 @@ The **ExpressionSet** class from the
 bioconductor package has been developed to conveniently handle preprocessed
 omics objects, including the variables x samples matrix of intensities, and data
 frames containing the sample and variable metadata [@Huber2015]. The matrix and
-the two data frames can be accessed by the `exprs`, `pData` and `fData`
+the two data frames can be accessed by the `assayData`, `pData` and `fData`
 respectively (note that the data matrix is stored in the object with samples in
 columns).
 
@@ -521,14 +521,16 @@ from the *sacurine* data set, and we subsequently perform an OPLS-DA.
 
 ```{r expressionset_code, eval = FALSE}
 library(Biobase)
-sacSet <- ExpressionSet(assayData = t(dataMatrix),
+exprs <- t(dataMatrix)
+sacSet <- ExpressionSet(assayData = exprs,
 phenoData = new("AnnotatedDataFrame", data = sampleMetadata))
 opls(sacSet, "gender", orthoI = NA)
 ```
 
 ```{r expressionset_figure, echo = FALSE, message = FALSE, warning = FALSE}
 library(Biobase)
-sacSet <- ExpressionSet(assayData = t(dataMatrix),
+exprs <- t(dataMatrix)
+sacSet <- ExpressionSet(assayData = exprs,
 phenoData = new("AnnotatedDataFrame", data = sampleMetadata))
 eset.oplsda <- opls(sacSet, "gender", orthoI = NA, plotL = FALSE)
 layout(matrix(1:4, nrow = 2, byrow = TRUE))

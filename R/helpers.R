@@ -1906,7 +1906,7 @@
 } ## .plotF
 
 ## Transforms a character or numeric vector into colors
-.plotColorF <- function(namVcn, palVc) {
+.plotColorF <- function(namVcn, palVc = NA) {
   
   if(any(is.na(palVc))) {
     ## 16 color palette without 'gray'

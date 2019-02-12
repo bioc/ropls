@@ -20,7 +20,7 @@
 }
 \arguments{
 \item{x}{Numerical data frame or matrix (observations x variables; NAs are
-allowed); or ExpressionSet object with non empty assayData, for PCA, and
+allowed); or ExpressionSet object with non empty exprs, for PCA, and
 phenoData@data, for (O)PLS(-DA), slots}
 
 \item{y}{Response to be modelled: Either 1) 'NULL' for PCA (default) or 2) a
@@ -163,7 +163,8 @@ sacurine.oplsda <- opls(dataMatrix, sampleMetadata[, "gender"], predI = 1, ortho
 
 #### Application to an ExpressionSet
 
-sacSet <- Biobase::ExpressionSet(assayData = t(dataMatrix), 
+exprs <- t(dataMatrix)
+sacSet <- Biobase::ExpressionSet(assayData = exprs, 
                                  phenoData = new("AnnotatedDataFrame", 
                                                  data = sampleMetadata), 
                                  featureData = new("AnnotatedDataFrame", 

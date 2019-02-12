@@ -267,8 +267,7 @@ setMethod("opls", signature(x = "data.frame"),
 #'
 #' #### Application to an ExpressionSet
 #' 
-#' exprs <- t(dataMatrix)
-#' sacSet <- Biobase::ExpressionSet(assayData = exprs, 
+#' sacSet <- Biobase::ExpressionSet(assayData = t(dataMatrix), 
 #'                                  phenoData = new("AnnotatedDataFrame", 
 #'                                                  data = sampleMetadata), 
 #'                                  featureData = new("AnnotatedDataFrame", 
@@ -1822,8 +1821,7 @@ setMethod("predict", "opls",
 #' data(sacurine)
 #' attach(sacurine)
 #' 
-#' exprs <- t(dataMatrix)
-#' sacSet <- Biobase::ExpressionSet(assayData = exprs, 
+#' sacSet <- Biobase::ExpressionSet(assayData = t(dataMatrix), 
 #'                                  phenoData = new("AnnotatedDataFrame", 
 #'                                                  data = sampleMetadata), 
 #'                                  featureData = new("AnnotatedDataFrame", 

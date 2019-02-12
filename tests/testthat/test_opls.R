@@ -251,9 +251,7 @@ test_that("PLSDA_ExpressionSet", {
   
   data(sacurine)
   
-  exprs <- t(sacurine[["dataMatrix"]])
-  
-  sacSet <- Biobase::ExpressionSet(assayData = exprs,
+  sacSet <- Biobase::ExpressionSet(assayData = t(sacurine[["dataMatrix"]]),
                                    phenoData = new("AnnotatedDataFrame",
                                                    data = sacurine[["sampleMetadata"]]),
                                    featureData = new("AnnotatedDataFrame",

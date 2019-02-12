@@ -163,8 +163,7 @@ sacurine.oplsda <- opls(dataMatrix, sampleMetadata[, "gender"], predI = 1, ortho
 
 #### Application to an ExpressionSet
 
-exprs <- t(dataMatrix)
-sacSet <- Biobase::ExpressionSet(assayData = exprs, 
+sacSet <- Biobase::ExpressionSet(assayData = t(dataMatrix), 
                                  phenoData = new("AnnotatedDataFrame", 
                                                  data = sampleMetadata), 
                                  featureData = new("AnnotatedDataFrame", 

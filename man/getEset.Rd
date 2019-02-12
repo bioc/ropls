@@ -29,8 +29,7 @@ Extracts the complemented ExpressionSet when opls has been applied to an Express
 data(sacurine)
 attach(sacurine)
 
-exprs <- t(dataMatrix)
-sacSet <- Biobase::ExpressionSet(assayData = exprs, 
+sacSet <- Biobase::ExpressionSet(assayData = t(dataMatrix), 
                                  phenoData = new("AnnotatedDataFrame", 
                                                  data = sampleMetadata), 
                                  featureData = new("AnnotatedDataFrame", 

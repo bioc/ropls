@@ -1325,6 +1325,29 @@
 .errorF <- function(x, y)
   sqrt(mean(drop((x - y)^2), na.rm = TRUE))
 
+.genVec <- function(ese,
+                    dimC = c("sample", "feature")[1],
+                    typC = c("character", "numeric")[1]) {
+  
+  switch(dimC,
+         sample = {
+           
+           vecVcn <- rep(NA, ncol(ese))
+           mode(vecVcn) <- typC
+           names(vecVcn) <- sampleNames(ese)
+           
+         },
+         feature = {
+           
+           vecVcn <- rep(NA, nrow(ese))
+           mode(vecVcn) <- typC
+           names(vecVcn) <- featureNames(ese)
+           
+         })
+  
+  vecVcn
+  
+}
 
 .log10F <- function(inpMN) {
   

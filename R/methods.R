@@ -45,34 +45,11 @@ setMethod("opls", signature(x = "ExpressionSet"),
               pdaDF <- pData(x)
               fdaDF <- fData(x)
               
-              .genVec <- function(dimC = c("sample", "feature")[1],
-                                  typC = c("character", "numeric")[1]) {
-                
-                switch(dimC,
-                       sample = {
-                         
-                         vecVcn <- rep(NA, ncol(x))
-                         mode(vecVcn) <- typC
-                         names(vecVcn) <- sampleNames(x)
-                         
-                       },
-                       feature = {
-                         
-                         vecVcn <- rep(NA, nrow(x))
-                         mode(vecVcn) <- typC
-                         names(vecVcn) <- featureNames(x)
-                         
-                       })
-                
-                vecVcn
-                
-              }
-              
               ## x-scores
                 
               if(sumDF[, "pre"] > 0) {
                 
-                scx1Vn <- .genVec("sample", "numeric")
+                scx1Vn <- .genVec(x, "sample", "numeric")
                 scx1Vn[rownames(scoreMN)] <- scoreMN[, 1]
                 pdaDF[, paste0(rspModC, "_xscor-p1")] <- scx1Vn
                 
@@ -80,13 +57,13 @@ setMethod("opls", signature(x = "ExpressionSet"),
               
               if(grepl("OPLS", modC) && sumDF[, "ort"] > 0) {
                 
-                scx2Vn <- .genVec("sample", "numeric")
+                scx2Vn <- .genVec(x, "sample", "numeric")
                 scx2Vn[rownames(orthoScoreMN)] <- orthoScoreMN[, 1]
                 pdaDF[, paste0(rspModC, "_xscor-o1")] <- scx2Vn
                 
               } else if(sumDF[, "pre"] > 1) {
                 
-                scx2Vn <- .genVec("sample", "numeric")
+                scx2Vn <- .genVec(x, "sample", "numeric")
                 scx2Vn[rownames(scoreMN)] <- scoreMN[, 2]
                 pdaDF[, paste0(rspModC, "_xscor-p2")] <- scx2Vn
                 
@@ -100,7 +77,7 @@ setMethod("opls", signature(x = "ExpressionSet"),
                 
                 for(colI in 1:ncol(fitMCN)) {
                   
-                  fitVcn <- .genVec("sample", mode(fitMCN))
+                  fitVcn <- .genVec(x, "sample", mode(fitMCN))
                   fitVcn[rownames(fitMCN)] <- fitMCN[, colI]
                   
                   pdaDF[, paste0(rspModC,
@@ -116,7 +93,7 @@ setMethod("opls", signature(x = "ExpressionSet"),
               
               if(sumDF[, "pre"] > 0) {
                 
-                loa1Vn <- .genVec("feature", "numeric")
+                loa1Vn <- .genVec(x, "feature", "numeric")
                 loa1Vn[rownames(loadingMN)] <- loadingMN[, 1]
                 fdaDF[, paste0(rspModC, "_xload-p1")] <- loa1Vn
                 
@@ -124,13 +101,13 @@ setMethod("opls", signature(x = "ExpressionSet"),
               
               if(grepl("OPLS", modC) && sumDF[, "ort"] > 0) {
                 
-                loa2Vn <- .genVec("feature", "numeric")
+                loa2Vn <- .genVec(x, "feature", "numeric")
                 loa2Vn[rownames(orthoLoadingMN)] <- orthoLoadingMN[, 1]
                 fdaDF[, paste0(rspModC, "_xload-o1")] <- loa2Vn
                 
               } else if(sumDF[, "pre"] > 1) {
                 
-                loa2Vn <- .genVec("feature", "numeric")
+                loa2Vn <- .genVec(x, "feature", "numeric")
                 loa2Vn[rownames(loadingMN)] <- loadingMN[, 2]
                 fdaDF[, paste0(rspModC, "_xload-p2")] <- loa2Vn
                 
@@ -140,7 +117,7 @@ setMethod("opls", signature(x = "ExpressionSet"),
 
               if(!is.null(vipVn)) {
                 
-                pvipVn <- .genVec("feature", "numeric")
+                pvipVn <- .genVec(x, "feature", "numeric")
                 pvipVn[names(vipVn)] <- vipVn
                 fdaDF[, paste0(rspModC,
                                "_VIP",
@@ -148,7 +125,7 @@ setMethod("opls", signature(x = "ExpressionSet"),
                                       "-pred",
                                       ""))] <- pvipVn
                 if(!is.null(orthoVipVn)) {
-                  ovipVn <- .genVec("feature", "numeric")
+                  ovipVn <- .genVec(x, "feature", "numeric")
                   ovipVn[names(orthoVipVn)] <- orthoVipVn
                   fdaDF[, paste0(rspModC,
                                  "_VIP-ortho")] <- ovipVn
@@ -161,7 +138,7 @@ setMethod("opls", signature(x = "ExpressionSet"),
                 
                 for(colI in 1:ncol(coeMN)) {
                   
-                  coeVn <- .genVec("feature", "numeric")
+                  coeVn <- .genVec(x, "feature", "numeric")
                   coeVn[rownames(coeMN)] <- coeMN[, colI]
                   
                   if(ncol(coeMN) == 1) {

@@ -1,3 +1,12 @@
+CHANGES IN VERSION 1.15.16
+------------------------------
+
+INTERNAL MODIFICATION
+
+    o modification of the way additional columns are added to the pData and fData of an ExpressionSet instance
+    
+    o 'Biobase' package now as 'depends' (not 'import') 
+
 CHANGES IN VERSION 1.15.14
 ------------------------------
 

@@ -15,6 +15,8 @@ getEset(object, ...)
 \arguments{
 \item{object}{An S4 object of class \code{opls}, created by \code{opls}
 function.}
+
+\item{...}{Currently not used}
 }
 \value{
 An S4 object of class \code{ExpressionSet} which contains the dataMatrix (t(exprs(eset))),

@@ -4,7 +4,7 @@ setMethod("opls", signature(x = "ExpressionSet"),
           function(x, y = NULL, ...) {
 
               if(is.null(y)) {
-                  opl <- opls(t(exprs(x)), ...)
+                  opl <- ropls::opls(t(exprs(x)), ...)
               } else {
                   if(!is.character(y)) {
                       stop("'y' must be a character when the 'opls' method is applied to an 'ExpressionSet' instance")
@@ -41,71 +41,140 @@ setMethod("opls", signature(x = "ExpressionSet"),
               rspModC <- gsub("-", "", modC)
               if(rspModC != "PCA")
                 rspModC <- paste0(make.names(y), "_", rspModC)
-
-              if(sumDF[, "pre"] + sumDF[, "ort"] < 2) {
-
-                tCompMN <- scoreMN
-                pCompMN <- loadingMN
-
-              } else {
-
-                if(sumDF[, "ort"] > 0) {
-                 tCompMN <- cbind(scoreMN[, 1], orthoScoreMN[, 1])
-                  pCompMN <- cbind(loadingMN[, 1], orthoLoadingMN[, 1])
-                  colnames(pCompMN) <- colnames(tCompMN) <- c("h1", "o1")
-                } else {
-                  tCompMN <- scoreMN[, c(1, 2), drop = FALSE]
-                  pCompMN <- loadingMN[, c(1, 2), drop = FALSE]
-                }
-
+              
+              pdaDF <- pData(x)
+              fdaDF <- fData(x)
+              
+              .genVec <- function(dimC = c("sample", "feature")[1],
+                                  typC = c("character", "numeric")[1]) {
+                
+                switch(dimC,
+                       sample = {
+                         
+                         vecVcn <- rep(NA, ncol(x))
+                         mode(vecVcn) <- typC
+                         names(vecVcn) <- sampleNames(x)
+                         
+                       },
+                       feature = {
+                         
+                         vecVcn <- rep(NA, nrow(x))
+                         mode(vecVcn) <- typC
+                         names(vecVcn) <- featureNames(x)
+                         
+                       })
+                
+                vecVcn
+                
+              }
+              
+              ## x-scores
+                
+              if(sumDF[, "pre"] > 0) {
+                
+                scx1Vn <- .genVec("sample", "numeric")
+                scx1Vn[rownames(scoreMN)] <- scoreMN[, 1]
+                pdaDF[, paste0(rspModC, "_xscor-p1")] <- scx1Vn
+                
+              }
+              
+              if(grepl("OPLS", modC) && sumDF[, "ort"] > 0) {
+                
+                scx2Vn <- .genVec("sample", "numeric")
+                scx2Vn[rownames(orthoScoreMN)] <- orthoScoreMN[, 1]
+                pdaDF[, paste0(rspModC, "_xscor-o1")] <- scx2Vn
+                
+              } else if(sumDF[, "pre"] > 1) {
+                
+                scx2Vn <- .genVec("sample", "numeric")
+                scx2Vn[rownames(scoreMN)] <- scoreMN[, 2]
+                pdaDF[, paste0(rspModC, "_xscor-p2")] <- scx2Vn
+                
               }
 
-              ## x-scores and prediction
-
-              colnames(tCompMN) <- paste0(rspModC, "_XSCOR-", colnames(tCompMN))
-              tCompDF <- as.data.frame(tCompMN)[sampleNames(x), , drop = FALSE]
+              ## prediction
 
               if(modC != "PCA") {
 
-                fitMCN <- fitted(opl)
-
-                fitDF <- as.data.frame(fitMCN, stringsAsFactors = FALSE)[sampleNames(x), , drop = FALSE]
+                fitMCN <- as.matrix(fitted(opl))
                 
-                colnames(fitDF) <- paste0(rspModC,
-                                           "_fitted")
-                
-                tCompDF <- cbind.data.frame(tCompDF, fitDF)
-                
-              }
-
-              pData(x) <- Biobase::combine(pData(x), tCompDF)
-
-              ## x-loadings and VIP
-
-              colnames(pCompMN) <- paste0(rspModC, "_XLOAD-", colnames(pCompMN))
-              if(!is.null(vipVn)) {
-                pCompMN <- cbind(pCompMN, vipVn)
-                colnames(pCompMN)[ncol(pCompMN)] <- paste0(rspModC,
-                                                           "_VIP",
-                                                           ifelse(!is.null(orthoVipVn),
-                                                                  "_pred",
-                                                                  ""))
-                if(!is.null(orthoVipVn)) {
-                  pCompMN <- cbind(pCompMN, orthoVipVn)
-                  colnames(pCompMN)[ncol(pCompMN)] <- paste0(rspModC,
-                                                             "_VIP_ortho")
+                for(colI in 1:ncol(fitMCN)) {
+                  
+                  fitVcn <- .genVec("sample", mode(fitMCN))
+                  fitVcn[rownames(fitMCN)] <- fitMCN[, colI]
+                  
+                  pdaDF[, paste0(rspModC,
+                                 ifelse(!is.null(colnames(fitMCN)[colI]),
+                                        paste0(colnames(fitMCN)[colI], "_"),
+                                        ""),
+                                 "_fitted")] <- fitVcn
+                  
                 }
               }
-              if(!is.null(coeMN)) {
-                pCompMN <- cbind(pCompMN, coeMN)
-                if(ncol(coeMN) == 1)
-                  colnames(pCompMN)[ncol(pCompMN)] <- paste0(rspModC, "_coef")
-                else
-                  colnames(pCompMN)[(ncol(pCompMN) - ncol(coeMN) + 1):ncol(pCompMN)] <- paste0(rspModC, "_", colnames(coeMN), "-COEFF")
-              }
-              pCompDF <- as.data.frame(pCompMN)[featureNames(x), , drop = FALSE]
-              fData(x) <- Biobase::combine(fData(x), pCompDF)
 
+              ## x-loadings
+              
+              if(sumDF[, "pre"] > 0) {
+                
+                loa1Vn <- .genVec("feature", "numeric")
+                loa1Vn[rownames(loadingMN)] <- loadingMN[, 1]
+                fdaDF[, paste0(rspModC, "_xload-p1")] <- loa1Vn
+                
+              }
+              
+              if(grepl("OPLS", modC) && sumDF[, "ort"] > 0) {
+                
+                loa2Vn <- .genVec("feature", "numeric")
+                loa2Vn[rownames(orthoLoadingMN)] <- orthoLoadingMN[, 1]
+                fdaDF[, paste0(rspModC, "_xload-o1")] <- loa2Vn
+                
+              } else if(sumDF[, "pre"] > 1) {
+                
+                loa2Vn <- .genVec("feature", "numeric")
+                loa2Vn[rownames(loadingMN)] <- loadingMN[, 2]
+                fdaDF[, paste0(rspModC, "_xload-p2")] <- loa2Vn
+                
+              }
+              
+              ## VIP
+
+              if(!is.null(vipVn)) {
+                
+                pvipVn <- .genVec("feature", "numeric")
+                pvipVn[names(vipVn)] <- vipVn
+                fdaDF[, paste0(rspModC,
+                               "_VIP",
+                               ifelse(!is.null(orthoVipVn),
+                                      "-pred",
+                                      ""))] <- pvipVn
+                if(!is.null(orthoVipVn)) {
+                  ovipVn <- .genVec("feature", "numeric")
+                  ovipVn[names(orthoVipVn)] <- orthoVipVn
+                  fdaDF[, paste0(rspModC,
+                                 "_VIP-ortho")] <- ovipVn
+                }
+              }
+              
+              ## coefficients
+              
+              if(!is.null(coeMN)) {
+                
+                for(colI in 1:ncol(coeMN)) {
+                  
+                  coeVn <- .genVec("feature", "numeric")
+                  coeVn[rownames(coeMN)] <- coeMN[, colI]
+                  
+                  if(ncol(coeMN) == 1) {
+                    fdaDF[, paste0(rspModC, "_coef")] <- coeVn
+                  } else
+                    fdaDF[, paste0(rspModC, "_", colnames(coeMN)[colI], "-coef")] <- coeVn
+                  
+                }
+              }
+              
+              pData(x) <- pdaDF
+              fData(x) <- fdaDF
+              
               opl@eset <- x
               
               opl
@@ -1257,7 +1326,7 @@ setMethod("plot", signature(x = "opls"),
       
       palChkVl <- sapply(parPaletteVc,
                          function(colC) {
-                           tryCatch(is.matrix(col2rgb(colC)), 
+                           tryCatch(is.matrix(grDevices::col2rgb(colC)), 
                                     error = function(e) FALSE)
                            
                          }) ## as proposed by Josh O'Brien on stackoverflow
@@ -1812,6 +1881,7 @@ setMethod("predict", "opls",
 #' @aliases getEset getEset, opls-method
 #' @param object An S4 object of class \code{opls}, created by \code{opls}
 #' function.
+#' @param ... Currently not used
 #' @return An S4 object of class \code{ExpressionSet} which contains the dataMatrix (t(exprs(eset))),
 #' and the sampleMetadata (pData(eset)) and variableMetadata (fData(eset)) with the additional columns
 #' containing the scores, predictions, loadings, VIP, coefficients etc.

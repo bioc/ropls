@@ -1,8 +1,8 @@
 Package: ropls
 Type: Package
 Title: PCA, PLS(-DA) and OPLS(-DA) for multivariate analysis and feature selection of omics data
-Version: 1.15.14
-Date: 2019-02-12
+Version: 1.15.16
+Date: 2019-02-13
 Author: Etienne A. Thevenot <etienne.thevenot@cea.fr>
 Maintainer: Etienne A. Thevenot <etienne.thevenot@cea.fr>
 biocViews: Regression, Classification, PrincipalComponent, Transcriptomics, Proteomics, Metabolomics,
@@ -19,8 +19,10 @@ Description: Latent variable modeling with Principal Component Analysis(PCA) and
     permutation testing, detect outliers, and perform feature selection (e.g. with Variable Importance in Projection 
     or regression coefficients). The package can be accessed via a user interface on the Workflow4Metabolomics.org 
     online resource for computational metabolomics (built upon the Galaxy environment).
+Depends:
+    Biobase
 Imports:
-    Biobase,
+    grDevices,
     methods
 Suggests:
     BiocGenerics,

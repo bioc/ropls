@@ -273,7 +273,7 @@ test_that("PLSDA_ExpressionSet", {
   
   sacSet <- getEset(sacPlsda)
 
-  testthat::expect_equivalent(Biobase::pData(sacSet)["HU_011", "gender_PLSDA_XSCOR-p2"],
+  testthat::expect_equivalent(Biobase::pData(sacSet)["HU_011", "gender_PLSDA_xscor-p2"],
                               3.396,
                               tolerance = 1e-3)
   testthat::expect_equivalent(Biobase::fData(sacSet)["1-Methyluric acid", "gender_PLSDA_VIP"],

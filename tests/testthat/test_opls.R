@@ -515,5 +515,10 @@ test_that("multiresponse", {
   
 })
 
+test_that("imageF", {
+  data(sacurine)
+  imageF(sacurine[['dataMatrix']])
+})
+
 
 

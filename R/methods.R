@@ -1651,18 +1651,18 @@ setMethod("coef", "opls",
 setMethod("residuals", "opls",
           function(object, ...) {
 
-    if(grepl("PLS", object@typeC)) {
+    if (grepl("PLS", object@typeC)) {
 
         fit <- fitted(object)
 
-        if(length(object@subsetVi) == 0) {
+        if (length(object@subsetVi) == 0) {
             trainVi <- 1:length(fit)
         } else
             trainVi <- object@subsetVi
 
-        if(mode(object@suppLs[["yMCN"]]) == "numeric") {
+        if (mode(object@suppLs[["yMCN"]]) == "numeric") {
             y <- object@suppLs[["y"]]
-            if(is.matrix(y))
+            if (is.matrix(y))
                 y <- y[trainVi, , drop = FALSE]
             else
                 y <- y[trainVi]

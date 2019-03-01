@@ -13,12 +13,13 @@ vignette: >
     Proteomics, Metabolomics, Lipidomics, MassSpectrometry}
 bibliography: "ropls-vignette.bib"
 output:
-  BiocStyle::html_document:
-    toc_float: true
+  BiocStyle::html_document
 ---
 
 ```{r global_options, include=FALSE}
-knitr::opts_chunk$set(fig.width=6, fig.height=6, fig.path='figures/')
+knitr::opts_chunk$set(fig.width = 6,
+                      fig.height = 6,
+                      fig.path = 'figures/')
 ```
 
 # The *ropls* package
@@ -100,7 +101,7 @@ The volunteers' **age**, **body mass index (bmi)**, and **gender** were recorded
 We first load the
 [ropls](http://bioconductor.org/packages/release/bioc/html/ropls.html) package:
 
-```{r load}
+```{r load, message = FALSE}
 library(ropls)
 ```
 
@@ -131,6 +132,12 @@ attach(sacurine)
 strF(dataMatrix)
 strF(sampleMetadata)
 strF(variableMetadata)
+```
+
+We may also have a look at the data matrix with the `imageF` function:
+
+```{r imageF}
+imageF(dataMatrix)
 ```
 
 ## Principal Component Analysis (PCA)

@@ -33,7 +33,7 @@ strF <- function(inpMF,
                                        typeof = typeof(inpMF),
                                        size = format(object.size(inpMF), units = "Mb"))
 
-                   if(numL)
+                   if (numL)
                        topDF <- cbind.data.frame(topDF,
                                                  data.frame(min = formatC(min(inpMF, na.rm = TRUE),
                                                                 digits = 2, format = "g"),
@@ -57,7 +57,7 @@ strF <- function(inpMF,
                                        size = format(object.size(inpMF), units = "Mb"),
                                        NAs = length(which(is.na(inpMF))))
 
-                   if(numL)
+                   if (numL)
                        topDF <- cbind.data.frame(topDF,
                                                  data.frame(min = formatC(min(inpMF, na.rm = TRUE),
                                                                 digits = 2, format = "g"),
@@ -75,14 +75,14 @@ strF <- function(inpMF,
 
                    claVc <- sapply(inpMF, data.class)
 
-                   if(length(claVc) > 2 * borderN)
+                   if (length(claVc) > 2 * borderN)
                        claVc <- c(head(claVc, borderN),
                                   "...",
                                   tail(claVc, borderN))
 
-                   if(!is.null(names(claVc))) {
+                   if (!is.null(names(claVc))) {
 
-                       if(length(claVc) > 2 * borderN)
+                       if (length(claVc) > 2 * borderN)
                            names(claVc)[borderN + 1] <- "..."
 
                        claDF <- as.data.frame(t(claVc))
@@ -115,25 +115,25 @@ strF <- function(inpMF,
 
     tabF <- function() {
 
-        if(typC %in% c("data.frame", "matrix")) {
+        if (typC %in% c("data.frame", "matrix")) {
 
             tabDF <- inpMF
 
             dimAbbVl <- dim(tabDF) > 2 * borderN
 
-            if(is.data.frame(tabDF)) {
-                if(dimAbbVl[2]) {
+            if (is.data.frame(tabDF)) {
+                if (dimAbbVl[2]) {
                     bordColVi <- c(1:borderN,
                                    (ncol(tabDF) - borderN + 1):ncol(tabDF))
                 } else
                     bordColVi <- 1:ncol(tabDF)
 
-                for(borderI in bordColVi)
-                    if(is.factor(tabDF[, borderI]))
+                for (borderI in bordColVi)
+                    if (is.factor(tabDF[, borderI]))
                         tabDF[, borderI] <- as.character(tabDF[, borderI])
             }
 
-            if(all(dimAbbVl)) {
+            if (all(dimAbbVl)) {
 
                 tabDF <- rbind(cbind(tabDF[1:borderN, 1:borderN, drop = FALSE],
                                      ... = rep("...", times = borderN),
@@ -143,17 +143,17 @@ strF <- function(inpMF,
                                      ... = rep("...", times = borderN),
                                      tabDF[(nrow(tabDF) - borderN + 1):nrow(tabDF), (ncol(tabDF) - borderN + 1):ncol(tabDF), drop = FALSE]))
 
-                if(is.matrix(inpMF)) {
+                if (is.matrix(inpMF)) {
 
-                    if(!is.null(rownames(inpMF)) && any(duplicated(rownames(tabDF)))) {
+                    if (!is.null(rownames(inpMF)) && any(duplicated(rownames(tabDF)))) {
                         rownames(tabDF) <- make.names(rownames(tabDF),
                                                       unique = TRUE)
-                    } else if(is.null(rownames(inpMF)))
+                    } else if (is.null(rownames(inpMF)))
                         rownames(tabDF) <- c(1:borderN,
                                              "...",
                                              (nrow(inpMF) - borderN + 1):nrow(inpMF))
 
-                    if(is.null(colnames(inpMF)))
+                    if (is.null(colnames(inpMF)))
                         colnames(tabDF) <- c(1:borderN,
                                              "...",
                                              (ncol(inpMF) - borderN + 1):ncol(inpMF))
@@ -164,26 +164,26 @@ strF <- function(inpMF,
 
                 rownames(tabDF)[borderN + 1] <- "..."
 
-            } else if(dimAbbVl[1]) {
+            } else if (dimAbbVl[1]) {
 
-                if(is.data.frame(tabDF) && is.null(colnames(tabDF)))
+                if (is.data.frame(tabDF) && is.null(colnames(tabDF)))
                     colnames(tabDF) <- 1:ncol(tabDF)
 
                 tabDF <- rbind(tabDF[1:borderN, , drop = FALSE],
                                rep("...", ncol(tabDF)),
                                tabDF[(nrow(tabDF) - borderN + 1):nrow(tabDF), , drop = FALSE])
 
-                if(is.matrix(inpMF)) {
+                if (is.matrix(inpMF)) {
 
-                    if(!is.null(rownames(inpMF)) && any(duplicated(rownames(tabDF)))) {
+                    if (!is.null(rownames(inpMF)) && any(duplicated(rownames(tabDF)))) {
                         rownames(tabDF) <- make.names(rownames(tabDF),
                                                       unique = TRUE)
-                    } else if(is.null(rownames(inpMF)))
+                    } else if (is.null(rownames(inpMF)))
                         rownames(tabDF) <- c(1:borderN,
                                              "...",
                                              (nrow(inpMF) - borderN + 1):nrow(inpMF))
 
-                    if(is.null(colnames(inpMF)))
+                    if (is.null(colnames(inpMF)))
                         colnames(tabDF) <- 1:ncol(inpMF)
 
                     tabDF <- as.data.frame(tabDF)
@@ -192,19 +192,19 @@ strF <- function(inpMF,
 
                 rownames(tabDF)[borderN + 1] <- "..."
 
-            } else if(dimAbbVl[2]) {
+            } else if (dimAbbVl[2]) {
 
                 tabDF <- cbind(tabDF[, 1:borderN, drop = FALSE],
                                ... = rep("...", times = nrow(tabDF)),
                                tabDF[, (ncol(tabDF) - borderN + 1):ncol(tabDF), drop = FALSE])
 
-                if(is.matrix(inpMF)) {
+                if (is.matrix(inpMF)) {
 
-                    if(!is.null(rownames(inpMF)) && any(duplicated(rownames(tabDF))))
+                    if (!is.null(rownames(inpMF)) && any(duplicated(rownames(tabDF))))
                         rownames(tabDF) <- make.names(rownames(tabDF),
                                                       unique = TRUE)
 
-                    if(is.null(colnames(inpMF)))
+                    if (is.null(colnames(inpMF)))
                         colnames(tabDF) <- c(1:borderN,
                                              "...",
                                              (ncol(inpMF) - borderN + 1):ncol(inpMF))
@@ -217,25 +217,25 @@ strF <- function(inpMF,
 
         } ## 'data.frame' and 'matrix'
 
-        if(typC == "vector") {
+        if (typC == "vector") {
 
             tabDF <- inpMF
 
-            if(numL)
+            if (numL)
                 tabDF <- round(tabDF, 3)
 
-            if(length(tabDF) > 2 * borderN) {
+            if (length(tabDF) > 2 * borderN) {
 
                 tabDF <- c(head(tabDF, borderN),
                            "...",
                            tail(tabDF, borderN))
 
-                if(!is.null(names(inpMF)))
+                if (!is.null(names(inpMF)))
                     names(tabDF)[borderN + 1] <- "..."
 
             }
 
-            if(!is.null(names(inpMF))) {
+            if (!is.null(names(inpMF))) {
 
                 tabDF <- as.data.frame(t(tabDF))
 
@@ -258,14 +258,14 @@ strF <- function(inpMF,
     } ## tabF
 
 
-    if(any(class(inpMF) %in% c("character", "integer", "logical", "numeric", "double"))) {
+    if (any(class(inpMF) %in% c("character", "integer", "logical", "numeric", "double"))) {
         typC <- "vector"
      } else
         typC <- class(inpMF)
 
     numL <- mode(inpMF) %in% c("numeric", "integer", "double")
 
-    if(!(typC %in% c("vector", "matrix", "data.frame"))) {
+    if (!(typC %in% c("vector", "matrix", "data.frame"))) {
         str(inpMF)
         return(invisible(NULL))
     }
@@ -276,6 +276,272 @@ strF <- function(inpMF,
 
 } ## strF
 
+
+#' Image of a numerical matrix
+#'
+#' Visualization of a numerical matrix
+#'
+#' @param matrixMN numerical matrix
+#' @param paletteC color palette to be used (either 'heat', 'revHeat', 'grey',
+#' 'revGrey', 'palette', 'ramp')
+#' @param mainC title (by default, the name of the matrixMN variable will be used)
+#' @param logC optional log transformation of the non negative values from
+#' matrixMN before plotting
+#' @return No output.
+#' @export
+#' @examples
+#' data(sacurine)
+#' ropls::imageF(sacurine[['dataMatrix']])
+imageF <- function(matrixMN,
+                   paletteC = c("heat",
+                                "revHeat",
+                                "grey",
+                                "revGrey",
+                                "palette",
+                                "ramp")[1],
+                   mainC = NA,
+                   logC = c("none", "log2", "log10")[1]) {
+  
+  maiC <- deparse(substitute(matrixMN))
+  if (!is.na(mainC))
+    maiC <- mainC
+  
+  imageMN <- t(matrixMN)[, rev(1:nrow(matrixMN)),
+                         drop = FALSE]
+  
+  if (logC %in% c("log2", "log10")) {
+    
+    imageML <- imageMN > 0
+    imageMN[imageML] <- eval(parse(text = paste0(logC,
+                                                 "(imageMN[imageML])")))
+    
+  }
+  
+  palHeaVc <- .palette(imageMN, paletteC)
+  
+  opar <- par(no.readonly = TRUE)
+  
+  marLs <- list(sca = c(0.6, 4.1, 4.6, 0.9),
+                ima = c(0.6, 3.1, 4.6, 0.6))
+  
+  par(font = 2,
+      font.axis = 2,
+      font.lab = 2,
+      pch = 18)
+  
+  layout(matrix(c(2, 1),
+                nrow = 1),
+         widths = c(5.5, 1.5))
+  
+  ## sca: Color scale
+  
+  par(mar = marLs[["sca"]])
+  
+  .colorScale(imageMN, palHeaVc)
+  
+  ## ima: Image
+  
+  par(mar = marLs[["ima"]])
+  
+  .image(imageMN, palHeaVc)
+  
+  ## title
+  
+  graphics::title(maiC, outer = TRUE, line = -1.2)
+  
+  par(opar)
+  
+}
+
+.palette <- function(imaMN, typC = c("heat",
+                                     "revHeat",
+                                     "grey",
+                                     "revGrey",
+                                     "palette",
+                                     "ramp")[1]) {
+  
+  switch(typC,
+         heat = {return(rev(grDevices::rainbow(ceiling(256 * 1.5))[1:256]))},
+         revHeat = {return(grDevices::rainbow(ceiling(256 * 1.5))[1:256])},
+         grey = {return(grDevices::grey((0:255) / 256))},
+         revGrey = {return(rev(grDevices::grey((0:255) / 256)))},
+         palette = {return(seq(from = min(imaMN),
+                               to = max(imaMN),
+                               by = 1))},
+         ramp = {return(grDevices::colorRampPalette(c("blue", "orange", "red"),
+                                                    space = "rgb")(256)[1:256])})
+  
+}
+
+.prettyAxis <- function(axValVn,
+                        lengthI) {
+  
+  if (NA %in% axValVn) {
+    warning("NA in axValVn")
+    axValVn <- as.vector(stats::na.omit(axValVn))
+  }
+  
+  if (lengthI < length(axValVn))
+    stop("The length of in vector must be inferior to the length of the length parameter.")
+  
+  if (length(axValVn) < lengthI)
+    axValVn <- seq(from = min(axValVn), to = max(axValVn),
+                 length.out = lengthI)
+  
+  pretAxValVn <- pretty(axValVn)
+  
+  pretLabVn <- pretAtVn <- c()
+  
+  for (n in 1:length(pretAxValVn))
+    if (min(axValVn) < pretAxValVn[n] && pretAxValVn[n] < max(axValVn)) {
+      pretLabVn <- c(pretLabVn, pretAxValVn[n])
+      pretAtVn <- c(pretAtVn, which(abs(axValVn - pretAxValVn[n]) == min(abs(axValVn - pretAxValVn[n])))[1])
+    }
+  
+  return(list(atVn = pretAtVn,
+              labVn = pretLabVn))
+  
+}
+
+.colorScale <- function(imaMN, palVc) {
+  
+  ylimVn <- c(0, 256)
+  ybottomVn <- 0:255
+  ytopVn <- 1:256
+  
+  plot(x = 0,
+       y = 0,
+       font.axis = 2,
+       font.lab = 2,
+       type = "n",
+       xlim = c(0, 1),
+       ylim = ylimVn,
+       xlab = "",
+       ylab = "",
+       xaxs = "i",
+       yaxs = "i",
+       xaxt = "n",
+       yaxt = "n")
+  
+  rect(xleft = 0,
+       ybottom = ybottomVn,
+       xright = 1,
+       ytop = ytopVn,
+       col = palVc,
+       border = NA)
+  
+  axis(at = .prettyAxis(c(ifelse(min(imaMN, na.rm = TRUE) == -Inf,
+                                 yes = 0,
+                                 no = min(imaMN, na.rm = TRUE)),
+                          max(imaMN, na.rm = TRUE)),
+                        256)$atVn,
+       font = 2,
+       font.axis = 2,
+       labels = .prettyAxis(c(ifelse(min(imaMN, na.rm = TRUE) == -Inf,
+                                     yes = 0,
+                                     no = min(imaMN, na.rm = TRUE)),
+                              max(imaMN, na.rm = TRUE)),
+                            256)$labVn,
+       las = 1,
+       lwd = 2,
+       lwd.ticks = 2,
+       side = 2,
+       xpd = TRUE)
+  
+  graphics::arrows(par("usr")[1],
+                   par("usr")[4],
+                   par("usr")[1],
+                   par("usr")[3],
+                   code = 0,
+                   lwd = 2,
+                   xpd = TRUE)
+  
+  graphics::box(lwd = 2)
+  
+  
+}
+
+.image <- function(imaMN, palVc) {
+  
+  truncF <- function(stringVc, ncharI = 15) {
+    
+    truVc <- character(length(stringVc))
+    
+    for (i in 1:length(stringVc)) {
+      
+      strC <- stringVc[i]
+      nchI <- nchar(strC)
+      
+      if (nchI <= ncharI) {
+        truVc[i] <- strC
+      } else {
+        truVc[i] <- paste0(substr(strC, 1, ncharI - 1), ".")
+      }
+    }
+    
+    truVc
+    
+  }
+  
+  graphics::image(x = 1:nrow(imaMN),
+                  y = 1:ncol(imaMN),
+                  z = imaMN,
+                  col = palVc,
+                  font.axis = 2,
+                  font.lab = 2,
+                  xaxt = "n",
+                  yaxt = "n",
+                  xlab = "",
+                  ylab = "")
+  
+  if (length(rownames(imaMN)) == 0) {
+    rowNamVc <- rep("", times = nrow(imaMN))
+  } else
+    rowNamVc <- rownames(imaMN)
+  
+  if (length(colnames(imaMN)) == 0) {
+    colNamVc <- rep("", times = ncol(imaMN))
+  } else
+    colNamVc <- colnames(imaMN)
+  
+  xlaVc <- paste0(paste0(rep("[", 2),
+                         c(1, nrow(imaMN)),
+                         rep("] ", 2)),
+                  rep("\n", times = 2),
+                  truncF(c(rowNamVc[1], tail(rowNamVc, 1))))
+  
+  for (k in 1:2)
+    graphics::axis(side = 3,
+                   hadj = c(0, 1)[k],
+                   at = c(1, nrow(imaMN))[k],
+                   cex = 0.8,
+                   font = 2,
+                   labels = xlaVc[k],
+                   line = -0.5,
+                   tick = FALSE)
+  
+  
+  ylaVc <- paste0(paste0(rep("[", times = 2),
+                         c(ncol(imaMN), 1),
+                         rep("]", times = 2)),
+                  rep("\n", times = 2),
+                  truncF(c(colNamVc[1], tail(colNamVc, 1))))
+  
+  for (k in 1:2)
+    graphics::axis(side = 2,
+                   at = c(1, ncol(imaMN))[k],
+                   cex = 0.8,
+                   font = 2,
+                   hadj = c(0, 1)[k],
+                   labels = ylaVc[k],
+                   las = 0,
+                   line = -0.5,
+                   lty = "blank",
+                   tick = FALSE)
+  
+  graphics::box(lwd = 2)
+  
+}
 
 #' fromW4M
 #'

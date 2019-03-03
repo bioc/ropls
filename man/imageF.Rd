@@ -5,19 +5,17 @@
 \title{Image of a numerical matrix}
 \usage{
 imageF(matrixMN, paletteC = c("heat", "revHeat", "grey", "revGrey",
-  "palette", "ramp")[1], mainC = NA, logC = c("none", "log2",
-  "log10")[1])
+  "palette", "ramp")[1], mainC = NA, logL = FALSE)
 }
 \arguments{
 \item{matrixMN}{numerical matrix}
 
-\item{paletteC}{color palette to be used (either 'heat', 'revHeat', 'grey',
-'revGrey', 'palette', 'ramp')}
+\item{paletteC}{color palette to be used (either 'heat' -default, 'revHeat',
+'grey', 'revGrey', 'palette', or 'ramp')}
 
 \item{mainC}{title (by default, the name of the matrixMN variable will be used)}
 
-\item{logC}{optional log transformation of the non negative values from
-matrixMN before plotting}
+\item{logL}{should the matrix values be log transformed?}
 }
 \value{
 No output.

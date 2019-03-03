@@ -282,11 +282,10 @@ strF <- function(inpMF,
 #' Visualization of a numerical matrix
 #'
 #' @param matrixMN numerical matrix
-#' @param paletteC color palette to be used (either 'heat', 'revHeat', 'grey',
-#' 'revGrey', 'palette', 'ramp')
+#' @param paletteC color palette to be used (either 'heat' -default, 'revHeat',
+#' 'grey', 'revGrey', 'palette', or 'ramp')
 #' @param mainC title (by default, the name of the matrixMN variable will be used)
-#' @param logC optional log transformation of the non negative values from
-#' matrixMN before plotting
+#' @param logL should the matrix values be log transformed?
 #' @return No output.
 #' @export
 #' @examples
@@ -300,7 +299,7 @@ imageF <- function(matrixMN,
                                 "palette",
                                 "ramp")[1],
                    mainC = NA,
-                   logC = c("none", "log2", "log10")[1]) {
+                   logL = FALSE) {
   
   maiC <- deparse(substitute(matrixMN))
   if (!is.na(mainC))
@@ -309,11 +308,10 @@ imageF <- function(matrixMN,
   imageMN <- t(matrixMN)[, rev(1:nrow(matrixMN)),
                          drop = FALSE]
   
-  if (logC %in% c("log2", "log10")) {
+  if (logL) {
     
-    imageML <- imageMN > 0
-    imageMN[imageML] <- eval(parse(text = paste0(logC,
-                                                 "(imageMN[imageML])")))
+    imagePosML <- imageMN > 0
+    imageMN[imagePosML] <- log(imageMN[imagePosML])
     
   }
   

@@ -1,8 +1,8 @@
 Package: ropls
 Type: Package
 Title: PCA, PLS(-DA) and OPLS(-DA) for multivariate analysis and feature selection of omics data
-Version: 1.15.22
-Date: 2019-03-03
+Version: 1.15.24
+Date: 2019-03-07
 Author: Etienne A. Thevenot <etienne.thevenot@cea.fr>
 Maintainer: Etienne A. Thevenot <etienne.thevenot@cea.fr>
 biocViews: Regression, Classification, PrincipalComponent, Transcriptomics, Proteomics, Metabolomics,
@@ -35,6 +35,7 @@ Suggests:
     testthat
 VignetteBuilder: knitr
 License: CeCILL
+Encoding: UTF-8
 LazyLoad: yes
 URL: http://dx.doi.org/10.1021/acs.jproteome.5b00354
 NeedsCompilation: no

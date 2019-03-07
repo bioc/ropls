@@ -1660,14 +1660,17 @@
             side = 1)
       
       
-      if(parEllipsesL) {
+      if (parEllipsesL) {
         par(lwd = 2)
-        for(colC in unique(ploColVc))
-          .plotEllipseF(ploMN[ploColVc == colC, , drop = FALSE],
-                        colC = colC)
+        for (colC in unique(ploColVc)) {
+          ploColVl <- ploColVc == colC
+          if (sum(ploColVl) > 1)
+            .plotEllipseF(ploMN[ploColVl, , drop = FALSE],
+                          colC = colC)
+        }
       }
       
-      if(!is.null(opl@suppLs[["yMCN"]])) {
+      if (!is.null(opl@suppLs[["yMCN"]])) {
         
         mtext(paste("R2Y", round(opl@summaryDF[, "R2Y(cum)"], 3), sep = "\n"),
               at = pu1N * ifelse(layL, 1, 0.8),

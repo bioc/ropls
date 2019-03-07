@@ -1,3 +1,10 @@
+CHANGES IN VERSION 1.15.24
+------------------------------
+
+MINOR MODIFICATION
+
+    o plot method: turning off ellipse display in case of a single sample the class
+
 CHANGES IN VERSION 1.15.22
 ------------------------------
 

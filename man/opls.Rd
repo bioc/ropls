@@ -16,7 +16,7 @@
   algoC = c("default", "nipals", "svd")[1], crossvalI = 7,
   log10L = FALSE, permI = 20, scaleC = c("none", "center", "pareto",
   "standard")[4], subset = NULL, printL = TRUE, plotL = TRUE,
-  .sinkC = NULL, ...)
+  .sinkC = NULL, fig.pdfC = NA, info.txtC = NA, ...)
 }
 \arguments{
 \item{x}{Numerical data frame or matrix (observations x variables; NAs are
@@ -75,15 +75,17 @@ training (in a classification scheme); use NULL [default] for no partition
 of the dataset; use 'odd' for a partition of the dataset in two equal sizes
 (with respect to the classes proportions)}
 
-\item{printL}{Logical: Should informations regarding the data set and the
-model be printed? [default = TRUE]}
+\item{printL}{Logical: deprecated: use the 'info.txtC' argument instead}
 
-\item{plotL}{Logical: Should the 'summary' plot be displayed? [default =
-TRUE]}
+\item{plotL}{Logical: deprecated: use the 'fig.pdfC' argument instead}
 
-\item{.sinkC}{Character: Name of the file for R output diversion [default =
-NULL: no diversion]; Diversion of messages is required for the integration
-into Galaxy}
+\item{.sinkC}{Character: deprecated: use the 'info.txtC' argument instead}
+
+\item{fig.pdfC}{Character: Figure filename ending with '.pdf'; default is NA
+(no saving; displaying instead); set to 'NULL' to prevent plotting}
+
+\item{info.txtC}{Character: Report filename for R output diversion [default =
+NA: no diversion]; set to 'NULL' to disable any verbose}
 }
 \value{
 An S4 object of class 'opls' containing the following slots:

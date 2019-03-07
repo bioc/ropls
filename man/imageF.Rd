@@ -5,7 +5,7 @@
 \title{Image of a numerical matrix}
 \usage{
 imageF(matrixMN, paletteC = c("heat", "revHeat", "grey", "revGrey",
-  "palette", "ramp")[1], mainC = NA, logL = FALSE)
+  "palette", "ramp")[1], mainC = NA, logL = FALSE, fig.pdfC = NA)
 }
 \arguments{
 \item{matrixMN}{numerical matrix}
@@ -16,6 +16,9 @@ imageF(matrixMN, paletteC = c("heat", "revHeat", "grey", "revGrey",
 \item{mainC}{title (by default, the name of the matrixMN variable will be used)}
 
 \item{logL}{should the matrix values be log transformed?}
+
+\item{fig.pdfC}{file name for the figure (with '.pdf' extension), if set to
+NA (default), the figure is displayed on the screen}
 }
 \value{
 No output.

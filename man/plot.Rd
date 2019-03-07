@@ -10,9 +10,9 @@
   "overview", "permutation", "predict-train", "predict-test", "summary",
   "x-loading", "x-score", "x-variance", "xy-score", "xy-weight")[7],
   parAsColFcVn = NA, parCexN = 0.8, parCompVi = c(1, 2),
-  parDevNewL = TRUE, parEllipsesL = NA, parLabVc = NA,
-  parPaletteVc = NA, parTitleL = TRUE, file.pdfC = NULL,
-  .sinkC = NULL, ...)
+  parEllipsesL = NA, parLabVc = NA, parPaletteVc = NA,
+  parTitleL = TRUE, file.pdfC = NULL, .sinkC = NULL,
+  parCexMetricN = NA, fig.pdfC = NA, info.txtC = NA, ...)
 }
 \arguments{
 \item{x}{An S4 object of class \code{opls}, created by the \code{opls}
@@ -44,9 +44,6 @@ relative to the default}
 \item{parCompVi}{Integer vector of length 2: indices of the two components
 to be displayed on the score plot (first two components by default)}
 
-\item{parDevNewL}{Should the graphics be displayed in a new window? 
-[default]}
-
 \item{parEllipsesL}{Should the Mahalanobis ellipses be drawn? If 'NA'
 [default], ellipses are drawn when either a character parAsColVcn is
 provided (PCA case), or when 'y' is a character factor ((O)PLS-DA cases).}
@@ -61,13 +58,18 @@ the plot; default is NA [ie row names of 'x', if available, or indices of
 (default = TRUE); It may be convenient to set this argument to FALSE when
 the user wishes to add specific titles a posteriori}
 
-\item{file.pdfC}{Figure filename (e.g. in case of batch mode) ending with
-'.pdf'; default is NULL (no
-saving; displaying instead)}
+\item{file.pdfC}{Character: deprecated; use the 'fig.pdfC' argument instead}
 
-\item{.sinkC}{Character: Name of the file for R output diversion [default =
-NULL: no diversion]; Diversion of messages is required for the integration
-into Galaxy}
+\item{.sinkC}{Character: deprecated; use the 'info.txtC' argument instead}
+
+\item{parCexMetricN}{Numeric: magnification of the metrics at the bottom of
+score plot (default -NA- is 1 in 1x1 and 0.7 in 2x2 display)}
+
+\item{fig.pdfC}{Figure filename (e.g. in case of batch mode) ending with
+'.pdf'; default is NA (no saving; displaying instead)}
+
+\item{info.txtC}{Character: Report filename for R output diversion [default =
+NA: no diversion]}
 
 \item{...}{Currently not used.}
 }
@@ -96,7 +98,8 @@ for(typeC in c("correlation", "outlier", "overview",
                      orthoI = ifelse(typeC != "xy-weight", 1, 0),
                      permI = ifelse(typeC == "permutation", 10, 0),
                      subset = subset,
-                     printL = FALSE, plotL = FALSE)
+                     info.txtC = NULL,
+                     fig.pdfC = NULL)
 
     plot(plsModel, typeVc = typeC)
 

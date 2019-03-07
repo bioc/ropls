@@ -1,3 +1,10 @@
+CHANGES IN VERSION 1.15.26
+------------------------------
+
+NEW FEATURE
+
+    o plot method: dev.new() is not called internally any more; consequently the 'parDevNewL' argument has been removed; layout can be either 1x1 or 2x2, depending on the length of the 'typeVc' argument; 'fig.pdfC' and 'info.txtC' arguments have been added for compatibility reasons with other packages; they have the same role as 'file.pdfC' and '.sinkC' which now generate a deprecated warning. 
+
 CHANGES IN VERSION 1.15.24
 ------------------------------
 

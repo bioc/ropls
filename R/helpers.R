@@ -1369,6 +1369,7 @@
                    obsLegVc,
                    layL,
                    parCexN,
+                   parCexMetN,
                    parEllipsesL,
                    parPaletteVc,
                    parTitleL,
@@ -1391,7 +1392,7 @@
     
     ploColVc <- "black"
     
-    if(ploC == "correlation") {
+    if (ploC == "correlation") {
       
       maiC <- "Variable correlations"
       
@@ -1403,7 +1404,7 @@
                      parCompVi[2],
                      sep = "")
       
-      if(opl@summaryDF[, "ort"] > 0)
+      if (opl@summaryDF[, "ort"] > 0)
         yLabC <- paste("with tOrtho",
                        parCompVi[2] - 1,
                        sep = "")
@@ -1631,13 +1632,13 @@
            labels = pexLabVc,
            pos = rep(c(4, 2, 3, 1), each = opl@suppLs[["topLoadI"]]))
       
-    } else if(ploC == "x-score") {
+    } else if (ploC == "x-score") {
       
       lines(sqrt(var(ploMN[, 1]) * hotFisN) * cos(radVn),
             sqrt(var(ploMN[, 2]) * hotFisN) * sin(radVn))
       ## Tenenhaus98, p87
       
-      if(!is.null(obsLegVc))
+      if (!is.null(obsLegVc))
         .plotLegendF(obsLegVc,
                      ploMN,
                      paletteVc = parPaletteVc)
@@ -1650,11 +1651,12 @@
       pu1N <- par("usr")[1]
       pu2N <- par("usr")[2]
       
-      cexRqcN <- ifelse(layL, 0.7, 1)
+      if (is.na(parCexMetN))
+        parCexMetN <- ifelse(layL, 0.7, 1)
       
       mtext(paste("R2X", round(opl@summaryDF[, "R2X(cum)"], 3), sep = "\n"),
             at = pu1N * ifelse(layL, 1.35, 1.1),
-            cex = cexRqcN,
+            cex = parCexMetN,
             font = 1,
             line = 3,
             side = 1)
@@ -1674,47 +1676,47 @@
         
         mtext(paste("R2Y", round(opl@summaryDF[, "R2Y(cum)"], 3), sep = "\n"),
               at = pu1N * ifelse(layL, 1, 0.8),
-              cex = cexRqcN,
+              cex = parCexMetN,
               font = 1,
               line = 3,
               side = 1)
         
         mtext(paste("Q2Y", round(opl@summaryDF[, "Q2(cum)"], 3), sep = "\n"),
               at = pu1N * ifelse(layL, 0.6, 0.4),
-              cex = cexRqcN,
+              cex = parCexMetN,
               font = 1,
               line = 3,
               side = 1)
         
         mtext(paste("RMSEE", round(opl@summaryDF[, "RMSEE"], 3), sep = "\n"),
               at =  -pu1N * ifelse(layL, 0.6, 0.4),
-              cex = cexRqcN,
+              cex = parCexMetN,
               font = 1,
               line = 3,
               side = 1)
         
         mtext(paste("pre", opl@summaryDF[, "pre"], sep = "\n"),
               at = -pu1N * ifelse(layL, 0.92, 0.7),
-              cex = cexRqcN,
+              cex = parCexMetN,
               font = 1,
               line = 3,
               side = 1)
         
-        if(opl@summaryDF[, "ort"] > 0)
+        if (opl@summaryDF[, "ort"] > 0)
           mtext(paste("ort", opl@summaryDF[, "ort"], sep = "\n"),
                 at = -pu1N * ifelse(layL, 1.1, 0.9),
-                cex = cexRqcN,
+                cex = parCexMetN,
                 font = 1,
                 line = 3,
                 side = 1)
         
       }
       
-    } else if(ploC == "xy-score") {
+    } else if (ploC == "xy-score") {
       
       abline(0, 1)
       
-      if(!is.null(obsLegVc))
+      if (!is.null(obsLegVc))
         .plotLegendF(obsLegVc,
                      ploMN,
                      paletteVc = parPaletteVc)

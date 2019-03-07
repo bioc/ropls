@@ -2,172 +2,172 @@
 #' @export
 setMethod("opls", signature(x = "ExpressionSet"),
           function(x, y = NULL, ...) {
-
-              if(is.null(y)) {
-                  opl <- ropls::opls(t(exprs(x)), ...)
+            
+            if (is.null(y)) {
+              opl <- ropls::opls(t(exprs(x)), ...)
+            } else {
+              if (!is.character(y)) {
+                stop("'y' must be a character when the 'opls' method is applied to an 'ExpressionSet' instance")
               } else {
-                  if(!is.character(y)) {
-                      stop("'y' must be a character when the 'opls' method is applied to an 'ExpressionSet' instance")
-                  } else {
-                      if(!(y %in% colnames(pData(x)))) {
-                          stop("'y' must be the name of a column of the sampleMetadata slot of the 'ExpressionSet' instance")
-                      } else {
-                          rspFcVcn <- pData(x)[, y]
-                          opl <- ropls::opls(t(exprs(x)), rspFcVcn, ...)
-                      }
-                  }
-              }
-              
-              modC <- opl@typeC
-              sumDF <- getSummaryDF(opl)
-              scoreMN <- getScoreMN(opl)
-              loadingMN <- getLoadingMN(opl)
-              
-              vipVn <- coeMN <- orthoScoreMN <- orthoLoadingMN <- orthoVipVn <- NULL
-              
-              if(grepl("PLS", modC)) {
-                
-                vipVn <- getVipVn(opl)
-                coeMN <- coef(opl)
-                
-                if(grepl("OPLS", modC)) {
-                  orthoScoreMN <- getScoreMN(opl, orthoL = TRUE)
-                  orthoLoadingMN <- getLoadingMN(opl, orthoL = TRUE)
-                  orthoVipVn <- getVipVn(opl, orthoL = TRUE)
-                }
-                
-              }
-              
-              rspModC <- gsub("-", "", modC)
-              if(rspModC != "PCA")
-                rspModC <- paste0(make.names(y), "_", rspModC)
-              
-              pdaDF <- pData(x)
-              fdaDF <- fData(x)
-              
-              ## x-scores
-                
-              if(sumDF[, "pre"] > 0) {
-                
-                scx1Vn <- .genVec(x, "sample", "numeric")
-                scx1Vn[rownames(scoreMN)] <- scoreMN[, 1]
-                pdaDF[, paste0(rspModC, "_xscor-p1")] <- scx1Vn
-                
-              }
-              
-              if(grepl("OPLS", modC) && sumDF[, "ort"] > 0) {
-                
-                scx2Vn <- .genVec(x, "sample", "numeric")
-                scx2Vn[rownames(orthoScoreMN)] <- orthoScoreMN[, 1]
-                pdaDF[, paste0(rspModC, "_xscor-o1")] <- scx2Vn
-                
-              } else if(sumDF[, "pre"] > 1) {
-                
-                scx2Vn <- .genVec(x, "sample", "numeric")
-                scx2Vn[rownames(scoreMN)] <- scoreMN[, 2]
-                pdaDF[, paste0(rspModC, "_xscor-p2")] <- scx2Vn
-                
-              }
-
-              ## prediction
-
-              if(modC != "PCA") {
-
-                fitMCN <- as.matrix(fitted(opl))
-                
-                for(colI in 1:ncol(fitMCN)) {
-                  
-                  fitVcn <- .genVec(x, "sample", mode(fitMCN))
-                  fitVcn[rownames(fitMCN)] <- fitMCN[, colI]
-                  
-                  pdaDF[, paste0(rspModC,
-                                 ifelse(!is.null(colnames(fitMCN)[colI]),
-                                        paste0(colnames(fitMCN)[colI], "_"),
-                                        ""),
-                                 "_fitted")] <- fitVcn
-                  
+                if (!(y %in% colnames(pData(x)))) {
+                  stop("'y' must be the name of a column of the sampleMetadata slot of the 'ExpressionSet' instance")
+                } else {
+                  rspFcVcn <- pData(x)[, y]
+                  opl <- ropls::opls(t(exprs(x)), rspFcVcn, ...)
                 }
               }
-
-              ## x-loadings
+            }
+            
+            modC <- opl@typeC
+            sumDF <- getSummaryDF(opl)
+            scoreMN <- getScoreMN(opl)
+            loadingMN <- getLoadingMN(opl)
+            
+            vipVn <- coeMN <- orthoScoreMN <- orthoLoadingMN <- orthoVipVn <- NULL
+            
+            if (grepl("PLS", modC)) {
               
-              if(sumDF[, "pre"] > 0) {
-                
-                loa1Vn <- .genVec(x, "feature", "numeric")
-                loa1Vn[rownames(loadingMN)] <- loadingMN[, 1]
-                fdaDF[, paste0(rspModC, "_xload-p1")] <- loa1Vn
-                
+              vipVn <- getVipVn(opl)
+              coeMN <- coef(opl)
+              
+              if (grepl("OPLS", modC)) {
+                orthoScoreMN <- getScoreMN(opl, orthoL = TRUE)
+                orthoLoadingMN <- getLoadingMN(opl, orthoL = TRUE)
+                orthoVipVn <- getVipVn(opl, orthoL = TRUE)
               }
               
-              if(grepl("OPLS", modC) && sumDF[, "ort"] > 0) {
+            }
+            
+            rspModC <- gsub("-", "", modC)
+            if (rspModC != "PCA")
+              rspModC <- paste0(make.names(y), "_", rspModC)
+            
+            pdaDF <- pData(x)
+            fdaDF <- fData(x)
+            
+            ## x-scores
+            
+            if (sumDF[, "pre"] > 0) {
+              
+              scx1Vn <- .genVec(x, "sample", "numeric")
+              scx1Vn[rownames(scoreMN)] <- scoreMN[, 1]
+              pdaDF[, paste0(rspModC, "_xscor-p1")] <- scx1Vn
+              
+            }
+            
+            if (grepl("OPLS", modC) && sumDF[, "ort"] > 0) {
+              
+              scx2Vn <- .genVec(x, "sample", "numeric")
+              scx2Vn[rownames(orthoScoreMN)] <- orthoScoreMN[, 1]
+              pdaDF[, paste0(rspModC, "_xscor-o1")] <- scx2Vn
+              
+            } else if (sumDF[, "pre"] > 1) {
+              
+              scx2Vn <- .genVec(x, "sample", "numeric")
+              scx2Vn[rownames(scoreMN)] <- scoreMN[, 2]
+              pdaDF[, paste0(rspModC, "_xscor-p2")] <- scx2Vn
+              
+            }
+            
+            ## prediction
+            
+            if (modC != "PCA") {
+              
+              fitMCN <- as.matrix(fitted(opl))
+              
+              for (colI in 1:ncol(fitMCN)) {
                 
-                loa2Vn <- .genVec(x, "feature", "numeric")
-                loa2Vn[rownames(orthoLoadingMN)] <- orthoLoadingMN[, 1]
-                fdaDF[, paste0(rspModC, "_xload-o1")] <- loa2Vn
+                fitVcn <- .genVec(x, "sample", mode(fitMCN))
+                fitVcn[rownames(fitMCN)] <- fitMCN[, colI]
                 
-              } else if(sumDF[, "pre"] > 1) {
-                
-                loa2Vn <- .genVec(x, "feature", "numeric")
-                loa2Vn[rownames(loadingMN)] <- loadingMN[, 2]
-                fdaDF[, paste0(rspModC, "_xload-p2")] <- loa2Vn
+                pdaDF[, paste0(rspModC,
+                               ifelse(!is.null(colnames(fitMCN)[colI]),
+                                      paste0(colnames(fitMCN)[colI], "_"),
+                                      ""),
+                               "_fitted")] <- fitVcn
                 
               }
+            }
+            
+            ## x-loadings
+            
+            if (sumDF[, "pre"] > 0) {
               
-              ## VIP
-
-              if(!is.null(vipVn)) {
-                
-                pvipVn <- .genVec(x, "feature", "numeric")
-                pvipVn[names(vipVn)] <- vipVn
+              loa1Vn <- .genVec(x, "feature", "numeric")
+              loa1Vn[rownames(loadingMN)] <- loadingMN[, 1]
+              fdaDF[, paste0(rspModC, "_xload-p1")] <- loa1Vn
+              
+            }
+            
+            if (grepl("OPLS", modC) && sumDF[, "ort"] > 0) {
+              
+              loa2Vn <- .genVec(x, "feature", "numeric")
+              loa2Vn[rownames(orthoLoadingMN)] <- orthoLoadingMN[, 1]
+              fdaDF[, paste0(rspModC, "_xload-o1")] <- loa2Vn
+              
+            } else if (sumDF[, "pre"] > 1) {
+              
+              loa2Vn <- .genVec(x, "feature", "numeric")
+              loa2Vn[rownames(loadingMN)] <- loadingMN[, 2]
+              fdaDF[, paste0(rspModC, "_xload-p2")] <- loa2Vn
+              
+            }
+            
+            ## VIP
+            
+            if (!is.null(vipVn)) {
+              
+              pvipVn <- .genVec(x, "feature", "numeric")
+              pvipVn[names(vipVn)] <- vipVn
+              fdaDF[, paste0(rspModC,
+                             "_VIP",
+                             ifelse(!is.null(orthoVipVn),
+                                    "-pred",
+                                    ""))] <- pvipVn
+              if (!is.null(orthoVipVn)) {
+                ovipVn <- .genVec(x, "feature", "numeric")
+                ovipVn[names(orthoVipVn)] <- orthoVipVn
                 fdaDF[, paste0(rspModC,
-                               "_VIP",
-                               ifelse(!is.null(orthoVipVn),
-                                      "-pred",
-                                      ""))] <- pvipVn
-                if(!is.null(orthoVipVn)) {
-                  ovipVn <- .genVec(x, "feature", "numeric")
-                  ovipVn[names(orthoVipVn)] <- orthoVipVn
-                  fdaDF[, paste0(rspModC,
-                                 "_VIP-ortho")] <- ovipVn
-                }
+                               "_VIP-ortho")] <- ovipVn
               }
+            }
+            
+            ## coefficients
+            
+            if (!is.null(coeMN)) {
               
-              ## coefficients
-              
-              if(!is.null(coeMN)) {
+              for (colI in 1:ncol(coeMN)) {
                 
-                for(colI in 1:ncol(coeMN)) {
-                  
-                  coeVn <- .genVec(x, "feature", "numeric")
-                  coeVn[rownames(coeMN)] <- coeMN[, colI]
-                  
-                  if(ncol(coeMN) == 1) {
-                    fdaDF[, paste0(rspModC, "_coef")] <- coeVn
-                  } else
-                    fdaDF[, paste0(rspModC, "_", colnames(coeMN)[colI], "-coef")] <- coeVn
-                  
-                }
+                coeVn <- .genVec(x, "feature", "numeric")
+                coeVn[rownames(coeMN)] <- coeMN[, colI]
+                
+                if (ncol(coeMN) == 1) {
+                  fdaDF[, paste0(rspModC, "_coef")] <- coeVn
+                } else
+                  fdaDF[, paste0(rspModC, "_", colnames(coeMN)[colI], "-coef")] <- coeVn
+                
               }
-              
-              pData(x) <- pdaDF
-              fData(x) <- fdaDF
-              
-              opl@eset <- x
-              
-              opl
-
+            }
+            
+            pData(x) <- pdaDF
+            fData(x) <- fdaDF
+            
+            opl@eset <- x
+            
+            return(invisible(opl))
+            
           })
 
 #' @rdname opls
 #' @export
 setMethod("opls", signature(x = "data.frame"),
           function(x, ...) {
-              if(!all(sapply(x, data.class) == "numeric")) {
-                  stop("'x' data frame must contain columns of 'numeric' vectors only", call. = FALSE)
-              } else
-                  x <- as.matrix(x)
-              opl <- opls(x, ...)
-              opl
+            if (!all(sapply(x, data.class) == "numeric")) {
+              stop("'x' data frame must contain columns of 'numeric' vectors only", call. = FALSE)
+            } else
+              x <- as.matrix(x)
+            opl <- opls(x, ...)
+            return(invisible(opl))
           })
 
 ####    opls    ####
@@ -227,13 +227,13 @@ setMethod("opls", signature(x = "data.frame"),
 #' training (in a classification scheme); use NULL [default] for no partition
 #' of the dataset; use 'odd' for a partition of the dataset in two equal sizes
 #' (with respect to the classes proportions)
-#' @param printL Logical: Should informations regarding the data set and the
-#' model be printed? [default = TRUE]
-#' @param plotL Logical: Should the 'summary' plot be displayed? [default =
-#' TRUE]
-#' @param .sinkC Character: Name of the file for R output diversion [default =
-#' NULL: no diversion]; Diversion of messages is required for the integration
-#' into Galaxy
+#' @param printL Logical: deprecated: use the 'info.txtC' argument instead
+#' @param plotL Logical: deprecated: use the 'fig.pdfC' argument instead
+#' @param .sinkC Character: deprecated: use the 'info.txtC' argument instead
+#' @param fig.pdfC Character: Figure filename ending with '.pdf'; default is NA
+#' (no saving; displaying instead); set to 'NULL' to prevent plotting
+#' @param info.txtC Character: Report filename for R output diversion [default =
+#' NA: no diversion]; set to 'NULL' to disable any verbose
 #' @param ... Currently not used.
 #' @return An S4 object of class 'opls' containing the following slots:
 #' \itemize{
@@ -347,33 +347,56 @@ setMethod("opls", signature(x = "matrix"),
                    plotL = TRUE,
                    
                    .sinkC = NULL,
+
+                   fig.pdfC = NA,                   
+                   info.txtC = NA,
+                   
                    ...) {
             
-            if(!is.null(.sinkC)) ##  Diversion of messages is required for the integration into Galaxy
-              sink(.sinkC, append = TRUE)
+            if (!printL) {
+              warning("'printL' argument is deprecated; use 'info.txtC' instead",
+                      call. = FALSE)
+              info.txtC <- NULL
+            }
+            
+            if (!plotL) {
+              warning("'plotL' argument is deprecated; use 'fig.pdfC' instead",
+                      call. = FALSE)
+              fig.pdfC <- NULL
+            }
+            
+            if (!is.null(.sinkC)) {
+              warning("'.sinkC' argument is deprecated; use 'info.txtC' instead",
+                      call. = FALSE)
+              info.txtC <- .sinkC
+            }
+            
+            
+            if (!is.null(info.txtC) && !is.na(info.txtC)) ##  Diversion of messages is required for the integration into Galaxy
+              sink(info.txtC, append = TRUE)
             
             ## Checking arguments
             
             ## x -> xMN
             
-            if(is.data.frame(x)) {
-              if(!all(sapply(x, data.class) == "numeric")) {
+            if (is.data.frame(x)) {
+              if (!all(sapply(x, data.class) == "numeric")) {
                 stop("'x' data frame must contain columns of 'numeric' vectors only", call. = FALSE)
               } else
                 x <- as.matrix(x)
-            } else if(is.matrix(x)) {
-              if(mode(x) != "numeric")
+            } else if (is.matrix(x)) {
+              if (mode(x) != "numeric")
                 stop("'x' matrix must be of 'numeric' mode", call. = FALSE)
             } else
               stop("'x' must be either a data.frame or a matrix", call. = FALSE)
             
-            if(any(apply(x, 2, function(colVn) all(is.na(colVn)))))
+            if (any(apply(x, 2, function(colVn) all(is.na(colVn)))))
               stop("'x' contains columns with 'NA' only", call. = FALSE)
             
-            if(any(is.infinite(x)))
+            if (any(is.infinite(x)))
               stop("'x' contains infinite values", call. = FALSE)
             
-            if(any(is.nan(x)))
+            if (any(is.nan(x)))
               stop("'x' contains NaN values", call. = FALSE)
             
             xMN <- x
@@ -382,36 +405,36 @@ setMethod("opls", signature(x = "matrix"),
             
             yLevelVc <- NULL
             
-            if(!is.null(y)) {
+            if (!is.null(y)) {
               
-              if(is.vector(y)) {
+              if (is.vector(y)) {
                 
-                if(!(mode(y) %in% c("character", "numeric")))
+                if (!(mode(y) %in% c("character", "numeric")))
                   stop("'y' vector must be of 'character' or 'numeric' type", call. = FALSE)
                 
-                if(length(y) != nrow(xMN))
+                if (length(y) != nrow(xMN))
                   stop("'y' vector length must be equal to the number of rows of 'x'", call. = FALSE)
                 
                 yMCN <- matrix(y, ncol = 1)
                 
-              } else if(is.factor(y)) {
+              } else if (is.factor(y)) {
                 
-                if(length(y) != nrow(xMN))
+                if (length(y) != nrow(xMN))
                   stop("'y' factor length must be equal to the number of rows of 'x'", call. = FALSE)
                 
                 yLevelVc <- levels(y)
                 
                 yMCN <- matrix(as.character(y), ncol = 1)
                 
-              } else if(is.matrix(y)) {
+              } else if (is.matrix(y)) {
                 
-                if(!(mode(y) %in% c("character", "numeric")))
+                if (!(mode(y) %in% c("character", "numeric")))
                   stop("'y' matrix must be of 'character' or 'numeric' type", call. = FALSE)
                 
-                if(nrow(y) != nrow(xMN))
+                if (nrow(y) != nrow(xMN))
                   stop("'x' and 'y' must have the same number of rows", call. = FALSE)
                 
-                if(ncol(y) > 1 && mode(y) != "numeric")
+                if (ncol(y) > 1 && mode(y) != "numeric")
                   stop("Multiple response 'y' matrices must be of numeric type", call. = FALSE)
                 
                 yMCN <- y
@@ -425,69 +448,69 @@ setMethod("opls", signature(x = "matrix"),
             
             ## NA in Y only possible for multi-response regression (i.e., Y is a numeric matrix)
             
-            if(!is.null(yMCN) &&
+            if (!is.null(yMCN) &&
                ncol(yMCN) == 1 &&
                any(is.na(drop(yMCN))))
               stop("In case of single response modeling, 'y' must not contain missing values", call. = FALSE)
             
-            if(!is.logical(log10L))
+            if (!is.logical(log10L))
               stop("'log10L' must be a logical", call. = FALSE)
             
-            if(permI < 0 || (permI - floor(permI)) > 1e-10)
+            if (permI < 0 || (permI - floor(permI)) > 1e-10)
               stop("'permI' must be an integer", call. = FALSE)
             
-            if(permI > 0 && (is.null(yMCN) || ncol(yMCN) > 1)) {
+            if (permI > 0 && (is.null(yMCN) || ncol(yMCN) > 1)) {
               ## warning("Permutation testing available for single response (O)PLS(-DA) models only", call. = FALSE)
               permI <- 0
             }
             
-            if(permI > 0 && !is.null(subset)) {
+            if (permI > 0 && !is.null(subset)) {
               permI <- 0
               warning("'permI' set to 0 because train/test partition is selected", call. = FALSE)
             }
             
-            if(!(algoC %in% c('default', 'nipals', 'svd')))
+            if (!(algoC %in% c('default', 'nipals', 'svd')))
               stop("'algoC' must be either 'default', 'nipals', or 'svd'", call. = FALSE)
             
-            if(algoC == "default")
+            if (algoC == "default")
               algoC <- ifelse(is.null(yMCN) && !any(is.na(c(xMN))), "svd", "nipals")
             
-            if(!is.null(yMCN) && algoC != "nipals")
+            if (!is.null(yMCN) && algoC != "nipals")
               stop("'nipals' algorithm must be used for (O)PLS(-DA)", call. = FALSE)
             
-            if((is.na(orthoI) || orthoI > 0) && is.null(yMCN))
+            if ((is.na(orthoI) || orthoI > 0) && is.null(yMCN))
               stop("'y' response cannot be NULL for OPLS(-DA) modeling", call. = FALSE)
             
-            if(!is.null(yMCN)) {
-              if(is.na(orthoI) || orthoI > 0) {
-                if(ncol(yMCN) > 1) {
+            if (!is.null(yMCN)) {
+              if (is.na(orthoI) || orthoI > 0) {
+                if (ncol(yMCN) > 1) {
                   stop("OPLS regression only available for a single 'y' response", call. = FALSE)
                 } else if(mode(yMCN) == "character" && length(unique(drop(yMCN))) > 2)
                   stop("OPLS-DA only available for binary classification (use PLS-DA for multiple classes)", call. = FALSE)
               }
             }
             
-            if(is.na(orthoI) || orthoI > 0)
-              if(is.na(predI) || predI > 1) {
+            if (is.na(orthoI) || orthoI > 0)
+              if (is.na(predI) || predI > 1) {
                 predI <- 1
                 warning("OPLS: number of predictive components ('predI' argument) set to 1", call. = FALSE)
               }
             
-            if(!is.na(predI) && !is.na(orthoI) && ((predI + orthoI) > min(dim(xMN))))
+            if (!is.na(predI) && !is.na(orthoI) && ((predI + orthoI) > min(dim(xMN))))
               stop("The sum of 'predI' (", predI, ") and 'orthoI' (", orthoI, ") exceeds the minimum dimension of the 'x' data matrix (", min(dim(xMN)), ")" , call. = FALSE)
             
-            if(!(length(scaleC) == 1 && scaleC %in% c('none', 'center', 'pareto', 'standard')))
+            if (!(length(scaleC) == 1 && scaleC %in% c('none', 'center', 'pareto', 'standard')))
               stop("'scaleC' must be either 'none', 'center', 'pareto', or 'standard'", call. = FALSE)
             
-            if(!is.null(subset) && (is.null(yMCN) || ncol(yMCN) > 1))
+            if (!is.null(subset) && (is.null(yMCN) || ncol(yMCN) > 1))
               stop("train/test partition with 'subset' only available for (O)PLS(-DA) models of a single 'y' response", call. = FALSE)
             
-            if(!is.null(subset) &&
+            if (!is.null(subset) &&
                !(mode(subset) == 'character' && subset == 'odd') &&
                !all(subset %in% 1:nrow(xMN)))
               stop("'subset' must be either set to 'odd' or an integer vector of 'x' row numbers", call. = FALSE)
             
-            if(crossvalI > nrow(xMN))
+            if (crossvalI > nrow(xMN))
               stop("'crossvalI' must be less than the row number of 'x'", call. = FALSE)
             
             
@@ -498,19 +521,19 @@ setMethod("opls", signature(x = "matrix"),
             
             ## Character to numeric convertion function (for classification)
             
-            if(!is.null(yMCN) && mode(yMCN) == "character") {
+            if (!is.null(yMCN) && mode(yMCN) == "character") {
               
-              if(!is.null(yLevelVc)) {
+              if (!is.null(yLevelVc)) {
                 claVc <- yLevelVc
               } else
                 claVc <- sort(unique(drop(yMCN)))
               
-              if(length(claVc) == 2) {
+              if (length(claVc) == 2) {
                 ## binary response kept as a single vector for OPLS-DA computations
                 .char2numF <- function(inpMCN,
                                        c2nL = TRUE) {
                   
-                  if(c2nL) {
+                  if (c2nL) {
                     
                     outMCN <- inpMCN == claVc[2]
                     mode(outMCN) <- "numeric"
@@ -531,7 +554,7 @@ setMethod("opls", signature(x = "matrix"),
                 .char2numF <- function(inpMCN,
                                        c2nL = TRUE) {
                   
-                  if(c2nL) {
+                  if (c2nL) {
                     
                     outMCN  <- t(sapply(drop(inpMCN),
                                         function(claC) as.numeric(claVc == claC)))
@@ -559,24 +582,24 @@ setMethod("opls", signature(x = "matrix"),
             
             ## rownames and colnames
             
-            if(is.null(rownames(xMN)))
-              if(!is.null(yMCN) && !is.null(rownames(yMCN))) {
+            if (is.null(rownames(xMN)))
+              if (!is.null(yMCN) && !is.null(rownames(yMCN))) {
                 rownames(xMN) <- rownames(yMCN)
               } else
                 rownames(xMN) <- paste0("s", 1:nrow(xMN))
-            if(is.null(colnames(xMN)))
+            if (is.null(colnames(xMN)))
               colnames(xMN) <- paste0("x", 1:ncol(xMN))
             
-            if(!is.null(yMCN)) {
-              if(is.null(rownames(yMCN)))
+            if (!is.null(yMCN)) {
+              if (is.null(rownames(yMCN)))
                 rownames(yMCN) <- rownames(xMN)
-              if(is.null(colnames(yMCN)))
+              if (is.null(colnames(yMCN)))
                 colnames(yMCN) <- paste0("y", 1:ncol(yMCN))
             }
             
             ## Log10 transformation
             
-            if(log10L)
+            if (log10L)
               xMN <- .log10F(xMN)
             
             
@@ -584,22 +607,22 @@ setMethod("opls", signature(x = "matrix"),
             
             obsIniVi <- 1:nrow(xMN)
             
-            if(!is.null(subset)) {
+            if (!is.null(subset)) {
               subsetL <- TRUE
-              if(length(subset) == 1 && subset == "odd") {
+              if (length(subset) == 1 && subset == "odd") {
                 
-                if(mode(yMCN) == "numeric")
+                if (mode(yMCN) == "numeric")
                   subsetVi <- seq(1, nrow(xMN), by = 2)
                 else {
                   subsetVi <- integer()
-                  for(claC in unique(drop(yMCN)))
+                  for (claC in unique(drop(yMCN)))
                     subsetVi <- c(subsetVi,
                                   which(drop(yMCN) == claC)[seq(1, sum(drop(yMCN) == claC), by = 2)])
                   subsetVi <- sort(subsetVi)
                 }
               } else
                 subsetVi <- subset
-              if(crossvalI > length(subsetVi))
+              if (crossvalI > length(subsetVi))
                 stop("'crossvalI' must be less than the number of samples in the subset", call. = FALSE)
             } else {
               subsetL <- FALSE
@@ -612,7 +635,7 @@ setMethod("opls", signature(x = "matrix"),
             xVarIndLs <- list()
             xVarIndLs[[1]] <- 1:nrow(xMN)
             
-            if(subsetL) {
+            if (subsetL) {
               xVarIndLs[[1]] <- subsetVi
             } ## else if(!is.null(yMCN) && ncol(yMCN) == 1 && nrow(xMN) >= 2 * crossvalI)
             ##   for(cvkN in 1:crossvalI)
@@ -626,10 +649,10 @@ setMethod("opls", signature(x = "matrix"),
                                 })
             
             xZeroVarVi <- integer()
-            for(k in 1:length(xVarVarLs))
+            for (k in 1:length(xVarVarLs))
               xZeroVarVi <- union(xZeroVarVi, which(xVarVarLs[[k]] < epsN))
             
-            if(length(xZeroVarVi) > 0) {
+            if (length(xZeroVarVi) > 0) {
               names(xZeroVarVi) <- colnames(xMN)[xZeroVarVi]
               xMN <- xMN[, -xZeroVarVi, drop = FALSE]
               warning("The variance of the ",
@@ -657,15 +680,15 @@ setMethod("opls", signature(x = "matrix"),
             
             opl@suppLs[["y"]] <- y
             
-            if(is.null(opl@suppLs[["yMCN"]])) {
+            if (is.null(opl@suppLs[["yMCN"]])) {
               opl@typeC <- "PCA"
             } else {
-              if(ncol(opl@suppLs[["yMCN"]]) > 1 || mode(opl@suppLs[["yMCN"]]) == "numeric")
+              if (ncol(opl@suppLs[["yMCN"]]) > 1 || mode(opl@suppLs[["yMCN"]]) == "numeric")
                 opl@typeC <- "PLS"
               else
                 opl@typeC <- "PLS-DA"
             }
-            if(opl@summaryDF[, "ort"] > 0)
+            if (opl@summaryDF[, "ort"] > 0)
               opl@typeC <- paste("O", opl@typeC, sep = "")
             
             opl@xZeroVarVi <- xZeroVarVi
@@ -674,7 +697,7 @@ setMethod("opls", signature(x = "matrix"),
             
             ## Permutation testing (Szymanska et al, 2012)
             
-            if(permI > 0) {
+            if (permI > 0) {
               
               modSumVc <- colnames(opl@summaryDF)
               
@@ -689,10 +712,10 @@ setMethod("opls", signature(x = "matrix"),
               
               permMN[1, ] <- as.matrix(opl@summaryDF)
               
-              for(k in 1:permI) {
+              for (k in 1:permI) {
                 
                 yVcn <- drop(opl@suppLs[["yMCN"]])
-                if(!subsetL) {
+                if (!subsetL) {
                   yPerVcn <- sample(yVcn)
                 } else {
                   yPerVcn <- numeric(nrow(xMN))
@@ -744,7 +767,7 @@ setMethod("opls", signature(x = "matrix"),
             totN <- length(c(xMN))
             nasN <- sum(is.na(c(xMN)))
             
-            if(!is.null(opl@suppLs[["yMCN"]])) {
+            if (!is.null(opl@suppLs[["yMCN"]])) {
               
               opl@descriptionMC <- rbind(opl@descriptionMC,
                                          Y_variables = ncol(opl@suppLs[["yMCN"]]))
@@ -761,7 +784,7 @@ setMethod("opls", signature(x = "matrix"),
             
             opl@suppLs[["topLoadI"]] <- 3
             
-            if(ncol(xMN) > opl@suppLs[["topLoadI"]]) {
+            if (ncol(xMN) > opl@suppLs[["topLoadI"]]) {
               xVarVn <- apply(xMN, 2, var)
               names(xVarVn) <- 1:length(xVarVn)
               xVarVn <- sort(xVarVn)
@@ -770,12 +793,12 @@ setMethod("opls", signature(x = "matrix"),
             } else
               opl@suppLs[["xSubIncVarMN"]] <- xMN
             
-            if(ncol(xMN) <= 100) {
+            if (ncol(xMN) <= 100) {
               
               xCorMN <- cor(xMN, use = "pairwise.complete.obs")
               xCorMN[lower.tri(xCorMN, diag = TRUE)] <- 0
               
-              if(ncol(xMN) > opl@suppLs[["topLoadI"]]) {
+              if (ncol(xMN) > opl@suppLs[["topLoadI"]]) {
                 
                 xCorNexDF <- which(abs(xCorMN) >= sort(abs(xCorMN), decreasing = TRUE)[opl@suppLs[["topLoadI"]] + 1],
                                    arr.ind = TRUE)
@@ -786,7 +809,7 @@ setMethod("opls", signature(x = "matrix"),
                                     dimnames = list(colnames(xMN)[xCorNexDF[, "row"]],
                                                     colnames(xMN)[xCorNexDF[, "col"]]))
                 
-                for(k in 1:nrow(xCorDisMN))
+                for (k in 1:nrow(xCorDisMN))
                   xCorDisMN[k, k] <- xCorMN[xCorNexDF[k, "row"], xCorNexDF[k, "col"]]
                 
               } else
@@ -800,19 +823,19 @@ setMethod("opls", signature(x = "matrix"),
             
             ## Printing
             
-            if(printL) {
+            if (!is.null(info.txtC)) {
               show(opl)
               warnings()
             }
             
             ## Plotting
             
-            if(plotL)
-              plot(opl, typeVc = "summary")
+            if (!is.null(fig.pdfC))
+              plot(opl, typeVc = "summary", fig.pdfC = fig.pdfC)
             
             ## Closing connection
             
-            if(!is.null(.sinkC)) ## Used in the Galaxy module
+            if (!is.null(info.txtC) && !is.na(info.txtC)) ## Used in the Galaxy module
               sink()
             
             ## Returning
@@ -847,39 +870,39 @@ setMethod("opls", signature(x = "matrix"),
 #' @export
 setMethod("show", "opls",
           function(object) {
-
-    cat(object@typeC, "\n", sep = "")
-
-    cat(object@descriptionMC["samples", ],
-        " samples x ",
-        object@descriptionMC["X_variables", ],
-        " variables",
-        ifelse(grepl("PLS", object@typeC),
-               paste0(" and ", ncol(object@suppLs[["yMCN"]]), " response", ifelse(ncol(object@suppLs[["yMCN"]]) > 1, "s", "")),
-               ""), "\n", sep = "")
-
-    cat(object@suppLs[["scaleC"]], " scaling of predictors",
-        ifelse(object@typeC == "PCA",
-               "",
-               paste0(" and ",
-                      ifelse(mode(object@suppLs[["yMCN"]]) == "character" && object@suppLs[["scaleC"]] != "standard",
-                             "standard scaling of ",
-                             ""),
-                      "response(s)")), "\n", sep = "")
-
-    if(substr(object@descriptionMC["missing_values", ], 1, 1) != "0")
-        cat(object@descriptionMC["missing_values", ], " NAs\n", sep = "")
-
-    if(substr(object@descriptionMC["near_zero_excluded_X_variables", ], 1, 1) != "0")
-        cat(object@descriptionMC["near_zero_excluded_X_variables", ],
-            " excluded variables (near zero variance)\n", sep = "")
-
-    optDigN <- options()[["digits"]]
-    options(digits = 3)
-    print(object@summaryDF)
-    options(digits = optDigN)
-
-}) ## show
+            
+            cat(object@typeC, "\n", sep = "")
+            
+            cat(object@descriptionMC["samples", ],
+                " samples x ",
+                object@descriptionMC["X_variables", ],
+                " variables",
+                ifelse(grepl("PLS", object@typeC),
+                       paste0(" and ", ncol(object@suppLs[["yMCN"]]), " response", ifelse(ncol(object@suppLs[["yMCN"]]) > 1, "s", "")),
+                       ""), "\n", sep = "")
+            
+            cat(object@suppLs[["scaleC"]], " scaling of predictors",
+                ifelse(object@typeC == "PCA",
+                       "",
+                       paste0(" and ",
+                              ifelse(mode(object@suppLs[["yMCN"]]) == "character" && object@suppLs[["scaleC"]] != "standard",
+                                     "standard scaling of ",
+                                     ""),
+                              "response(s)")), "\n", sep = "")
+            
+            if(substr(object@descriptionMC["missing_values", ], 1, 1) != "0")
+              cat(object@descriptionMC["missing_values", ], " NAs\n", sep = "")
+            
+            if(substr(object@descriptionMC["near_zero_excluded_X_variables", ], 1, 1) != "0")
+              cat(object@descriptionMC["near_zero_excluded_X_variables", ],
+                  " excluded variables (near zero variance)\n", sep = "")
+            
+            optDigN <- options()[["digits"]]
+            options(digits = 3)
+            print(object@summaryDF)
+            options(digits = optDigN)
+            
+          }) ## show
 
 
 ####    print    ####
@@ -909,105 +932,105 @@ setMethod("show", "opls",
 #' @export
 setMethod("print", "opls",
           function(x, ...) {
-
-    cat("\n1) Data set:\n", sep = "")
-
-    cat(x@descriptionMC["samples", ],
-            " samples x ",
-            x@descriptionMC["X_variables", ],
-            " variables",
-            ifelse(grepl("PLS", x@typeC),
-                   paste0(" and ", ncol(x@suppLs[["yMCN"]]), " response", ifelse(ncol(x@suppLs[["yMCN"]]) > 1, "s", "")),
-                   ""),
-        "\n", sep = "")
-
-    cat(x@descriptionMC["missing_values", ], " NAs\n", sep = "")
-
-    cat(x@descriptionMC["near_zero_excluded_X_variables", ], " excluded variables (near zero variance)\n", sep = "")
-
-    cat(x@suppLs[["scaleC"]], " x", ifelse(x@typeC != "PCA", " and y", ""), " scaling\n", sep = "")
-
-    cat("Summary of the ", x@suppLs[["topLoadI"]], " increasing variance spaced raw variables:\n", sep = "")
-    print(summary(x@suppLs[["xSubIncVarMN"]]))
-
-    if(!is.null(x@suppLs[["xCorMN"]])) {
-        cat("Correlations between the X-variables:\n")
-        print(signif(x@suppLs[["xCorMN"]], 2))
-        cat("\n", sep = "")
-    }
-
-    cat("\n2) Model: ", x@typeC, "\n", sep = "")
-
-    cat("Correlations between variables and first 2 components:\n", sep = "")
-
-    if(x@summaryDF[, "pre"] + x@summaryDF[, "ort"] < 2) {
-
-        warning("A single component model has been selected by cross-validation", call. = FALSE)
-
-        tCompMN <- x@scoreMN
-        pCompMN <- x@loadingMN
-
-    } else {
-
-        if(x@summaryDF[, "ort"] > 0) {
-            tCompMN <- cbind(x@scoreMN[, 1], x@orthoScoreMN[, 1])
-            pCompMN <- cbind(x@loadingMN[, 1], x@orthoLoadingMN[, 1])
-            colnames(pCompMN) <- colnames(tCompMN) <- c("h1", "o1")
-        } else {
-            tCompMN <- x@scoreMN[, 1:2]
-            pCompMN <- x@loadingMN[, 1:2]
-        }
-
-    }
-
-    cxtCompMN <- cor(x@suppLs[["xModelMN"]], tCompMN,
-                     use = "pairwise.complete.obs")
-
-    if(x@suppLs[["topLoadI"]] * 4 < ncol(x@suppLs[["xModelMN"]])) {
-
-        pexVi <- integer(x@suppLs[["topLoadI"]] * ncol(pCompMN) * 2) ## 'ex'treme values
-
-        for(k in 1:ncol(pCompMN)) {
-
-            pkVn <-  pCompMN[, k]
-
-            pexVi[1:(2 * x@suppLs[["topLoadI"]]) + 2 * x@suppLs[["topLoadI"]] * (k - 1)] <- c(order(pkVn)[1:x@suppLs[["topLoadI"]]],
-                                                                                rev(order(pkVn, decreasing = TRUE)[1:x@suppLs[["topLoadI"]]]))
-
-        }
-
-    } else
-        pexVi <- 1:ncol(x@suppLs[["xModelMN"]])
-
-    pxtCompMN <- cbind(pCompMN,
-                       cxtCompMN)
-
-    if(ncol(pCompMN) == 1) {
-        colnames(pxtCompMN)[2] <- paste0("cor_", colnames(pxtCompMN)[2])
-    } else
-        colnames(pxtCompMN)[3:4] <- paste0("cor_", colnames(pxtCompMN)[3:4])
-
-    topLoadMN <- pxtCompMN
-
-    topLoadMN <- topLoadMN[pexVi, , drop = FALSE]
-
-    if(x@suppLs[["topLoadI"]] * 4 < ncol(x@suppLs[["xModelMN"]]) &&
-       ncol(pCompMN) > 1) {
-
-        topLoadMN[(2 * x@suppLs[["topLoadI"]] + 1):(4 * x@suppLs[["topLoadI"]]), c(1, 3)] <- NA
-        topLoadMN[1:(2 * x@suppLs[["topLoadI"]]), c(2, 4)] <- NA
-
-    }
-    print(signif(topLoadMN, 2))
-
-    message("")
-
-    optDigN <- options()[["digits"]]
-    options(digits = 3)
-    print(x@modelDF)
-    options(digits = optDigN)
-
-})
+            
+            cat("\n1) Data set:\n", sep = "")
+            
+            cat(x@descriptionMC["samples", ],
+                " samples x ",
+                x@descriptionMC["X_variables", ],
+                " variables",
+                ifelse(grepl("PLS", x@typeC),
+                       paste0(" and ", ncol(x@suppLs[["yMCN"]]), " response", ifelse(ncol(x@suppLs[["yMCN"]]) > 1, "s", "")),
+                       ""),
+                "\n", sep = "")
+            
+            cat(x@descriptionMC["missing_values", ], " NAs\n", sep = "")
+            
+            cat(x@descriptionMC["near_zero_excluded_X_variables", ], " excluded variables (near zero variance)\n", sep = "")
+            
+            cat(x@suppLs[["scaleC"]], " x", ifelse(x@typeC != "PCA", " and y", ""), " scaling\n", sep = "")
+            
+            cat("Summary of the ", x@suppLs[["topLoadI"]], " increasing variance spaced raw variables:\n", sep = "")
+            print(summary(x@suppLs[["xSubIncVarMN"]]))
+            
+            if(!is.null(x@suppLs[["xCorMN"]])) {
+              cat("Correlations between the X-variables:\n")
+              print(signif(x@suppLs[["xCorMN"]], 2))
+              cat("\n", sep = "")
+            }
+            
+            cat("\n2) Model: ", x@typeC, "\n", sep = "")
+            
+            cat("Correlations between variables and first 2 components:\n", sep = "")
+            
+            if(x@summaryDF[, "pre"] + x@summaryDF[, "ort"] < 2) {
+              
+              warning("A single component model has been selected by cross-validation", call. = FALSE)
+              
+              tCompMN <- x@scoreMN
+              pCompMN <- x@loadingMN
+              
+            } else {
+              
+              if(x@summaryDF[, "ort"] > 0) {
+                tCompMN <- cbind(x@scoreMN[, 1], x@orthoScoreMN[, 1])
+                pCompMN <- cbind(x@loadingMN[, 1], x@orthoLoadingMN[, 1])
+                colnames(pCompMN) <- colnames(tCompMN) <- c("h1", "o1")
+              } else {
+                tCompMN <- x@scoreMN[, 1:2]
+                pCompMN <- x@loadingMN[, 1:2]
+              }
+              
+            }
+            
+            cxtCompMN <- cor(x@suppLs[["xModelMN"]], tCompMN,
+                             use = "pairwise.complete.obs")
+            
+            if(x@suppLs[["topLoadI"]] * 4 < ncol(x@suppLs[["xModelMN"]])) {
+              
+              pexVi <- integer(x@suppLs[["topLoadI"]] * ncol(pCompMN) * 2) ## 'ex'treme values
+              
+              for(k in 1:ncol(pCompMN)) {
+                
+                pkVn <-  pCompMN[, k]
+                
+                pexVi[1:(2 * x@suppLs[["topLoadI"]]) + 2 * x@suppLs[["topLoadI"]] * (k - 1)] <- c(order(pkVn)[1:x@suppLs[["topLoadI"]]],
+                                                                                                  rev(order(pkVn, decreasing = TRUE)[1:x@suppLs[["topLoadI"]]]))
+                
+              }
+              
+            } else
+              pexVi <- 1:ncol(x@suppLs[["xModelMN"]])
+            
+            pxtCompMN <- cbind(pCompMN,
+                               cxtCompMN)
+            
+            if(ncol(pCompMN) == 1) {
+              colnames(pxtCompMN)[2] <- paste0("cor_", colnames(pxtCompMN)[2])
+            } else
+              colnames(pxtCompMN)[3:4] <- paste0("cor_", colnames(pxtCompMN)[3:4])
+            
+            topLoadMN <- pxtCompMN
+            
+            topLoadMN <- topLoadMN[pexVi, , drop = FALSE]
+            
+            if(x@suppLs[["topLoadI"]] * 4 < ncol(x@suppLs[["xModelMN"]]) &&
+               ncol(pCompMN) > 1) {
+              
+              topLoadMN[(2 * x@suppLs[["topLoadI"]] + 1):(4 * x@suppLs[["topLoadI"]]), c(1, 3)] <- NA
+              topLoadMN[1:(2 * x@suppLs[["topLoadI"]]), c(2, 4)] <- NA
+              
+            }
+            print(signif(topLoadMN, 2))
+            
+            message("")
+            
+            optDigN <- options()[["digits"]]
+            options(digits = 3)
+            print(x@modelDF)
+            options(digits = optDigN)
+            
+          })
 
 
 ####    plot    ####
@@ -1040,8 +1063,6 @@ setMethod("print", "opls",
 #' relative to the default
 #' @param parCompVi Integer vector of length 2: indices of the two components
 #' to be displayed on the score plot (first two components by default)
-#' @param parDevNewL Should the graphics be displayed in a new window? 
-#' [default]
 #' @param parEllipsesL Should the Mahalanobis ellipses be drawn? If 'NA'
 #' [default], ellipses are drawn when either a character parAsColVcn is
 #' provided (PCA case), or when 'y' is a character factor ((O)PLS-DA cases).
@@ -1052,12 +1073,14 @@ setMethod("print", "opls",
 #' @param parTitleL Should the titles of the plots be printed on the graphics
 #' (default = TRUE); It may be convenient to set this argument to FALSE when
 #' the user wishes to add specific titles a posteriori
-#' @param file.pdfC Figure filename (e.g. in case of batch mode) ending with
-#' '.pdf'; default is NULL (no
-#' saving; displaying instead)
-#' @param .sinkC Character: Name of the file for R output diversion [default =
-#' NULL: no diversion]; Diversion of messages is required for the integration
-#' into Galaxy
+#' @param file.pdfC Character: deprecated; use the 'fig.pdfC' argument instead
+#' @param .sinkC Character: deprecated; use the 'info.txtC' argument instead
+#' @param parCexMetricN Numeric: magnification of the metrics at the bottom of
+#' score plot (default -NA- is 1 in 1x1 and 0.7 in 2x2 display)
+#' @param fig.pdfC Figure filename (e.g. in case of batch mode) ending with
+#' '.pdf'; default is NA (no saving; displaying instead)
+#' @param info.txtC Character: Report filename for R output diversion [default =
+#' NA: no diversion]
 #' @param ... Currently not used.
 #' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
 #' @examples
@@ -1082,7 +1105,8 @@ setMethod("print", "opls",
 #'                      orthoI = ifelse(typeC != "xy-weight", 1, 0),
 #'                      permI = ifelse(typeC == "permutation", 10, 0),
 #'                      subset = subset,
-#'                      printL = FALSE, plotL = FALSE)
+#'                      info.txtC = NULL,
+#'                      fig.pdfC = NULL)
 #'
 #'     plot(plsModel, typeVc = typeC)
 #'
@@ -1099,344 +1123,358 @@ setMethod("plot", signature(x = "opls"),
           function(x,
                    y,
                    typeVc = c("correlation",
-                       "outlier",
-                       "overview",
-                       "permutation",
-                       "predict-train",
-                       "predict-test",
-                       "summary",
-                       "x-loading",
-                       "x-score",
-                       "x-variance",
-                       "xy-score",
-                       "xy-weight")[7],
+                              "outlier",
+                              "overview",
+                              "permutation",
+                              "predict-train",
+                              "predict-test",
+                              "summary",
+                              "x-loading",
+                              "x-score",
+                              "x-variance",
+                              "xy-score",
+                              "xy-weight")[7],
                    parAsColFcVn = NA,
                    parCexN = 0.8,
                    parCompVi = c(1, 2),
-                   parDevNewL = TRUE,
                    parEllipsesL = NA,
                    parLabVc = NA,
                    parPaletteVc = NA,
                    parTitleL = TRUE,
                    file.pdfC = NULL,
-
                    .sinkC = NULL,
+                   
+                   parCexMetricN = NA,
+                   fig.pdfC = NA,
+                   info.txtC = NA,
+                   
                    ...) {
-
-
-    if(!is.null(.sinkC)) ##  Diversion of messages is required for the integration into Galaxy
-        sink(.sinkC, append = TRUE)
-
-
-    if("summary" %in% typeVc) {
-        if(!is.null(x@suppLs[["permMN"]]))
-            typeVc <- c("permutation",
-                        "overview",
-                        "outlier",
-                        "x-score")
-        else
-            typeVc <- c("overview",
-                        "outlier",
-                        "x-score",
-                        "x-loading")
-    }
-
-
-    ## Checking arguments
-
-    if(!all(typeVc %in% c('correlation', 'outlier', 'overview', 'permutation', 'predict-train', 'predict-test', 'x-loading', 'x-score', 'x-variance', 'xy-score', 'xy-weight')))
-        stop("'typeVc' elements must be either 'correlation', 'outlier', 'overview', 'permutation', 'predict-train', 'predict-test', 'x-loading', 'x-score', 'x-variance', 'xy-score', 'xy-weight'", call. = FALSE)
-
-    if('predict-test' %in% typeVc && length(x@subsetVi) == 0)
-        stop("For the 'predict-test' graphic to be generated, 'subset' must not be kept to NULL", call. = FALSE)
-
-    if(!any(is.na(parLabVc))) {
-        if(length(x@subsetVi) > 0 && length(parLabVc) != nrow(x@suppLs[["yMCN"]])) {
-            stop("When 'subset' is not NULL, 'parLabVc' vector length must be equal to the number of train + test samples (here: ", nrow(x@suppLs[["yMCN"]]), ").", call. = FALSE)
-        } else if(length(parLabVc) != nrow(x@scoreMN))
-            stop("'parLabVc' vector length must be equal to the number of 'x' rows")
-        if(mode(parLabVc) != "character")
-            stop("'parLabVc' must be of 'character' type")
-    }
-
-    if(!any(is.na(parAsColFcVn))) {
-        if(length(x@subsetVi) > 0 && length(parAsColFcVn) != nrow(x@suppLs[["yMCN"]])) {
-            stop("When 'subset' is not NULL, 'parAsColFcVn' vector length must be equal to the number of train + test samples (here: ", nrow(x@suppLs[["yMCN"]]), ").", call. = FALSE)
-        } else if(length(parAsColFcVn) != nrow(x@scoreMN))
-            stop("'parAsColFcVn' vector length must be equal to the number of 'x' rows")
-        if(!(mode(parAsColFcVn) %in% c("character", "numeric")))
-            stop("'parAsColFcVn' must be of 'character' or 'numeric' type")
-        if(is.character(parAsColFcVn)) {
-            parAsColFcVn <- factor(parAsColFcVn)
-            warning("Character 'parAsColFcVn' set to a factor", call. = FALSE)
-        }
-    }
-
-    if(is.null(x@suppLs[["permMN"]]) && 'permutation' %in% typeVc)
-        stop("'permI' must be > 0 for 'permutation' graphic to be plotted", call. = FALSE)
-
-    if(x@summaryDF[, "ort"] > 0)
-        if(parCompVi[1] != 1) {
-            parCompVi[1] <- 1
-            warning("OPLS: first component to display ('parCompVi' first value) set to 1", call. = FALSE)
-        }
-
-    if("xy-weight" %in% typeVc &&
-       substr(x@typeC, 1, 3) != "PLS")
-       ## (is.null(yMCN) || is.na(x@summaryDF[, "ort"]) || x@summaryDF[, "ort"] > 0))
-        stop("'xy-weight graphic can be displayed only for PLS(-DA) models", call. = FALSE)
-
-    if(any(grepl('predict', typeVc)))
-       if(is.null(x@suppLs[["yMCN"]]) ||
-          ncol(x@suppLs[["yMCN"]]) > 1 ||
-          (mode(x@suppLs[["yMCN"]]) == "character" && length(unique(drop(x@suppLs[["yMCN"]]))) > 2))
-    ## if(any(grepl('predict', typeVc)) && is.matrix(x@fitted"]]) && ncol(x@fitted"]]) > 1)
-        ## if(any(grepl('predict', typeVc)) && (is.null(yMCN) || ncol(yMCN) != 1))
-           stop("'predict' graphics available for single response regression or binary classification only", call. = FALSE)
-
-    if(is.na(parEllipsesL)) {
-        if((all(is.na(parAsColFcVn)) && grepl("-DA$", x@typeC)) ||
-           (!all(is.na(parAsColFcVn)) && is.factor(parAsColFcVn))) {
-            parEllipsesL <- TRUE
-        } else
-            parEllipsesL <- FALSE
-        ## if((x@typeC == "PCA" && !all(is.na(parAsColFcVn)) && is.factor(parAsColFcVn)) || ## PCA case
-        ##    grepl("-DA$", x@typeC)) { ## (O)PLS-DA cases
-        ##     parEllipsesL <- TRUE
-        ## } else
-        ##     parEllipsesL <- FALSE
-    } else if(parEllipsesL && !grepl("-DA$", x@typeC) && (all(is.na(parAsColFcVn)) || !is.factor(parAsColFcVn)))
-        stop("Ellipses can be plotted for PCA (or PLS regression) only if the 'parAsColFcVn' is a factor",
-             call. = FALSE)
-
-    if(x@summaryDF[, "pre"] + x@summaryDF[, "ort"] < 2) {
-
-        if(!all(typeVc %in% c("permutation", "overview"))) {
-            warning("Single component model: only 'overview' and 'permutation' (in case of single response (O)PLS(-DA)) plots available", call. = FALSE)
-            typeVc <- "overview"
-            if(!is.null(x@suppLs[["permMN"]]))
-                typeVc <- c("permutation", typeVc)
-        }
-
-        tCompMN <- x@scoreMN
-        pCompMN <- x@loadingMN
-
-    } else {
-
-        if(x@summaryDF[, "ort"] > 0) {
-            if(parCompVi[2] > x@summaryDF[, "ort"] + 1)
-                stop("Selected orthogonal component for plotting (ordinate) exceeds the total number of orthogonal components of the model", call. = FALSE)
-            tCompMN <- cbind(x@scoreMN[, 1], x@orthoScoreMN[, parCompVi[2] - 1])
-            pCompMN <- cbind(x@loadingMN[, 1], x@orthoLoadingMN[, parCompVi[2] - 1])
-            colnames(pCompMN) <- colnames(tCompMN) <- c("h1", paste("o", parCompVi[2] - 1, sep = ""))
-        } else {
-            if(max(parCompVi) > x@summaryDF[, "pre"])
-                stop("Selected component for plotting as ordinate exceeds the total number of predictive components of the model", call. = FALSE)
-            tCompMN <- x@scoreMN[, parCompVi, drop = FALSE]
-            pCompMN <- x@loadingMN[, parCompVi, drop = FALSE]
-        }
-
-    }
-
-    ## if(ncol(tCompMN) > 1) {
-
-    ##     mahInvCovMN <- solve(cov(tCompMN))
-
-    ##     pcaResMN <- cbind(sdsVn = apply(tCompMN,
-    ##                           1,
-    ##                           function(x) sqrt(t(as.matrix(x)) %*% mahInvCovMN %*% as.matrix(x))),
-    ##                       odsVn = apply(x@suppLs[["xModelMN"]] - tcrossprod(tCompMN, pCompMN),
-    ##                           1,
-    ##                           function(x) sqrt(drop(crossprod(x[complete.cases(x)])))))
-
-    ## } else
-    ##     pcaResMN <- NULL
-
-    cxtCompMN <- cor(x@suppLs[["xModelMN"]], tCompMN,
-                     use = "pairwise.complete.obs")
-
-    if(!is.null(x@suppLs[["yModelMN"]]))
-        cytCompMN <- cor(x@suppLs[["yModelMN"]], tCompMN, use = "pairwise.complete.obs")
-
-
-    if(x@suppLs[["topLoadI"]] * 4 < ncol(x@suppLs[["xModelMN"]])) {
-
-        pexVi <- integer(x@suppLs[["topLoadI"]] * ncol(pCompMN) * 2) ## 'ex'treme values
-
-        for(k in 1:ncol(pCompMN)) {
-
-            pkVn <-  pCompMN[, k]
-
-            pexVi[1:(2 * x@suppLs[["topLoadI"]]) + 2 * x@suppLs[["topLoadI"]] * (k - 1)] <- c(order(pkVn)[1:x@suppLs[["topLoadI"]]],
-                                                                         rev(order(pkVn, decreasing = TRUE)[1:x@suppLs[["topLoadI"]]]))
-
-        }
-
-    } else
-        pexVi <- 1:ncol(x@suppLs[["xModelMN"]])
-
-    pxtCompMN <- cbind(pCompMN,
-                       cxtCompMN)
-
-    if(ncol(pCompMN) == 1) {
-       colnames(pxtCompMN)[2] <- paste0("cor_", colnames(pxtCompMN)[2])
-    } else
-        colnames(pxtCompMN)[3:4] <- paste0("cor_", colnames(pxtCompMN)[3:4])
-
-    topLoadMN <- pxtCompMN
-
-    topLoadMN <- topLoadMN[pexVi, , drop = FALSE]
-
-    if(x@suppLs[["topLoadI"]] * 4 < ncol(x@suppLs[["xModelMN"]]) &&
-       ncol(pCompMN) > 1) {
-
-        topLoadMN[(2 * x@suppLs[["topLoadI"]] + 1):(4 * x@suppLs[["topLoadI"]]), c(1, 3)] <- NA
-        topLoadMN[1:(2 * x@suppLs[["topLoadI"]]), c(2, 4)] <- NA
-
-    }
-
-    if(!any(is.na(parPaletteVc))) {
-
-      if(mode(parPaletteVc) != "character")
-        stop("'parPaletteVc' should be a vector of mode 'character'",
-             call. = FALSE)
-      
-      palChkVl <- sapply(parPaletteVc,
-                         function(colC) {
-                           tryCatch(is.matrix(grDevices::col2rgb(colC)), 
-                                    error = function(e) FALSE)
-                           
-                         }) ## as proposed by Josh O'Brien on stackoverflow
-      
-      if(any(is.na(palChkVl)) || any(!palChkVl))
-        stop("The following elements from 'parPaletteVc' could not be interpreted as colors:\n",
-             paste(names(palChkVl)[is.na(palChkVl) | !palChkVl], collapse = ", "),
-             call. = FALSE)
-      
-      if(any(is.na(palChkVl)))
-        stop("The following element(s) from 'parPaletteVc' could not be interpreted as colors:\n",
-             paste(names(palChkVl)[is.na(palChkVl)], collapse = ", "),
-             call. = FALSE)
-      
-    }
-    
-    ## Observation and variable names and colors
-
-    ## obsLabVc
-
-    if(!any(is.na(parLabVc))) {
-        obsLabVc <- parLabVc
-    } else if(!is.null(x@suppLs[["yMCN"]]) && ncol(x@suppLs[["yMCN"]]) == 1) { ## (O)PLS of single response
-        obsLabVc <- rownames(x@suppLs[["yMCN"]])
-    } else { ## PCA
-        if(!is.null(rownames(tCompMN))) {
-            obsLabVc <- rownames(tCompMN)
-        } else
-            obsLabVc <- as.character(1:nrow(tCompMN))
-    }
-
-    if(length(x@subsetVi) > 0) {
-        ## (O)PLS(-DA) models of a single 'y' response
-        tesLabVc <- obsLabVc[-x@subsetVi]
-        obsLabVc <- obsLabVc[x@subsetVi]
-    } else
-        tesLabVc <- ""
-
-    ## obsColVc
-
-    if(!any(is.na(parAsColFcVn))) {
-        obsColVc <- .plotColorF(as.vector(parAsColFcVn), parPaletteVc)[["colVc"]]
-        obsLegVc <- as.vector(parAsColFcVn)
-    } else if(!is.null(x@suppLs[["yMCN"]]) && ncol(x@suppLs[["yMCN"]]) == 1) { ## (O)PLS of single response
-        obsColVc <- .plotColorF(c(x@suppLs[["yMCN"]]), parPaletteVc)[["colVc"]]
-        obsLegVc <- c(x@suppLs[["yMCN"]])
-    } else { ## PCA
-        obsColVc <- rep("black", nrow(tCompMN))
-        obsLegVc <- NULL
-    }
-
-    if(length(x@subsetVi) > 0) {
-        ## (O)PLS(-DA) models of a single 'y' response
-        tesColVc <- obsColVc[-x@subsetVi]
-        obsColVc <- obsColVc[x@subsetVi]
-        if(!is.null(obsLegVc)) {
-            tesLegVc <- obsLegVc[-x@subsetVi]
-            obsLegVc <- obsLegVc[x@subsetVi]
-        }
-    }
-
-
-    ## Layout
-
-    if(!parDevNewL && length(typeVc) != 1)
-        stop("'typeVc' must be of length 1 when 'parDevNewL' is set to FALSE", call. = FALSE)
-
-    if(parDevNewL) {
-        layRowN <- ceiling(sqrt(length(typeVc)))
-        if(is.null(file.pdfC))
-            dev.new()
-        else
-            pdf(file.pdfC)
-        layout(matrix(1:layRowN^2, byrow = TRUE, nrow = layRowN))
-    }
-
-    layL <- !parDevNewL || length(typeVc) > 1
-
-
-    ## Par
-
-    if(layL) {
-        marVn <- c(4.6, 4.1, 2.6, 1.6)
-    } else
-        marVn <- c(5.1, 4.1, 4.1, 2.1)
-
-    par(font=2, font.axis=2, font.lab=2, lwd=2,
-        mar=marVn,
-        pch=18)
-
-
-    ## Graph
-
-    for(ploC in typeVc)
-        .plotF(ploC,
-               opl = x,
-               obsColVc = obsColVc,
-               obsLabVc = obsLabVc,
-               obsLegVc = obsLegVc,
-               layL = layL,
-               parCexN = parCexN,
-               parEllipsesL = parEllipsesL,
-               parPaletteVc = parPaletteVc,
-               parTitleL = parTitleL,
-               parCompVi = parCompVi,
-               typeVc = typeVc,
-               tCompMN = tCompMN,
-               pCompMN = pCompMN,
-               cxtCompMN = cxtCompMN,
-               cytCompMN = cytCompMN,
-               ## pcaResMN = pcaResMN,
-               topLoadMN = topLoadMN,
-               pexVi = pexVi,
-               tesColVc = tesColVc,
-               tesLabVc = tesLabVc,
-               tesLegVc = tesLegVc)
-
-    if(layL)
-        par(font=1, font.axis=1, font.lab=1, lwd=1,
-            mar=c(5.1, 4.1, 4.1, 2.1),
-            pch=1)
-
-    if(!is.null(file.pdfC))
-        dev.off()
-
-
-    ## Closing connection
-
-    if(!is.null(.sinkC)) ## Used in the Galaxy module
-        sink()
-
-
-})
+            
+            if (!is.null(file.pdfC)) {
+              warning("'file.pdfC' argument is deprecated; use 'fig.pdfC' instead",
+                      call. = FALSE)
+              fig.pdfC <- file.pdfC
+            }
+            
+            if (!is.null(.sinkC)) {
+              warning("'.sinkC' argument is deprecated; use 'info.txtC' instead",
+                      call. = FALSE)
+              info.txtC <- .sinkC
+            }
+            
+            if (is.null(fig.pdfC))
+              stop("'fig.pdfC' cannot be set to NULL in the 'plot' method.",
+                   call. = FALSE)
+
+            
+            if (!is.null(info.txtC) && !is.na(info.txtC)) ##  Diversion of messages is required for the integration into Galaxy
+              sink(info.txtC, append = TRUE)
+            
+            if (length(typeVc) > 4) {
+              warning("At most 4 graphics can be displayed simultaneously: here, the first 4 ones will be selected",
+                      call. = FALSE)
+              typeVc <- typeVc[1:4]
+            }
+            
+            if ("summary" %in% typeVc) {
+              if (!is.null(x@suppLs[["permMN"]]))
+                typeVc <- c("permutation",
+                            "overview",
+                            "outlier",
+                            "x-score")
+              else
+                typeVc <- c("overview",
+                            "outlier",
+                            "x-score",
+                            "x-loading")
+            }
+            
+            
+            ## Checking arguments
+            
+            if (!all(typeVc %in% c('correlation', 'outlier', 'overview', 'permutation', 'predict-train', 'predict-test', 'x-loading', 'x-score', 'x-variance', 'xy-score', 'xy-weight')))
+              stop("'typeVc' elements must be either 'correlation', 'outlier', 'overview', 'permutation', 'predict-train', 'predict-test', 'x-loading', 'x-score', 'x-variance', 'xy-score', 'xy-weight'", call. = FALSE)
+            
+            if ('predict-test' %in% typeVc && length(x@subsetVi) == 0)
+              stop("For the 'predict-test' graphic to be generated, 'subset' must not be kept to NULL", call. = FALSE)
+            
+            if (!any(is.na(parLabVc))) {
+              if (length(x@subsetVi) > 0 && length(parLabVc) != nrow(x@suppLs[["yMCN"]])) {
+                stop("When 'subset' is not NULL, 'parLabVc' vector length must be equal to the number of train + test samples (here: ", nrow(x@suppLs[["yMCN"]]), ").", call. = FALSE)
+              } else if (length(parLabVc) != nrow(x@scoreMN))
+                stop("'parLabVc' vector length must be equal to the number of 'x' rows")
+              if (mode(parLabVc) != "character")
+                stop("'parLabVc' must be of 'character' type")
+            }
+            
+            if (!any(is.na(parAsColFcVn))) {
+              if (length(x@subsetVi) > 0 && length(parAsColFcVn) != nrow(x@suppLs[["yMCN"]])) {
+                stop("When 'subset' is not NULL, 'parAsColFcVn' vector length must be equal to the number of train + test samples (here: ", nrow(x@suppLs[["yMCN"]]), ").", call. = FALSE)
+              } else if (length(parAsColFcVn) != nrow(x@scoreMN))
+                stop("'parAsColFcVn' vector length must be equal to the number of 'x' rows")
+              if (!(mode(parAsColFcVn) %in% c("character", "numeric")))
+                stop("'parAsColFcVn' must be of 'character' or 'numeric' type")
+              if (is.character(parAsColFcVn)) {
+                parAsColFcVn <- factor(parAsColFcVn)
+                warning("Character 'parAsColFcVn' set to a factor", call. = FALSE)
+              }
+            }
+            
+            if (is.null(x@suppLs[["permMN"]]) && 'permutation' %in% typeVc)
+              stop("'permI' must be > 0 for 'permutation' graphic to be plotted", call. = FALSE)
+            
+            if (x@summaryDF[, "ort"] > 0)
+              if (parCompVi[1] != 1) {
+                parCompVi[1] <- 1
+                warning("OPLS: first component to display ('parCompVi' first value) set to 1", call. = FALSE)
+              }
+            
+            if ("xy-weight" %in% typeVc &&
+                substr(x@typeC, 1, 3) != "PLS")
+              ## (is.null(yMCN) || is.na(x@summaryDF[, "ort"]) || x@summaryDF[, "ort"] > 0))
+              stop("'xy-weight graphic can be displayed only for PLS(-DA) models", call. = FALSE)
+            
+            if (any(grepl('predict', typeVc)))
+              if (is.null(x@suppLs[["yMCN"]]) ||
+                  ncol(x@suppLs[["yMCN"]]) > 1 ||
+                  (mode(x@suppLs[["yMCN"]]) == "character" && length(unique(drop(x@suppLs[["yMCN"]]))) > 2))
+                ## if(any(grepl('predict', typeVc)) && is.matrix(x@fitted"]]) && ncol(x@fitted"]]) > 1)
+                ## if(any(grepl('predict', typeVc)) && (is.null(yMCN) || ncol(yMCN) != 1))
+                stop("'predict' graphics available for single response regression or binary classification only", call. = FALSE)
+            
+            if (is.na(parEllipsesL)) {
+              if ((all(is.na(parAsColFcVn)) && grepl("-DA$", x@typeC)) ||
+                  (!all(is.na(parAsColFcVn)) && is.factor(parAsColFcVn))) {
+                parEllipsesL <- TRUE
+              } else
+                parEllipsesL <- FALSE
+              ## if((x@typeC == "PCA" && !all(is.na(parAsColFcVn)) && is.factor(parAsColFcVn)) || ## PCA case
+              ##    grepl("-DA$", x@typeC)) { ## (O)PLS-DA cases
+              ##     parEllipsesL <- TRUE
+              ## } else
+              ##     parEllipsesL <- FALSE
+            } else if (parEllipsesL && !grepl("-DA$", x@typeC) && (all(is.na(parAsColFcVn)) || !is.factor(parAsColFcVn)))
+              stop("Ellipses can be plotted for PCA (or PLS regression) only if the 'parAsColFcVn' is a factor",
+                   call. = FALSE)
+            
+            if (x@summaryDF[, "pre"] + x@summaryDF[, "ort"] < 2) {
+              
+              if (!all(typeVc %in% c("permutation", "overview"))) {
+                warning("Single component model: only 'overview' and 'permutation' (in case of single response (O)PLS(-DA)) plots available", call. = FALSE)
+                typeVc <- "overview"
+                if (!is.null(x@suppLs[["permMN"]]))
+                  typeVc <- c("permutation", typeVc)
+              }
+              
+              tCompMN <- x@scoreMN
+              pCompMN <- x@loadingMN
+              
+            } else {
+              
+              if (x@summaryDF[, "ort"] > 0) {
+                if (parCompVi[2] > x@summaryDF[, "ort"] + 1)
+                  stop("Selected orthogonal component for plotting (ordinate) exceeds the total number of orthogonal components of the model", call. = FALSE)
+                tCompMN <- cbind(x@scoreMN[, 1], x@orthoScoreMN[, parCompVi[2] - 1])
+                pCompMN <- cbind(x@loadingMN[, 1], x@orthoLoadingMN[, parCompVi[2] - 1])
+                colnames(pCompMN) <- colnames(tCompMN) <- c("h1", paste("o", parCompVi[2] - 1, sep = ""))
+              } else {
+                if (max(parCompVi) > x@summaryDF[, "pre"])
+                  stop("Selected component for plotting as ordinate exceeds the total number of predictive components of the model", call. = FALSE)
+                tCompMN <- x@scoreMN[, parCompVi, drop = FALSE]
+                pCompMN <- x@loadingMN[, parCompVi, drop = FALSE]
+              }
+              
+            }
+            
+            ## if(ncol(tCompMN) > 1) {
+            
+            ##     mahInvCovMN <- solve(cov(tCompMN))
+            
+            ##     pcaResMN <- cbind(sdsVn = apply(tCompMN,
+            ##                           1,
+            ##                           function(x) sqrt(t(as.matrix(x)) %*% mahInvCovMN %*% as.matrix(x))),
+            ##                       odsVn = apply(x@suppLs[["xModelMN"]] - tcrossprod(tCompMN, pCompMN),
+            ##                           1,
+            ##                           function(x) sqrt(drop(crossprod(x[complete.cases(x)])))))
+            
+            ## } else
+            ##     pcaResMN <- NULL
+            
+            cxtCompMN <- cor(x@suppLs[["xModelMN"]], tCompMN,
+                             use = "pairwise.complete.obs")
+            
+            if (!is.null(x@suppLs[["yModelMN"]]))
+              cytCompMN <- cor(x@suppLs[["yModelMN"]], tCompMN, use = "pairwise.complete.obs")
+            
+            
+            if (x@suppLs[["topLoadI"]] * 4 < ncol(x@suppLs[["xModelMN"]])) {
+              
+              pexVi <- integer(x@suppLs[["topLoadI"]] * ncol(pCompMN) * 2) ## 'ex'treme values
+              
+              for (k in 1:ncol(pCompMN)) {
+                
+                pkVn <-  pCompMN[, k]
+                
+                pexVi[1:(2 * x@suppLs[["topLoadI"]]) + 2 * x@suppLs[["topLoadI"]] * (k - 1)] <- c(order(pkVn)[1:x@suppLs[["topLoadI"]]],
+                                                                                                  rev(order(pkVn, decreasing = TRUE)[1:x@suppLs[["topLoadI"]]]))
+                
+              }
+              
+            } else
+              pexVi <- 1:ncol(x@suppLs[["xModelMN"]])
+            
+            pxtCompMN <- cbind(pCompMN,
+                               cxtCompMN)
+            
+            if (ncol(pCompMN) == 1) {
+              colnames(pxtCompMN)[2] <- paste0("cor_", colnames(pxtCompMN)[2])
+            } else
+              colnames(pxtCompMN)[3:4] <- paste0("cor_", colnames(pxtCompMN)[3:4])
+            
+            topLoadMN <- pxtCompMN
+            
+            topLoadMN <- topLoadMN[pexVi, , drop = FALSE]
+            
+            if (x@suppLs[["topLoadI"]] * 4 < ncol(x@suppLs[["xModelMN"]]) &&
+                ncol(pCompMN) > 1) {
+              
+              topLoadMN[(2 * x@suppLs[["topLoadI"]] + 1):(4 * x@suppLs[["topLoadI"]]), c(1, 3)] <- NA
+              topLoadMN[1:(2 * x@suppLs[["topLoadI"]]), c(2, 4)] <- NA
+              
+            }
+            
+            if (!any(is.na(parPaletteVc))) {
+              
+              if (mode(parPaletteVc) != "character")
+                stop("'parPaletteVc' should be a vector of mode 'character'",
+                     call. = FALSE)
+              
+              palChkVl <- sapply(parPaletteVc,
+                                 function(colC) {
+                                   tryCatch(is.matrix(grDevices::col2rgb(colC)), 
+                                            error = function(e) FALSE)
+                                   
+                                 }) ## as proposed by Josh O'Brien on stackoverflow
+              
+              if (any(is.na(palChkVl)) || any(!palChkVl))
+                stop("The following elements from 'parPaletteVc' could not be interpreted as colors:\n",
+                     paste(names(palChkVl)[is.na(palChkVl) | !palChkVl], collapse = ", "),
+                     call. = FALSE)
+              
+              if (any(is.na(palChkVl)))
+                stop("The following element(s) from 'parPaletteVc' could not be interpreted as colors:\n",
+                     paste(names(palChkVl)[is.na(palChkVl)], collapse = ", "),
+                     call. = FALSE)
+              
+            }
+            
+            ## Observation and variable names and colors
+            
+            ## obsLabVc
+            
+            if (!any(is.na(parLabVc))) {
+              obsLabVc <- parLabVc
+            } else if (!is.null(x@suppLs[["yMCN"]]) && ncol(x@suppLs[["yMCN"]]) == 1) { ## (O)PLS of single response
+              obsLabVc <- rownames(x@suppLs[["yMCN"]])
+            } else {## PCA
+              if (!is.null(rownames(tCompMN))) {
+                obsLabVc <- rownames(tCompMN)
+              } else
+                obsLabVc <- as.character(1:nrow(tCompMN))
+            }
+            
+            if (length(x@subsetVi) > 0) {
+              ## (O)PLS(-DA) models of a single 'y' response
+              tesLabVc <- obsLabVc[-x@subsetVi]
+              obsLabVc <- obsLabVc[x@subsetVi]
+            } else
+              tesLabVc <- ""
+            
+            ## obsColVc
+            
+            if (!any(is.na(parAsColFcVn))) {
+              obsColVc <- .plotColorF(as.vector(parAsColFcVn), parPaletteVc)[["colVc"]]
+              obsLegVc <- as.vector(parAsColFcVn)
+            } else if (!is.null(x@suppLs[["yMCN"]]) && ncol(x@suppLs[["yMCN"]]) == 1) { ## (O)PLS of single response
+              obsColVc <- .plotColorF(c(x@suppLs[["yMCN"]]), parPaletteVc)[["colVc"]]
+              obsLegVc <- c(x@suppLs[["yMCN"]])
+            } else {## PCA
+              obsColVc <- rep("black", nrow(tCompMN))
+              obsLegVc <- NULL
+            }
+            
+            if (length(x@subsetVi) > 0) {
+              ## (O)PLS(-DA) models of a single 'y' response
+              tesColVc <- obsColVc[-x@subsetVi]
+              obsColVc <- obsColVc[x@subsetVi]
+              if (!is.null(obsLegVc)) {
+                tesLegVc <- obsLegVc[-x@subsetVi]
+                obsLegVc <- obsLegVc[x@subsetVi]
+              }
+            }
+            
+            
+            ## Plotting parameters
+            
+            if (!is.na(fig.pdfC))
+              pdf(fig.pdfC)
+            
+            if (length(typeVc) > 1) {
+              opar <- par(mfrow = c(2, 2),
+                          mar = c(4.6, 4.1, 2.6, 1.6),
+                          font = 2,
+                          font.axis = 2,
+                          font.lab = 2,
+                          lwd = 2,
+                          pch = 18)
+              layL <- TRUE
+            } else {
+              opar <- par(mar = c(5.1, 4.1, 4.1, 2.1),
+                          font = 2,
+                          font.axis = 2,
+                          font.lab = 2,
+                          lwd = 2,
+                          pch = 18)
+              layL <- FALSE
+            }
+            
+            ## Graph
+            
+            for (ploC in typeVc)
+              .plotF(ploC,
+                     opl = x,
+                     obsColVc = obsColVc,
+                     obsLabVc = obsLabVc,
+                     obsLegVc = obsLegVc,
+                     layL = layL,
+                     parCexN = parCexN,
+                     parCexMetN = parCexMetricN,
+                     parEllipsesL = parEllipsesL,
+                     parPaletteVc = parPaletteVc,
+                     parTitleL = parTitleL,
+                     parCompVi = parCompVi,
+                     typeVc = typeVc,
+                     tCompMN = tCompMN,
+                     pCompMN = pCompMN,
+                     cxtCompMN = cxtCompMN,
+                     cytCompMN = cytCompMN,
+                     topLoadMN = topLoadMN,
+                     pexVi = pexVi,
+                     tesColVc = tesColVc,
+                     tesLabVc = tesLabVc,
+                     tesLegVc = tesLegVc)
+ 
+            par(opar)
+            
+            if (!is.na(fig.pdfC))
+              dev.off()
+            
+            ## Closing connection
+            
+            if (!is.null(info.txtC) && !is.na(info.txtC))
+              sink()
+          
+          })
 
 
 ####    fitted    ####
@@ -1466,45 +1504,45 @@ setMethod("plot", signature(x = "opls"),
 #' @export
 setMethod("fitted", "opls",
           function(object, ...) {
-
-              if(!is.null(object@suppLs[["yPreMN"]])) {
-
-                  if(mode(object@suppLs[["yMCN"]]) == "character") {
-
-                      yPredMCN <- object@suppLs[[".char2numF"]](object@suppLs[["yPreMN"]],
-                                                                c2nL = FALSE)
-
-                      if(is.vector(object@suppLs[["y"]])) {
-                          fit <- c(yPredMCN)
-                          names(fit) <- rownames(yPredMCN)
-                      } else if(is.factor(object@suppLs[["y"]])) {
-                          fit <- c(yPredMCN)
-                          names(fit) <- rownames(yPredMCN)
-                          fit <- factor(fit, levels = levels(object@suppLs[["y"]]))
-                      } else if(is.matrix(object@suppLs[["y"]])) {
-                          fit <- yPredMCN
-                      } else
-                          stop() ## this case should not happen
-
-                  } else {
-
-                      yPredMCN <- object@suppLs[["yPreMN"]]
-
-                      if(is.vector(object@suppLs[["y"]])) {
-                          fit <- c(yPredMCN)
-                          names(fit) <- rownames(yPredMCN)
-                      } else if(is.matrix(object@suppLs[["y"]])) {
-                          fit <- yPredMCN
-                      } else
-                          stop() ## this case should not happen
-
-                  }
-
-                  return(fit)
-
-              } else
-                  return(NULL)
-
+            
+            if(!is.null(object@suppLs[["yPreMN"]])) {
+              
+              if(mode(object@suppLs[["yMCN"]]) == "character") {
+                
+                yPredMCN <- object@suppLs[[".char2numF"]](object@suppLs[["yPreMN"]],
+                                                          c2nL = FALSE)
+                
+                if(is.vector(object@suppLs[["y"]])) {
+                  fit <- c(yPredMCN)
+                  names(fit) <- rownames(yPredMCN)
+                } else if(is.factor(object@suppLs[["y"]])) {
+                  fit <- c(yPredMCN)
+                  names(fit) <- rownames(yPredMCN)
+                  fit <- factor(fit, levels = levels(object@suppLs[["y"]]))
+                } else if(is.matrix(object@suppLs[["y"]])) {
+                  fit <- yPredMCN
+                } else
+                  stop() ## this case should not happen
+                
+              } else {
+                
+                yPredMCN <- object@suppLs[["yPreMN"]]
+                
+                if(is.vector(object@suppLs[["y"]])) {
+                  fit <- c(yPredMCN)
+                  names(fit) <- rownames(yPredMCN)
+                } else if(is.matrix(object@suppLs[["y"]])) {
+                  fit <- yPredMCN
+                } else
+                  stop() ## this case should not happen
+                
+              }
+              
+              return(fit)
+              
+            } else
+              return(NULL)
+            
           }) ## fitted
 
 
@@ -1544,45 +1582,45 @@ setMethod("fitted", "opls",
 #' @export
 setMethod("tested", "opls",
           function(object) {
-
-              if(!is.null(object@suppLs[["yTesMN"]])) {
-
-                  if(mode(object@suppLs[["yMCN"]]) == "character") {
-
-                      yTestMCN <- object@suppLs[[".char2numF"]](object@suppLs[["yTesMN"]],
-                                                                             c2nL = FALSE)
-                      if(is.vector(object@suppLs[["y"]])) {
-                          test <- c(yTestMCN)
-                          names(test) <- rownames(yTestMCN)
-                      } else if(is.factor(object@suppLs[["y"]])) {
-                          test <- c(yTestMCN)
-                          names(test) <- rownames(yTestMCN)
-                          test <- factor(test, levels = levels(object@suppLs[["y"]]))
-                      } else if(is.matrix(object@suppLs[["y"]])) {
-                          test <- yTestMCN
-                      } else
-                          stop() ## this case should not happen
-
-                  } else {
-
-                      yTestMCN <- object@suppLs[["yTesMN"]]
-
-                      if(is.vector(object@suppLs[["y"]])) {
-                          test <- c(yTestMCN)
-                          names(test) <- rownames(yTestMCN)
-                      } else if(is.matrix(object@suppLs[["y"]])) {
-                          test <- yTestMCN
-                      } else
-                          stop() ## this case should not happen
-
-                  }
-
-                  return(test)
-
-              } else
-                  stop("Test results only available for (O)PLS(-DA) models", call. = FALSE)
-
-
+            
+            if(!is.null(object@suppLs[["yTesMN"]])) {
+              
+              if(mode(object@suppLs[["yMCN"]]) == "character") {
+                
+                yTestMCN <- object@suppLs[[".char2numF"]](object@suppLs[["yTesMN"]],
+                                                          c2nL = FALSE)
+                if(is.vector(object@suppLs[["y"]])) {
+                  test <- c(yTestMCN)
+                  names(test) <- rownames(yTestMCN)
+                } else if(is.factor(object@suppLs[["y"]])) {
+                  test <- c(yTestMCN)
+                  names(test) <- rownames(yTestMCN)
+                  test <- factor(test, levels = levels(object@suppLs[["y"]]))
+                } else if(is.matrix(object@suppLs[["y"]])) {
+                  test <- yTestMCN
+                } else
+                  stop() ## this case should not happen
+                
+              } else {
+                
+                yTestMCN <- object@suppLs[["yTesMN"]]
+                
+                if(is.vector(object@suppLs[["y"]])) {
+                  test <- c(yTestMCN)
+                  names(test) <- rownames(yTestMCN)
+                } else if(is.matrix(object@suppLs[["y"]])) {
+                  test <- yTestMCN
+                } else
+                  stop() ## this case should not happen
+                
+              }
+              
+              return(test)
+              
+            } else
+              stop("Test results only available for (O)PLS(-DA) models", call. = FALSE)
+            
+            
           })
 
 
@@ -1615,7 +1653,7 @@ setMethod("tested", "opls",
 #' @export
 setMethod("coef", "opls",
           function(object, ...) {
-              return(object@coefficientMN)
+            return(object@coefficientMN)
           })
 
 
@@ -1650,30 +1688,30 @@ setMethod("coef", "opls",
 #' @export
 setMethod("residuals", "opls",
           function(object, ...) {
-
-    if (grepl("PLS", object@typeC)) {
-
-        fit <- fitted(object)
-
-        if (length(object@subsetVi) == 0) {
-            trainVi <- 1:length(fit)
-        } else
-            trainVi <- object@subsetVi
-
-        if (mode(object@suppLs[["yMCN"]]) == "numeric") {
-            y <- object@suppLs[["y"]]
-            if (is.matrix(y))
-                y <- y[trainVi, , drop = FALSE]
-            else
-                y <- y[trainVi]
-            return(y - fit)
-        } else
-            return(as.numeric(as.character(c(object@suppLs[["y"]])[trainVi]) != as.character(c(fit))))
-
-    } else
-        stop("'residuals' defined for (O)PLS(-DA) regression models only", call. = FALSE)
-
-}) ## residuals
+            
+            if (grepl("PLS", object@typeC)) {
+              
+              fit <- fitted(object)
+              
+              if (length(object@subsetVi) == 0) {
+                trainVi <- 1:length(fit)
+              } else
+                trainVi <- object@subsetVi
+              
+              if (mode(object@suppLs[["yMCN"]]) == "numeric") {
+                y <- object@suppLs[["y"]]
+                if (is.matrix(y))
+                  y <- y[trainVi, , drop = FALSE]
+                else
+                  y <- y[trainVi]
+                return(y - fit)
+              } else
+                return(as.numeric(as.character(c(object@suppLs[["y"]])[trainVi]) != as.character(c(fit))))
+              
+            } else
+              stop("'residuals' defined for (O)PLS(-DA) regression models only", call. = FALSE)
+            
+          }) ## residuals
 
 
 ####    predict    ####
@@ -1717,135 +1755,135 @@ setMethod("residuals", "opls",
 #' @export
 setMethod("predict", "opls",
           function(object, newdata, ...) {
-
-              if(object@typeC == "PCA")
-                  stop("Predictions currently available for (O)PLS(-DA) models only (not PCA)",
+            
+            if(object@typeC == "PCA")
+              stop("Predictions currently available for (O)PLS(-DA) models only (not PCA)",
+                   call. = FALSE)
+            
+            if(missing(newdata)) {
+              
+              return(fitted(object))
+              
+            } else {
+              
+              if(is.data.frame(newdata)) {
+                if(!all(sapply(newdata, data.class) == "numeric")) {
+                  stop("'newdata' data frame must contain numeric columns only", call. = FALSE)
+                } else
+                  newdata <- as.matrix(newdata)
+              } else if(is.matrix(newdata)) {
+                if(mode(newdata) != "numeric")
+                  stop("'newdata' matrix must be of 'numeric' mode", call. = FALSE)
+              } else
+                stop("'newdata' must be either a data.frame or a matrix", call. = FALSE)
+              
+              if(ncol(newdata) != as.numeric(object@descriptionMC["X_variables", ])) {
+                if(length(object@xZeroVarVi) == 0) {
+                  stop("'newdata' number of variables is ",
+                       ncol(newdata),
+                       " whereas the number of variables used for model training was ",
+                       as.numeric(object@descriptionMC["X_variables", ]),
+                       ".",
                        call. = FALSE)
-
-              if(missing(newdata)) {
-
-                  return(fitted(object))
-
-              } else {
-
-                  if(is.data.frame(newdata)) {
-                      if(!all(sapply(newdata, data.class) == "numeric")) {
-                          stop("'newdata' data frame must contain numeric columns only", call. = FALSE)
-                      } else
-                          newdata <- as.matrix(newdata)
-                  } else if(is.matrix(newdata)) {
-                      if(mode(newdata) != "numeric")
-                          stop("'newdata' matrix must be of 'numeric' mode", call. = FALSE)
-                  } else
-                      stop("'newdata' must be either a data.frame or a matrix", call. = FALSE)
-
-                  if(ncol(newdata) != as.numeric(object@descriptionMC["X_variables", ])) {
-                      if(length(object@xZeroVarVi) == 0) {
-                          stop("'newdata' number of variables is ",
-                               ncol(newdata),
-                               " whereas the number of variables used for model training was ",
-                               as.numeric(object@descriptionMC["X_variables", ]),
-                               ".",
-                               call. = FALSE)
-                      } else if(ncol(newdata) - as.numeric(object@descriptionMC["X_variables", ]) ==
-                                as.numeric(object@descriptionMC["near_zero_excluded_X_variables", ])) {
-                          warning(as.numeric(object@descriptionMC["near_zero_excluded_X_variables", ]),
-                                  " near zero variance variables excluded during the model training will be removed from 'newdata'.",
-                                  call. = FALSE)
-                          newdata <- newdata[, -object@xZeroVarVi, drop = FALSE]
-                      } else {
-                          stop("'newdata' number of variables (",
-                               ncol(newdata),
-                               ") does not correspond to the number of initial variables (",
-                               as.numeric(object@descriptionMC["X_variables", ]),
-                               ") minus the number of near zero variance variables excluded during the training (",
-                               as.numeric(object@descriptionMC["near_zero_excluded_X_variables", ]),
-                               ").",
-                               call. = FALSE)
-                      }
-                  }
-
-                  xteMN <- scale(newdata, object@xMeanVn, object@xSdVn)
-
-                  if(object@summaryDF[, "ort"] > 0) {
-
-                      for(noN in 1:object@summaryDF[, "ort"]) {
-                          if(object@suppLs[["naxL"]]) {
-                              xtoMN <- matrix(0, nrow = nrow(xteMN), ncol = 1)
-                              for(i in 1:nrow(xtoMN)) {
-                                  comVl <- complete.cases(xteMN[i, ])
-                                  xtoMN[i, ] <- crossprod(xteMN[i, comVl], object@orthoWeightMN[comVl, noN]) / drop(crossprod(object@orthoWeightMN[comVl, noN]))
-                              }
-                          } else
-                              xtoMN <- xteMN %*% object@orthoWeightMN[, noN]
-
-                          xteMN <- xteMN - tcrossprod(xtoMN, object@orthoLoadingMN[, noN])
-                      }
-
-                  }
-
-                  if(object@suppLs[["naxL"]]) {
-                      yTesScaMN <- matrix(0, nrow = nrow(xteMN), ncol = ncol(object@coefficientMN),
-                                          dimnames = list(rownames(xteMN), colnames(object@coefficientMN)))
-                      for(j in 1:ncol(yTesScaMN))
-                          for(i in 1:nrow(yTesScaMN)) {
-                              comVl <- complete.cases(xteMN[i, ])
-                              yTesScaMN[i, j] <- crossprod(xteMN[i, comVl], object@coefficientMN[comVl, j])
-                          }
-                  } else
-                      yTesScaMN <- xteMN %*% object@coefficientMN
-
-                  ## if(object@suppLs[["nayL"]])
-                  ##     yTesScaMN <- yTesScaMN[!is.na(yMCN[testVi, ]), , drop = FALSE]
-
-                  yTesMN <- scale(scale(yTesScaMN,
-                                        FALSE,
-                                        1 / object@ySdVn),
-                                  -object@yMeanVn,
-                                  FALSE)
-                  attr(yTesMN, "scaled:center") <- NULL
-                  attr(yTesMN, "scaled:scale") <- NULL
-
-                  if(is.factor(fitted(object))) {
-
-                      yTestMCN <- object@suppLs[[".char2numF"]](yTesMN,
-                                                                c2nL = FALSE)
-                      predMCNFcVcn <- as.character(yTestMCN)
-                      names(predMCNFcVcn) <- rownames(newdata)
-                      predMCNFcVcn <- factor(predMCNFcVcn, levels = levels(object@suppLs[["y"]]))
-
-                  } else if(is.vector(fitted(object))) {
-
-                      if(is.character(fitted(object))) {
-
-                          yTestMCN <- object@suppLs[[".char2numF"]](yTesMN,
-                                                                    c2nL = FALSE)
-                          predMCNFcVcn <- as.character(yTestMCN)
-                          names(predMCNFcVcn) <- rownames(newdata)
-
-                      } else {
-
-                          predMCNFcVcn <- as.numeric(yTesMN)
-                          names(predMCNFcVcn) <- rownames(newdata)
-
-                      }
-
-                  } else if(is.matrix(fitted(object))) {
-
-                      if(mode(fitted(object)) == "character") {
-                          predMCNFcVcn  <- object@suppLs[[".char2numF"]](yTesMN,
-                                                                         c2nL = FALSE)
-                      } else
-                          predMCNFcVcn <- yTesMN
-
-                      rownames(predMCNFcVcn) <- rownames(newdata)
-
-                  }
-
-                  return(predMCNFcVcn)
-
+                } else if(ncol(newdata) - as.numeric(object@descriptionMC["X_variables", ]) ==
+                          as.numeric(object@descriptionMC["near_zero_excluded_X_variables", ])) {
+                  warning(as.numeric(object@descriptionMC["near_zero_excluded_X_variables", ]),
+                          " near zero variance variables excluded during the model training will be removed from 'newdata'.",
+                          call. = FALSE)
+                  newdata <- newdata[, -object@xZeroVarVi, drop = FALSE]
+                } else {
+                  stop("'newdata' number of variables (",
+                       ncol(newdata),
+                       ") does not correspond to the number of initial variables (",
+                       as.numeric(object@descriptionMC["X_variables", ]),
+                       ") minus the number of near zero variance variables excluded during the training (",
+                       as.numeric(object@descriptionMC["near_zero_excluded_X_variables", ]),
+                       ").",
+                       call. = FALSE)
+                }
               }
-
+              
+              xteMN <- scale(newdata, object@xMeanVn, object@xSdVn)
+              
+              if(object@summaryDF[, "ort"] > 0) {
+                
+                for(noN in 1:object@summaryDF[, "ort"]) {
+                  if(object@suppLs[["naxL"]]) {
+                    xtoMN <- matrix(0, nrow = nrow(xteMN), ncol = 1)
+                    for(i in 1:nrow(xtoMN)) {
+                      comVl <- complete.cases(xteMN[i, ])
+                      xtoMN[i, ] <- crossprod(xteMN[i, comVl], object@orthoWeightMN[comVl, noN]) / drop(crossprod(object@orthoWeightMN[comVl, noN]))
+                    }
+                  } else
+                    xtoMN <- xteMN %*% object@orthoWeightMN[, noN]
+                  
+                  xteMN <- xteMN - tcrossprod(xtoMN, object@orthoLoadingMN[, noN])
+                }
+                
+              }
+              
+              if(object@suppLs[["naxL"]]) {
+                yTesScaMN <- matrix(0, nrow = nrow(xteMN), ncol = ncol(object@coefficientMN),
+                                    dimnames = list(rownames(xteMN), colnames(object@coefficientMN)))
+                for(j in 1:ncol(yTesScaMN))
+                  for(i in 1:nrow(yTesScaMN)) {
+                    comVl <- complete.cases(xteMN[i, ])
+                    yTesScaMN[i, j] <- crossprod(xteMN[i, comVl], object@coefficientMN[comVl, j])
+                  }
+              } else
+                yTesScaMN <- xteMN %*% object@coefficientMN
+              
+              ## if(object@suppLs[["nayL"]])
+              ##     yTesScaMN <- yTesScaMN[!is.na(yMCN[testVi, ]), , drop = FALSE]
+              
+              yTesMN <- scale(scale(yTesScaMN,
+                                    FALSE,
+                                    1 / object@ySdVn),
+                              -object@yMeanVn,
+                              FALSE)
+              attr(yTesMN, "scaled:center") <- NULL
+              attr(yTesMN, "scaled:scale") <- NULL
+              
+              if(is.factor(fitted(object))) {
+                
+                yTestMCN <- object@suppLs[[".char2numF"]](yTesMN,
+                                                          c2nL = FALSE)
+                predMCNFcVcn <- as.character(yTestMCN)
+                names(predMCNFcVcn) <- rownames(newdata)
+                predMCNFcVcn <- factor(predMCNFcVcn, levels = levels(object@suppLs[["y"]]))
+                
+              } else if(is.vector(fitted(object))) {
+                
+                if(is.character(fitted(object))) {
+                  
+                  yTestMCN <- object@suppLs[[".char2numF"]](yTesMN,
+                                                            c2nL = FALSE)
+                  predMCNFcVcn <- as.character(yTestMCN)
+                  names(predMCNFcVcn) <- rownames(newdata)
+                  
+                } else {
+                  
+                  predMCNFcVcn <- as.numeric(yTesMN)
+                  names(predMCNFcVcn) <- rownames(newdata)
+                  
+                }
+                
+              } else if(is.matrix(fitted(object))) {
+                
+                if(mode(fitted(object)) == "character") {
+                  predMCNFcVcn  <- object@suppLs[[".char2numF"]](yTesMN,
+                                                                 c2nL = FALSE)
+                } else
+                  predMCNFcVcn <- yTesMN
+                
+                rownames(predMCNFcVcn) <- rownames(newdata)
+                
+              }
+              
+              return(predMCNFcVcn)
+              
+            }
+            
           })
 
 
@@ -1956,7 +1994,7 @@ setMethod("getLoadingMN", "opls",
 #' @export
 setMethod("getPcaVarVn", "opls",
           function(object) {
-                  return(object@pcaVarVn)
+            return(object@pcaVarVn)
           })
 
 
@@ -1991,10 +2029,10 @@ setMethod("getPcaVarVn", "opls",
 #' @export
 setMethod("getScoreMN", "opls",
           function(object, orthoL = FALSE) {
-              if(orthoL)
-                  return(object@orthoScoreMN)
-              else
-                  return(object@scoreMN)
+            if(orthoL)
+              return(object@orthoScoreMN)
+            else
+              return(object@scoreMN)
           })
 
 
@@ -2035,7 +2073,7 @@ setMethod("getScoreMN", "opls",
 #' @export
 setMethod("getSubsetVi", "opls",
           function(object) {
-                  return(object@subsetVi)
+            return(object@subsetVi)
           })
 
 
@@ -2164,19 +2202,19 @@ setMethod("getWeightMN", "opls",
 #' print(checkW4M(sacSet))
 #' @rdname checkW4M
 setMethod("checkW4M", "ExpressionSet",
-         function(eset, ...) {
-
-             datMN <- t(exprs(eset))
-             samDF <- pData(eset)
-             varDF <- fData(eset)
-
-             chkL <- .checkW4mFormatF(datMN, samDF, varDF)
-
-             if(!chkL) {
-                 stop("Problem with the sample or variable names in the tables to be imported from (exported to) W4M", call. = FALSE)
-             } else
-                 return(TRUE)
-         })
+          function(eset, ...) {
+            
+            datMN <- t(exprs(eset))
+            samDF <- pData(eset)
+            varDF <- fData(eset)
+            
+            chkL <- .checkW4mFormatF(datMN, samDF, varDF)
+            
+            if(!chkL) {
+              stop("Problem with the sample or variable names in the tables to be imported from (exported to) W4M", call. = FALSE)
+            } else
+              return(TRUE)
+          })
 
 #' Exporting ExpressionSet instance into 3 tabulated files.
 #'
@@ -2203,50 +2241,50 @@ setMethod("checkW4M", "ExpressionSet",
 #' @rdname toW4M
 setMethod("toW4M", "ExpressionSet",
           function(eset, filePrefixC = paste0(getwd(), "/out_"), verboseL = TRUE, ...){
-
-              if(checkW4M(eset)) {
-
-                  datMN <- exprs(eset)
-                  datDF <- cbind.data.frame(dataMatrix = rownames(datMN),
-                                            as.data.frame(datMN))
-
-                  filDatC <- paste0(filePrefixC, "dataMatrix.tsv")
-                  filSamC <- paste0(filePrefixC, "sampleMetadata.tsv")
-                  filVarC <- paste0(filePrefixC, "variableMetadata.tsv")
-
-                  write.table(datDF,
-                              file = filDatC,
-                              quote = FALSE,
-                              row.names = FALSE,
-                              sep = "\t")
-
-                  samDF <- pData(eset)
-                  samDF <- cbind.data.frame(sampleMetadata = rownames(samDF),
-                                            samDF)
-                  write.table(samDF,
-                              file = filSamC,
-                              quote = FALSE,
-                              row.names = FALSE,
-                              sep = "\t")
-
-                  varDF <- fData(eset)
-                  varDF <- cbind.data.frame(variableMetadata = rownames(varDF),
-                                            varDF)
-                  write.table(varDF,
-                              file = filVarC,
-                              quote = FALSE,
-                              row.names = FALSE,
-                              sep = "\t")
-
-                  if(verboseL) {
-                      cat("The following 3 files:\n")
-                      print(basename(filDatC))
-                      print(basename(filSamC))
-                      print(basename(filVarC))
-                      cat("have been written in the following directory:\n")
-                      print(dirname(filDatC))
-                  }
-
+            
+            if(checkW4M(eset)) {
+              
+              datMN <- exprs(eset)
+              datDF <- cbind.data.frame(dataMatrix = rownames(datMN),
+                                        as.data.frame(datMN))
+              
+              filDatC <- paste0(filePrefixC, "dataMatrix.tsv")
+              filSamC <- paste0(filePrefixC, "sampleMetadata.tsv")
+              filVarC <- paste0(filePrefixC, "variableMetadata.tsv")
+              
+              write.table(datDF,
+                          file = filDatC,
+                          quote = FALSE,
+                          row.names = FALSE,
+                          sep = "\t")
+              
+              samDF <- pData(eset)
+              samDF <- cbind.data.frame(sampleMetadata = rownames(samDF),
+                                        samDF)
+              write.table(samDF,
+                          file = filSamC,
+                          quote = FALSE,
+                          row.names = FALSE,
+                          sep = "\t")
+              
+              varDF <- fData(eset)
+              varDF <- cbind.data.frame(variableMetadata = rownames(varDF),
+                                        varDF)
+              write.table(varDF,
+                          file = filVarC,
+                          quote = FALSE,
+                          row.names = FALSE,
+                          sep = "\t")
+              
+              if(verboseL) {
+                cat("The following 3 files:\n")
+                print(basename(filDatC))
+                print(basename(filSamC))
+                print(basename(filVarC))
+                cat("have been written in the following directory:\n")
+                print(dirname(filDatC))
               }
-
+              
+            }
+            
           })

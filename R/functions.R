@@ -286,6 +286,8 @@ strF <- function(inpMF,
 #' 'grey', 'revGrey', 'palette', or 'ramp')
 #' @param mainC title (by default, the name of the matrixMN variable will be used)
 #' @param logL should the matrix values be log transformed?
+#' @param fig.pdfC file name for the figure (with '.pdf' extension), if set to
+#' NA (default), the figure is displayed on the screen
 #' @return No output.
 #' @export
 #' @examples
@@ -299,7 +301,8 @@ imageF <- function(matrixMN,
                                 "palette",
                                 "ramp")[1],
                    mainC = NA,
-                   logL = FALSE) {
+                   logL = FALSE,
+                   fig.pdfC = NA) {
   
   maiC <- deparse(substitute(matrixMN))
   if (!is.na(mainC))
@@ -316,6 +319,9 @@ imageF <- function(matrixMN,
   }
   
   palHeaVc <- .palette(imageMN, paletteC)
+  
+  if (!is.na(fig.pdfC))
+    pdf(fig.pdfC)
   
   opar <- par(no.readonly = TRUE)
   
@@ -346,6 +352,9 @@ imageF <- function(matrixMN,
   ## title
   
   graphics::title(maiC, outer = TRUE, line = -1.2)
+  
+  if (!is.na(fig.pdfC))
+    dev.off()
   
   par(opar)
   

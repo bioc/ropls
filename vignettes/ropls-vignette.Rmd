@@ -152,15 +152,13 @@ sacurine.pca <- opls(dataMatrix)
 A **summary** of the model (8 components were selected) is printed:
 
 ```{r pca_result, echo = FALSE}
-sacurine.pca <- opls(dataMatrix, plotL = FALSE)
+sacurine.pca <- opls(dataMatrix, fig.pdfC = NULL)
 ```
 
 In addition the default **summary** figure is displayed:
 
 ```{r pca_figure, echo = FALSE, fig.show = 'hold'}
-layout(matrix(1:4, nrow = 2, byrow = TRUE))
-for(typeC in c("overview", "outlier", "x-score", "x-loading"))
-plot(sacurine.pca, typeVc = typeC, parDevNewL = FALSE)
+plot(sacurine.pca)
 ```
 **Figure 1: PCA summary plot.** **Top left** `overview`: the **scree** plot (i.e.,
 inertia barplot) suggests that 3 components may be sufficient to capture most of
@@ -190,16 +188,11 @@ Let us see if we notice any partition according to gender, by labeling/coloring
 the samples according to *gender* (`parAsColFcVn`) and drawing the Mahalanobis
 ellipses for the male and female subgroups (`parEllipseL`).
 
-```{r pca-col, eval = FALSE}
+```{r pca-col}
 genderFc <- sampleMetadata[, "gender"]
-plot(sacurine.pca, typeVc = "x-score",
-parAsColFcVn = genderFc, parEllipsesL = TRUE)
-```
-
-```{r pca-col_figure, echo = FALSE}
-genderFc <- sampleMetadata[, "gender"]
-plot(sacurine.pca, typeVc = "x-score",
-parAsColFcVn = genderFc, parEllipsesL = TRUE, parDevNewL = FALSE)
+plot(sacurine.pca,
+     typeVc = "x-score",
+     parAsColFcVn = genderFc)
 ```
 **Figure 2: PCA score plot colored according to gender.**
 
@@ -216,6 +209,16 @@ specifying `parAsColFcVn = sampleMetadata[, "age"]`.
 2. The displayed components can be specified with `parCompVi` (plotting
 *par*ameter specifying the *Comp*onents: *V*ector of 2 *i*ntegers)
 
+3. The labels and the color palette can be personalized with the `parLabVc` and `parPaletteVc` parameters, respectively:
+```{r pca-col-personalized}
+plot(sacurine.pca,
+     typeVc = "x-score",
+     parAsColFcVn = genderFc,
+     parLabVc = as.character(sampleMetadata[, "age"]),
+     parPaletteVc = c("green4", "magenta"))
+```
+
+
 ## Partial least-squares: PLS and PLS-DA
 
 For **PLS (and OPLS)**, the **Y** response(s) must be provided to the `opls`
@@ -224,16 +227,9 @@ method. **Y** can be either a numeric vector (respectively matrix) for single
 **(O)PLS-DA classification** as in the following example with the *gender*
 qualitative response:
 
-```{r plsda, eval = FALSE}
+```{r plsda}
 sacurine.plsda <- opls(dataMatrix, genderFc)
 ```
-```{r plsda_figure, echo = FALSE}
-sacurine.plsda <- opls(dataMatrix, genderFc, plotL = FALSE)
-layout(matrix(1:4, nrow = 2, byrow = TRUE))
-for(typeC in c("permutation", "overview", "outlier", "x-score"))
-plot(sacurine.plsda, typeVc = typeC, parDevNewL = FALSE)
-```
-
 **Figure 3: PLS-DA model of the gender response.** **Top left**:
 `significance` diagnostic: the **R2Y** and **Q2Y** of the model are compared
 with the corresponding values obtained after random permutation of the *y*
@@ -284,16 +280,9 @@ To perform **OPLS(-DA)**, we set `orthoI` (number of components which are
 *ortho*gonal; *I*nteger) to either a specific number of orthogonal components,
 or to NA. Let us build an OPLS-DA model of the *gender* response.
 
-```{r oplsda, eval = FALSE}
+```{r oplsda}
 sacurine.oplsda <- opls(dataMatrix, genderFc,
-predI = 1, orthoI = NA)
-```
-```{r oplsda_figure, echo = FALSE}
-sacurine.oplsda <- opls(dataMatrix, genderFc,
-predI = 1, orthoI = NA, plotL = FALSE)
-layout(matrix(1:4, nrow = 2, byrow = TRUE))
-for(typeC in c("permutation", "overview", "outlier", "x-score"))
-plot(sacurine.oplsda, typeVc = typeC, parDevNewL = FALSE)
+                        predI = 1, orthoI = NA)
 ```
 **Figure 4: OPLS-DA model of the gender response.**
 
@@ -311,13 +300,10 @@ model on a subset of the samples (here we use the `odd` subset value which
 splits the data set into two halves with similar proportions of samples for each
 class; alternatively, we could have used a specific subset of indices for
 training):
-```{r oplsda_subset, eval = FALSE}
-sacurine.oplsda <- opls(dataMatrix, genderFc, predI = 1, orthoI = NA,
-subset = "odd")
-```
-```{r oplsda_subset_code, echo = FALSE}
-sacurine.oplsda <- opls(dataMatrix, genderFc, predI = 1, orthoI = NA, permI = 0,
-subset = "odd", plotL = FALSE)
+```{r oplsda_subset, warning=FALSE}
+sacurine.oplsda <- opls(dataMatrix, genderFc,
+                        predI = 1, orthoI = NA,
+                        subset = "odd")
 ```
 
 We first check the predictions on the **training** subset:
@@ -358,19 +344,24 @@ xRandMN <- matrix(runif(obsI * featMaxI), nrow = obsI)
 yRandVn <- sample(c(rep(0, obsI / 2), rep(1, obsI / 2)))
 
 layout(matrix(1:4, nrow = 2, byrow = TRUE))
-for(featI in featVi) {
-    randPlsi <- opls(xRandMN[, 1:featI], yRandVn,
-                  predI = 2,
-                  permI = ifelse(featI == featMaxI, 100, 0),
-                  printL = FALSE, plotL = FALSE)
-    plot(randPlsi, typeVc = "x-score", parDevNewL = FALSE,
-         parCexN = 1.3, parTitleL = FALSE)
-    mtext(featI/obsI, font = 2, line = 2)
-    if(featI == featMaxI)
-         plot(randPlsi, typeVc = "permutation", parDevNewL = FALSE,
-           parCexN = 1.3)
-    }
-mtext(" obs./feat. ratio:", adj = 0, at = 0, font = 2, line = -2, outer = TRUE)
+for (featI in featVi) {
+  randPlsi <- opls(xRandMN[, 1:featI], yRandVn,
+                   predI = 2,
+                   permI = ifelse(featI == featMaxI, 100, 0),
+                   fig.pdfC = NULL,
+                   info.txtC = NULL)
+  plot(randPlsi, typeVc = "x-score",
+       parCexN = 1.3, parTitleL = FALSE,
+       parCexMetricN = 0.5)
+  mtext(featI/obsI, font = 2, line = 2)
+  if (featI == featMaxI)
+    plot(randPlsi,
+         typeVc = "permutation",
+         parCexN = 1.3)
+}
+mtext(" obs./feat. ratio:",
+      adj = 0, at = 0, font = 2,
+      line = -2, outer = TRUE)
 ```
 **Figure 5: Risk of PLS overfitting.** In the simulation above, a **random
 matrix X** of 20 observations x 200 features was generated by sampling from the
@@ -403,20 +394,23 @@ interactions between variables). In fact, when features are standardized, we
 can demonstrate a mathematical relationship between VIP and *p*-values from a
 Pearson correlation test [@Thevenot2015], as illustrated by the figure below:
 
-```{r vip, echo = FALSE}
+```{r vip}
 ageVn <- sampleMetadata[, "age"]
 
 pvaVn <- apply(dataMatrix, 2,
                function(feaVn) cor.test(ageVn, feaVn)[["p.value"]])
 
-vipVn <- getVipVn(opls(dataMatrix, ageVn, predI = 1, orthoI = NA, plot = FALSE))
+vipVn <- getVipVn(opls(dataMatrix, ageVn,
+                       predI = 1, orthoI = NA,
+                       fig.pdfC = NULL))
 
 quantVn <- qnorm(1 - pvaVn / 2)
 rmsQuantN <- sqrt(mean(quantVn^2))
 
-par(font = 2, font.axis = 2, font.lab = 2, las = 1,
-    mar = c(5.1, 4.6, 4.1, 2.1),
-    lwd = 2, pch = 16)
+opar <- par(font = 2, font.axis = 2, font.lab = 2,
+            las = 1,
+            mar = c(5.1, 4.6, 4.1, 2.1),
+            lwd = 2, pch = 16)
 
 plot(pvaVn, vipVn,
      col = "red",
@@ -429,6 +423,8 @@ curve(qnorm(1 - x / 2) / rmsQuantN, 0, 1, add = TRUE, col = "red", lwd = 3)
 
 abline(h = 1, col = "blue")
 abline(v = 0.05, col = "blue")
+
+par(opar)
 ```
 **Figure 6: Relationship between VIP from one-predictive PLS or OPLS models with
 standardized variables, and p-values from Pearson correlation test.** The $(p_j,
@@ -526,21 +522,12 @@ argument the name of the sampleMetadata to be used as the response.
 In the example below, we will first build a minimal **ExpressionSet** object
 from the *sacurine* data set, and we subsequently perform an OPLS-DA.
 
-```{r expressionset_code, eval = FALSE}
+```{r expressionset_code, warning=FALSE}
 library(Biobase)
 sacSet <- ExpressionSet(assayData = t(dataMatrix),
-phenoData = new("AnnotatedDataFrame", data = sampleMetadata))
+                        phenoData = new("AnnotatedDataFrame",
+                                        data = sampleMetadata))
 opls(sacSet, "gender", orthoI = NA)
-```
-
-```{r expressionset_figure, echo = FALSE, message = FALSE, warning = FALSE}
-library(Biobase)
-sacSet <- ExpressionSet(assayData = t(dataMatrix),
-phenoData = new("AnnotatedDataFrame", data = sampleMetadata))
-eset.oplsda <- opls(sacSet, "gender", orthoI = NA, plotL = FALSE)
-layout(matrix(1:4, nrow = 2, byrow = TRUE))
-for(typeC in c("overview", "outlier", "x-score", "x-loading"))
-plot(eset.oplsda, typeVc = typeC, parDevNewL = FALSE)
 ```
 
 ## Importing/exporting data from/to the Workflow4metabolomics infrastructure

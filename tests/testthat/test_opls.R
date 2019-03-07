@@ -27,12 +27,12 @@ test_that("plot", {
   
   data(sacurine)
   
-  for(typeC in c("correlation", "outlier", "overview",
-                 "permutation", "predict-train","predict-test",
-                 "summary", "x-loading", "x-score", "x-variance",
-                 "xy-score", "xy-weight")) {
+  for (typeC in c("correlation", "outlier", "overview",
+                  "permutation", "predict-train","predict-test",
+                  "summary", "x-loading", "x-score", "x-variance",
+                  "xy-score", "xy-weight")) {
     
-    if(grepl("predict", typeC))
+    if (grepl("predict", typeC))
       subset <- "odd"
     else
       subset <- NULL
@@ -43,30 +43,34 @@ test_that("plot", {
                  orthoI = ifelse(typeC != "xy-weight", 1, 0),
                  permI = ifelse(typeC == "permutation", 10, 0),
                  subset = subset,
-                 printL = FALSE, plotL = FALSE)
+                 fig.pdfC = NULL, info.txtC = NULL)
     
-    plot(opLs, typeVc = typeC)
+    plot(opLs, typeVc = typeC,
+         fig.pdfC = "test.pdf")
     
   }
   
   ## (O)PLS-DA: Turning display of ellipses off in case parAsColFcVn is numeric
   plot(opLs,
-       parAsColFcVn = sacurine[["sampleMetadata"]][, "age"])
+       parAsColFcVn = sacurine[["sampleMetadata"]][, "age"],
+       fig.pdfC = "test.pdf")
   
   ## Converting 'parAsColFcVn' character into a factor (with warning)
   plot(opLs,
-       parAsColFcVn = as.character(sacurine[["sampleMetadata"]][, "gender"]))
+       parAsColFcVn = as.character(sacurine[["sampleMetadata"]][, "gender"]),
+       fig.pdfC = "test.pdf")
   
 })
 
 test_that("print", {
   
   data(sacurine)
-  pcaLs <- opls(sacurine[["dataMatrix"]], predI = 2, printL = FALSE, plotL = FALSE)
+  pcaLs <- opls(sacurine[["dataMatrix"]], predI = 2,
+                fig.pdfC = NULL, info.txtC = NULL)
   print(pcaLs)
   plsLs <- opls(sacurine[["dataMatrix"]],
                 sacurine[["sampleMetadata"]][, "gender"],
-                predI = 2, printL = FALSE, plotL = FALSE)
+                predI = 2, fig.pdfC = NULL, info.txtC = NULL)
   print(plsLs)
   
   
@@ -79,7 +83,7 @@ test_that("PCA", {
   fooMN <- as.matrix(foods[, colnames(foods) != "Country"])
   rownames(fooMN) <- foods[, "Country"]
   
-  foo.pca <- opls(fooMN, permI = 0, printL = FALSE, plotL = FALSE)
+  foo.pca <- opls(fooMN, permI = 0, fig.pdfC = NULL, info.txtC = NULL)
   testthat::expect_equivalent(getPcaVarVn(foo.pca)[1],
                               6.19,
                               tolerance = 1e-3)
@@ -94,7 +98,7 @@ test_that("PCA_sacurine",  {
   data(sacurine)
   
   sac.pca <- opls(sacurine[["dataMatrix"]],
-                  printL = FALSE, plotL = FALSE)
+                  fig.pdfC = NULL, info.txtC = NULL)
   testthat::expect_equivalent(getSummaryDF(sac.pca)["Total", "R2X(cum)"],
                               0.501,
                               tolerance = 1e-3)
@@ -107,21 +111,21 @@ test_that("PCA_sacurine",  {
   
   sac.pcaCenter <- opls(sacurine[["dataMatrix"]],
                         scaleC = "center",
-                        printL = FALSE, plotL = FALSE)
+                        fig.pdfC = NULL, info.txtC = NULL)
   testthat::expect_equivalent(sac.pcaCenter@modelDF["p2", "R2X(cum)"],
                               0.223,
                               tolerance = 1e-3)
   
   sac.pcaPareto <- opls(sacurine[["dataMatrix"]],
                         scaleC = "pareto",
-                        printL = FALSE, plotL = FALSE)
+                        fig.pdfC = NULL, info.txtC = NULL)
   testthat::expect_equivalent(sac.pcaPareto@modelDF["p3", "R2X"],
                               0.063,
                               tolerance = 1e-3)
   
   sac.pcaSvd <- opls(sacurine[["dataMatrix"]],
                      algoC = "svd",
-                     printL = FALSE, plotL = FALSE)
+                     fig.pdfC = NULL, info.txtC = NULL)
   testthat::expect_equivalent(sac.pcaSvd@modelDF["p3", "R2X"],
                               0.067,
                               tolerance = 1e-3)
@@ -137,13 +141,13 @@ test_that("PLS_single", {
   
   corPlsLs <- opls(as.matrix(cornell[, grep("x", colnames(cornell))]),
                    matrix(cornell[, "y"], ncol = 1),
-                   permI = 0, printL = FALSE, plotL = FALSE)
+                   permI = 0, fig.pdfC = NULL, info.txtC = NULL)
   testthat::expect_equivalent(getScoreMN(corPlsLs)[1, 1],
                               2.0513,
                               tolerance = 1e-3)
   cornell.pls <- opls(as.matrix(cornell[, grep("x", colnames(cornell))]),
                       cornell[, "y"],
-                      permI = 0, printL = FALSE, plotL = FALSE)
+                      permI = 0, fig.pdfC = NULL, info.txtC = NULL)
   testthat::expect_equivalent(getVipVn(cornell.pls)[1],
                               1.125,
                               tolerance = 1e-3)
@@ -157,7 +161,7 @@ test_that("PLS_multiple", {
   lowarp.pls <- opls(as.matrix(lowarp[, c("glas", "crtp", "mica", "amtp")]),
                      as.matrix(lowarp[, grepl("^wrp", colnames(lowarp)) |
                                         grepl("^st", colnames(lowarp))]),
-                     permI = 0, printL = FALSE, plotL = FALSE)
+                     permI = 0, fig.pdfC = NULL, info.txtC = NULL)
   testthat::expect_equivalent(lowarp.pls@weightStarMN[2, 1],
                               -0.0861,
                               tolerance = 1e-3)
@@ -176,7 +180,7 @@ test_that("PLS_predict_sacurine", {
                    sacurine[["sampleMetadata"]][, "age"],
                    predI = 1,
                    orthoI = 1,
-                   permI = 0, printL = FALSE, plotL = FALSE)
+                   permI = 0, fig.pdfC = NULL, info.txtC = NULL)
   testthat::expect_equivalent(predict(sac.opls)[107],
                               42.97439,
                               tolerance = 1e-5)
@@ -185,7 +189,7 @@ test_that("PLS_predict_sacurine", {
                    sacurine[["sampleMetadata"]][, "gender"],
                    predI = 1,
                    orthoI = 1,
-                   permI = 0, printL = FALSE, plotL = FALSE)
+                   permI = 0, fig.pdfC = NULL, info.txtC = NULL)
   pred107Fc <- "M"
   names(pred107Fc) <- "HU_125"
   pred107Fc <- factor(pred107Fc, levels = c("M", "F"))
@@ -197,7 +201,7 @@ test_that("PLS_predict_sacurine", {
   sac.pls.tr <- opls(sacurine[["dataMatrix"]],
                      sacurine[["sampleMetadata"]][, "age"],
                      subset = trainVi,
-                     permI = 0, printL = FALSE, plotL = FALSE)
+                     permI = 0, fig.pdfC = NULL, info.txtC = NULL)
   testthat::expect_equivalent(as.numeric(sac.pls.tr@descriptionMC["samples", 1]),
                               length(trainVi),
                               tolerance = 0)
@@ -219,13 +223,13 @@ test_that("PLSDA_sacurine", {
   
   sac.plsda <- opls(sacurine[["dataMatrix"]],
                     matrix(sacurine[["sampleMetadata"]][, "gender"], ncol = 1),
-                    permI = 0, printL = FALSE, plotL = FALSE)
+                    permI = 0, fig.pdfC = NULL, info.txtC = NULL)
   testthat::expect_equivalent(getSummaryDF(sac.plsda)["Total", "Q2(cum)"],
                               0.584,
                               tolerance = 1e-3)
   sac.plsda <- opls(sacurine[["dataMatrix"]],
                     sacurine[["sampleMetadata"]][, "gender"],
-                    permI = 0, printL = FALSE, plotL = FALSE)
+                    permI = 0, fig.pdfC = NULL, info.txtC = NULL)
   testthat::expect_equivalent(getVipVn(sac.plsda)[5],
                               0.7034828,
                               tolerance = 1e-7)
@@ -235,7 +239,7 @@ test_that("PLSDA_sacurine", {
   sac.plsdaCrv <- opls(sacurine[["dataMatrix"]],
                        sacurine[["sampleMetadata"]][, "gender"],
                        subset = setdiff(1:nrow(sacurine[["dataMatrix"]]), 1:10),
-                       permI = 0, printL = FALSE, plotL = FALSE)
+                       permI = 0, fig.pdfC = NULL, info.txtC = NULL)
   testthat::expect_equivalent(getSummaryDF(sac.plsdaCrv)["Total", "RMSEP"],
                               0.275,
                               tolerance = 1e-3)
@@ -297,14 +301,14 @@ test_that("PLSDA_sacurine_pareto", {
   sac.plsdaPar <- opls(sacurine[["dataMatrix"]],
                        matrix(sacurine[["sampleMetadata"]][, "gender"], ncol = 1),
                        scaleC = "pareto",
-                       permI = 0, printL = FALSE, plotL = FALSE)
+                       permI = 0, fig.pdfC = NULL, info.txtC = NULL)
   testthat::expect_equivalent(getSummaryDF(sac.plsdaPar)["Total", "Q2(cum)"],
                               0.521,
                               tolerance = 1e-3)
   sac.plsdaPar <- opls(sacurine[["dataMatrix"]],
                        sacurine[["sampleMetadata"]][, "gender"],
                        scaleC = "pareto",
-                       permI = 0, printL = FALSE, plotL = FALSE)
+                       permI = 0, fig.pdfC = NULL, info.txtC = NULL)
   testthat::expect_equivalent(getVipVn(sac.plsdaPar)[5],
                               0.7710519,
                               tolerance = 1e-7)
@@ -363,7 +367,7 @@ test_that("OPLSDA_sacurine", {
                             ncol = 1),
                      predI = 1,
                      orthoI = 1,
-                     permI = 0, printL = FALSE, plotL = FALSE)
+                     permI = 0, fig.pdfC = NULL, info.txtC = NULL)
   testthat::expect_equivalent(getScoreMN(sac.oplsda, orthoL = TRUE)[1, 1],
                               4.980604,
                               tolerance = 1e-7)
@@ -385,7 +389,7 @@ test_that("OPLSDA_sacurine", {
                         predI = 1,
                         orthoI = 1,
                         permI = 10,
-                        printL = FALSE, plotL = FALSE)
+                        fig.pdfC = NULL, info.txtC = NULL)
   testthat::expect_equivalent(sac.oplsdaPer@suppLs[["permMN"]][1, 1],
                               0.185,
                               tolerance = 1e-3)
@@ -397,7 +401,7 @@ test_that("OPLSDA_sacurine", {
                             ncol = 1),
                      predI = 1,
                      orthoI = NA,
-                     permI = 0, printL = FALSE, plotL = FALSE)
+                     permI = 0, fig.pdfC = NULL, info.txtC = NULL)
   testthat::expect_equivalent(getSummaryDF(sac.oplsda)[, "ort"],
                               2,
                               tolerance = 1e-3)
@@ -407,7 +411,7 @@ test_that("OPLSDA_sacurine", {
                             ncol = 1),
                      predI = 1,
                      orthoI = NA,
-                     permI = 0, printL = FALSE, plotL = FALSE)
+                     permI = 0, fig.pdfC = NULL, info.txtC = NULL)
   testthat::expect_equivalent(getSummaryDF(sac.oplsda)[, "ort"],
                               1,
                               tolerance = 1e-3)
@@ -445,8 +449,7 @@ test_that("OPLSDA_ns", {
                               predI = 1,
                               orthoI = NA,
                               permI = 0,
-                              printL = FALSE,
-                              plotL = FALSE),
+                              fig.pdfC = NULL, info.txtC = NULL),
                          silent = TRUE)
   
   testthat::expect_error(opls(datMN,
@@ -455,8 +458,7 @@ test_that("OPLSDA_ns", {
                               orthoI = NA,
                               permI = 0,
                               scaleC = "pareto",
-                              printL = FALSE,
-                              plotL = FALSE),
+                              fig.pdfC = NULL, info.txtC = NULL),
                          silent = TRUE)
   
 })
@@ -517,7 +519,8 @@ test_that("multiresponse", {
 
 test_that("imageF", {
   data(sacurine)
-  imageF(sacurine[['dataMatrix']])
+  imageF(sacurine[['dataMatrix']],
+         fig.pdfC = "test.pdf")
 })
 
 

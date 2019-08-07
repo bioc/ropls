@@ -356,17 +356,20 @@ setMethod("opls", signature(x = "matrix"),
                    ...) {
             
             if (!printL) {
-              warning("'printL' argument is deprecated; use 'info.txtC' instead")
+              warning("'printL' argument is deprecated; use 'info.txtC' instead.",
+                      call. = FALSE)
               info.txtC <- "none"
             }
             
             if (!plotL) {
-              warning("'plotL' argument is deprecated; use 'fig.pdfC' instead")
+              warning("'plotL' argument is deprecated; use 'fig.pdfC' instead.",
+                      call. = FALSE)
               fig.pdfC <- "none"
             }
             
             if (!is.null(.sinkC)) {
-              warning("'.sinkC' argument is deprecated; use 'info.txtC' instead")
+              warning("'.sinkC' argument is deprecated; use 'info.txtC' instead.",
+                      call. = FALSE)
               info.txtC <- .sinkC
             }
             
@@ -1157,12 +1160,14 @@ setMethod("plot", signature(x = "opls"),
             }
             
             if (!is.null(.sinkC)) {
-              warning("'.sinkC' argument is deprecated; use 'info.txtC' instead.")
+              warning("'.sinkC' argument is deprecated; use 'info.txtC' instead.",
+                      call. = FALSE)
               info.txtC <- .sinkC
             }
             
             if (fig.pdfC == "none")
-              stop("'fig.pdfC' cannot be set to 'none' in the 'plot' method.")
+              stop("'fig.pdfC' cannot be set to 'none' in the 'plot' method.",
+                   call. = FALSE)
 
             
             if (!(info.txtC %in% c("none", "interactive")))
@@ -1200,18 +1205,18 @@ setMethod("plot", signature(x = "opls"),
               if (length(x@subsetVi) > 0 && length(parLabVc) != nrow(x@suppLs[["yMCN"]])) {
                 stop("When 'subset' is not NULL, 'parLabVc' vector length must be equal to the number of train + test samples (here: ", nrow(x@suppLs[["yMCN"]]), ").", call. = FALSE)
               } else if (length(parLabVc) != nrow(x@scoreMN))
-                stop("'parLabVc' vector length must be equal to the number of 'x' rows")
+                stop("'parLabVc' vector length must be equal to the number of 'x' rows", call. = FALSE)
               if (mode(parLabVc) != "character")
-                stop("'parLabVc' must be of 'character' type")
+                stop("'parLabVc' must be of 'character' type", call. = FALSE)
             }
             
             if (!any(is.na(parAsColFcVn))) {
               if (length(x@subsetVi) > 0 && length(parAsColFcVn) != nrow(x@suppLs[["yMCN"]])) {
                 stop("When 'subset' is not NULL, 'parAsColFcVn' vector length must be equal to the number of train + test samples (here: ", nrow(x@suppLs[["yMCN"]]), ").", call. = FALSE)
               } else if (length(parAsColFcVn) != nrow(x@scoreMN))
-                stop("'parAsColFcVn' vector length must be equal to the number of 'x' rows")
+                stop("'parAsColFcVn' vector length must be equal to the number of 'x' rows", call. = FALSE)
               if (!(mode(parAsColFcVn) %in% c("character", "numeric")))
-                stop("'parAsColFcVn' must be of 'character' or 'numeric' type")
+                stop("'parAsColFcVn' must be of 'character' or 'numeric' type", call. = FALSE)
               if (is.character(parAsColFcVn)) {
                 parAsColFcVn <- factor(parAsColFcVn)
                 warning("Character 'parAsColFcVn' set to a factor", call. = FALSE)

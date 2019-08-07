@@ -12,7 +12,9 @@
   parAsColFcVn = NA, parCexN = 0.8, parCompVi = c(1, 2),
   parEllipsesL = NA, parLabVc = NA, parPaletteVc = NA,
   parTitleL = TRUE, file.pdfC = NULL, .sinkC = NULL,
-  parCexMetricN = NA, fig.pdfC = NA, info.txtC = NA, ...)
+  parCexMetricN = NA, fig.pdfC = c("none", "interactive",
+  "myfile.pdf")[2], info.txtC = c("none", "interactive",
+  "myfile.txt")[2], ...)
 }
 \arguments{
 \item{x}{An S4 object of class \code{opls}, created by the \code{opls}
@@ -65,11 +67,13 @@ the user wishes to add specific titles a posteriori}
 \item{parCexMetricN}{Numeric: magnification of the metrics at the bottom of
 score plot (default -NA- is 1 in 1x1 and 0.7 in 2x2 display)}
 
-\item{fig.pdfC}{Figure filename (e.g. in case of batch mode) ending with
-'.pdf'; default is NA (no saving; displaying instead)}
+\item{fig.pdfC}{Character: File name with '.pdf' extension for the figure;
+if 'interactive' (default), figures will be displayed interactively; if 'none',
+no figure will be generated}
 
-\item{info.txtC}{Character: Report filename for R output diversion [default =
-NA: no diversion]}
+\item{info.txtC}{Character: File name with '.txt' extension for the printed
+results (call to sink()'); if 'interactive' (default), messages will be
+printed on the screen; if 'none', no verbose will be generated}
 
 \item{...}{Currently not used.}
 }
@@ -98,8 +102,8 @@ for(typeC in c("correlation", "outlier", "overview",
                      orthoI = ifelse(typeC != "xy-weight", 1, 0),
                      permI = ifelse(typeC == "permutation", 10, 0),
                      subset = subset,
-                     info.txtC = NULL,
-                     fig.pdfC = NULL)
+                     info.txtC = "none",
+                     fig.pdfC = "none")
 
     plot(plsModel, typeVc = typeC)
 

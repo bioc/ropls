@@ -230,10 +230,12 @@ setMethod("opls", signature(x = "data.frame"),
 #' @param printL Logical: deprecated: use the 'info.txtC' argument instead
 #' @param plotL Logical: deprecated: use the 'fig.pdfC' argument instead
 #' @param .sinkC Character: deprecated: use the 'info.txtC' argument instead
-#' @param fig.pdfC Character: Figure filename ending with '.pdf'; default is NA
-#' (no saving; displaying instead); set to 'NULL' to prevent plotting
-#' @param info.txtC Character: Report filename for R output diversion [default =
-#' NA: no diversion]; set to 'NULL' to disable any verbose
+#' @param fig.pdfC Character: File name with '.pdf' extension for the figure;
+#' if 'interactive' (default), figures will be displayed interactively; if 'none',
+#' no figure will be generated
+#' @param info.txtC Character: File name with '.txt' extension for the printed
+#' results (call to sink()'); if 'interactive' (default), messages will be
+#' printed on the screen; if 'none', no verbose will be generated
 #' @param ... Currently not used.
 #' @return An S4 object of class 'opls' containing the following slots:
 #' \itemize{
@@ -348,31 +350,28 @@ setMethod("opls", signature(x = "matrix"),
                    
                    .sinkC = NULL,
 
-                   fig.pdfC = NA,                   
-                   info.txtC = NA,
+                   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],                   
+                   info.txtC = c("none", "interactive", "myfile.txt")[2],
                    
                    ...) {
             
             if (!printL) {
-              warning("'printL' argument is deprecated; use 'info.txtC' instead",
-                      call. = FALSE)
-              info.txtC <- NULL
+              warning("'printL' argument is deprecated; use 'info.txtC' instead")
+              info.txtC <- "none"
             }
             
             if (!plotL) {
-              warning("'plotL' argument is deprecated; use 'fig.pdfC' instead",
-                      call. = FALSE)
-              fig.pdfC <- NULL
+              warning("'plotL' argument is deprecated; use 'fig.pdfC' instead")
+              fig.pdfC <- "none"
             }
             
             if (!is.null(.sinkC)) {
-              warning("'.sinkC' argument is deprecated; use 'info.txtC' instead",
-                      call. = FALSE)
+              warning("'.sinkC' argument is deprecated; use 'info.txtC' instead")
               info.txtC <- .sinkC
             }
             
             
-            if (!is.null(info.txtC) && !is.na(info.txtC)) ##  Diversion of messages is required for the integration into Galaxy
+            if (!(info.txtC %in% c("none", "interactive")))
               sink(info.txtC, append = TRUE)
             
             ## Checking arguments
@@ -823,19 +822,19 @@ setMethod("opls", signature(x = "matrix"),
             
             ## Printing
             
-            if (!is.null(info.txtC)) {
+            if (info.txtC != "none") {
               show(opl)
               warnings()
             }
             
             ## Plotting
             
-            if (!is.null(fig.pdfC))
+            if (fig.pdfC != "none")
               plot(opl, typeVc = "summary", fig.pdfC = fig.pdfC)
             
             ## Closing connection
             
-            if (!is.null(info.txtC) && !is.na(info.txtC)) ## Used in the Galaxy module
+            if (!(info.txtC %in% c("none", "interactive")))
               sink()
             
             ## Returning
@@ -1077,10 +1076,12 @@ setMethod("print", "opls",
 #' @param .sinkC Character: deprecated; use the 'info.txtC' argument instead
 #' @param parCexMetricN Numeric: magnification of the metrics at the bottom of
 #' score plot (default -NA- is 1 in 1x1 and 0.7 in 2x2 display)
-#' @param fig.pdfC Figure filename (e.g. in case of batch mode) ending with
-#' '.pdf'; default is NA (no saving; displaying instead)
-#' @param info.txtC Character: Report filename for R output diversion [default =
-#' NA: no diversion]
+#' @param fig.pdfC Character: File name with '.pdf' extension for the figure;
+#' if 'interactive' (default), figures will be displayed interactively; if 'none',
+#' no figure will be generated
+#' @param info.txtC Character: File name with '.txt' extension for the printed
+#' results (call to sink()'); if 'interactive' (default), messages will be
+#' printed on the screen; if 'none', no verbose will be generated
 #' @param ... Currently not used.
 #' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
 #' @examples
@@ -1105,8 +1106,8 @@ setMethod("print", "opls",
 #'                      orthoI = ifelse(typeC != "xy-weight", 1, 0),
 #'                      permI = ifelse(typeC == "permutation", 10, 0),
 #'                      subset = subset,
-#'                      info.txtC = NULL,
-#'                      fig.pdfC = NULL)
+#'                      info.txtC = "none",
+#'                      fig.pdfC = "none")
 #'
 #'     plot(plsModel, typeVc = typeC)
 #'
@@ -1145,29 +1146,26 @@ setMethod("plot", signature(x = "opls"),
                    .sinkC = NULL,
                    
                    parCexMetricN = NA,
-                   fig.pdfC = NA,
-                   info.txtC = NA,
+                   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
+                   info.txtC = c("none", "interactive", "myfile.txt")[2],
                    
                    ...) {
             
             if (!is.null(file.pdfC)) {
-              warning("'file.pdfC' argument is deprecated; use 'fig.pdfC' instead",
-                      call. = FALSE)
+              warning("'file.pdfC' argument is deprecated; use 'fig.pdfC' instead.")
               fig.pdfC <- file.pdfC
             }
             
             if (!is.null(.sinkC)) {
-              warning("'.sinkC' argument is deprecated; use 'info.txtC' instead",
-                      call. = FALSE)
+              warning("'.sinkC' argument is deprecated; use 'info.txtC' instead.")
               info.txtC <- .sinkC
             }
             
-            if (is.null(fig.pdfC))
-              stop("'fig.pdfC' cannot be set to NULL in the 'plot' method.",
-                   call. = FALSE)
+            if (fig.pdfC == "none")
+              stop("'fig.pdfC' cannot be set to 'none' in the 'plot' method.")
 
             
-            if (!is.null(info.txtC) && !is.na(info.txtC)) ##  Diversion of messages is required for the integration into Galaxy
+            if (!(info.txtC %in% c("none", "interactive")))
               sink(info.txtC, append = TRUE)
             
             if (length(typeVc) > 4) {
@@ -1416,7 +1414,7 @@ setMethod("plot", signature(x = "opls"),
             
             ## Plotting parameters
             
-            if (!is.na(fig.pdfC))
+            if (fig.pdfC != "interactive")
               pdf(fig.pdfC)
             
             if (length(typeVc) > 1) {
@@ -1466,12 +1464,12 @@ setMethod("plot", signature(x = "opls"),
  
             par(opar)
             
-            if (!is.na(fig.pdfC))
+            if (fig.pdfC != "interactive")
               dev.off()
             
             ## Closing connection
             
-            if (!is.null(info.txtC) && !is.na(info.txtC))
+            if (!(info.txtC %in% c("none", "interactive")))
               sink()
           
           })

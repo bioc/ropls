@@ -16,7 +16,8 @@
   algoC = c("default", "nipals", "svd")[1], crossvalI = 7,
   log10L = FALSE, permI = 20, scaleC = c("none", "center", "pareto",
   "standard")[4], subset = NULL, printL = TRUE, plotL = TRUE,
-  .sinkC = NULL, fig.pdfC = NA, info.txtC = NA, ...)
+  .sinkC = NULL, fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
+  info.txtC = c("none", "interactive", "myfile.txt")[2], ...)
 }
 \arguments{
 \item{x}{Numerical data frame or matrix (observations x variables; NAs are
@@ -81,11 +82,13 @@ of the dataset; use 'odd' for a partition of the dataset in two equal sizes
 
 \item{.sinkC}{Character: deprecated: use the 'info.txtC' argument instead}
 
-\item{fig.pdfC}{Character: Figure filename ending with '.pdf'; default is NA
-(no saving; displaying instead); set to 'NULL' to prevent plotting}
+\item{fig.pdfC}{Character: File name with '.pdf' extension for the figure;
+if 'interactive' (default), figures will be displayed interactively; if 'none',
+no figure will be generated}
 
-\item{info.txtC}{Character: Report filename for R output diversion [default =
-NA: no diversion]; set to 'NULL' to disable any verbose}
+\item{info.txtC}{Character: File name with '.txt' extension for the printed
+results (call to sink()'); if 'interactive' (default), messages will be
+printed on the screen; if 'none', no verbose will be generated}
 }
 \value{
 An S4 object of class 'opls' containing the following slots:

@@ -1,3 +1,17 @@
+CHANGES IN VERSION 1.17.12
+------------------------------
+
+NEW FEATURE
+
+    o Multi data set names display on graphics
+    
+CHANGES IN VERSION 1.17.10
+------------------------------
+
+NEW FEATURE
+
+    o plot method for oplsMultiDataSet objects
+
 CHANGES IN VERSION 1.17.8
 ------------------------------
 

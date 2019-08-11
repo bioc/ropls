@@ -1,10 +1,111 @@
+#### opls (mset) ####
+
+#' @rdname opls
+#' @export
+setMethod("opls", signature(x = "MultiDataSet"),
+          function(x,
+                   y = NULL,
+                   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],                   
+                   info.txtC = c("none", "interactive", "myfile.txt")[2],
+                   ...) {
+
+            if (!(info.txtC %in% c("none", "interactive")))
+              sink(info.txtC, append = TRUE)
+            
+            infTxtC <- info.txtC
+            if (infTxtC != "none")
+              infTxtC <- "interactive"
+            
+            if (!(fig.pdfC %in% c("none", "interactive")))
+              grDevices::pdf(fig.pdfC)
+            
+            figPdfC <- fig.pdfC
+            if (figPdfC != "none")
+              figPdfC <- "interactive"
+            
+            oplsMsetLs <- vector(mode = "list",
+                                 length = length(names(x)))
+            names(oplsMsetLs) <- names(x)
+            # plotL <- TRUE
+            
+            for (setC in names(x)) {
+              
+              if (info.txtC != "none")
+                cat("\n\nBuilding the model for the '", setC, "' dataset:\n", sep = "")
+
+              setOpls <- tryCatch(ropls::opls(x[[setC]],
+                                              y = y,
+                                              info.txtC = infTxtC,
+                                              fig.pdfC = figPdfC,
+                                              ...),
+                                  error = function(e) NULL)
+              
+              if (is.null(setOpls)) {
+                
+                if (info.txtC != "none")
+                  cat("No model could be built for the '",
+                      setC,
+                      "' dataset.\n",
+                      sep = "")
+                
+                setOpls <- new("opls")
+                setOpls@eset <- x[[setC]]
+                # plotL <- FALSE
+                
+              } else if (grepl("PLS", setOpls@typeC) &&
+                         ropls::getSummaryDF(setOpls)["Total", "pQ2"] > 0.05) {
+                
+                if (info.txtC != "none")                  
+                  cat("No model was included for the '",
+                      setC,
+                      "' dataset because pQ2 was above 5%.\n",
+                      sep = "")
+                
+                setOpls <- new("opls")
+                setOpls@eset <- x[[setC]]
+                # plotL <- FALSE
+                
+              }
+              
+              oplsMsetLs[[setC]] <- setOpls
+              # 
+              # if (fig.pdfC != "none" && plotL)
+              #   ropls::plot(oplsMsetLs[[setC]],
+              #               fig.pdfC = fig.pdfC)
+              
+              # x <- MultiDataSet::add_eset(x,
+              #                             ropls::getEset(oplsModelLs[[setC]]),
+              #                             dataset.type = setC,
+              #                             GRanges = NA,
+              #                             overwrite = TRUE,
+              #                             warnings = FALSE)
+              
+            }
+            
+            if (!(fig.pdfC %in% c("none", "interactive")))
+              grDevices::dev.off()
+            
+            if (!(info.txtC %in% c("none", "interactive")))
+              sink()
+            
+            oplsMset <- new("oplsMultiDataSet")
+            oplsMset@oplsLs <- oplsMsetLs
+            
+            return(invisible(oplsMset))
+            
+          })
+
+#### opls (eset) ####
+
 #' @rdname opls
 #' @export
 setMethod("opls", signature(x = "ExpressionSet"),
           function(x, y = NULL, ...) {
             
             if (is.null(y)) {
+
               opl <- ropls::opls(t(exprs(x)), ...)
+
             } else {
               if (!is.character(y)) {
                 stop("'y' must be a character when the 'opls' method is applied to an 'ExpressionSet' instance")
@@ -329,6 +430,20 @@ setMethod("opls", signature(x = "data.frame"),
 #' head(Biobase::fData(sacSet))
 #' 
 #' detach(sacurine)
+#' 
+#' # MultiDataSet
+#' 
+#' library(brgedata)
+#' data("brge_gexp") # Get the ExpressionSet from brgedata 
+#' gSet1 <- brge_gexp[sample(1:21916, 300), 1:50]   # Create ExpressionSet with samples from 01 to 50
+#' gSet2 <- brge_gexp[sample(1:21916, 300), 35:61]  # Create ExpressionSet with samples from 35 to 64
+#' brgeMset <- MultiDataSet::createMultiDataSet()
+#' brgeMset <- MultiDataSet::add_eset(brgeMset, gSet1, dataset.type = "expression",
+#' dataset.name = "gSet1", warnings = FALSE)
+#' brgeMset <- MultiDataSet::add_eset(brgeMset, gSet2, dataset.type = "expression",
+#' dataset.name = "gSet2", warnings = FALSE)
+#' brgeMset
+#' brgePca <- ropls::opls(brgeMset)
 #'
 #' @rdname opls
 #' @export
@@ -511,7 +626,7 @@ setMethod("opls", signature(x = "matrix"),
               if (is.na(orthoI) || orthoI > 0) {
                 if (ncol(yMCN) > 1) {
                   stop("OPLS regression only available for a single 'y' response", call. = FALSE)
-                } else if(mode(yMCN) == "character" && length(unique(drop(yMCN))) > 2)
+                } else if (mode(yMCN) == "character" && length(unique(drop(yMCN))) > 2)
                   stop("OPLS-DA only available for binary classification (use PLS-DA for multiple classes)", call. = FALSE)
               }
             }
@@ -703,8 +818,11 @@ setMethod("opls", signature(x = "matrix"),
                           subsetL = subsetL,
                           subsetVi = subsetVi,
                           .char2numF = .char2numF)
-            
-            opl@suppLs[["y"]] <- y
+  
+            if (is.null(y)) {          
+              opl@suppLs["y"] <- list(NULL)
+            } else
+              opl@suppLs[["y"]] <- y
             
             if (is.null(opl@suppLs[["yMCN"]])) {
               opl@typeC <- "PCA"
@@ -853,12 +971,12 @@ setMethod("opls", signature(x = "matrix"),
               show(opl)
               warnings()
             }
-            
+
             ## Plotting
-            
+
             if (fig.pdfC != "none")
               plot(opl, typeVc = "summary", fig.pdfC = fig.pdfC)
-            
+          
             ## Closing connection
             
             if (!(info.txtC %in% c("none", "interactive")))
@@ -979,7 +1097,7 @@ setMethod("print", "opls",
             cat("Summary of the ", x@suppLs[["topLoadI"]], " increasing variance spaced raw variables:\n", sep = "")
             print(summary(x@suppLs[["xSubIncVarMN"]]))
             
-            if(!is.null(x@suppLs[["xCorMN"]])) {
+            if (!is.null(x@suppLs[["xCorMN"]])) {
               cat("Correlations between the X-variables:\n")
               print(signif(x@suppLs[["xCorMN"]], 2))
               cat("\n", sep = "")
@@ -989,7 +1107,7 @@ setMethod("print", "opls",
             
             cat("Correlations between variables and first 2 components:\n", sep = "")
             
-            if(x@summaryDF[, "pre"] + x@summaryDF[, "ort"] < 2) {
+            if (x@summaryDF[, "pre"] + x@summaryDF[, "ort"] < 2) {
               
               warning("A single component model has been selected by cross-validation", call. = FALSE)
               
@@ -998,7 +1116,7 @@ setMethod("print", "opls",
               
             } else {
               
-              if(x@summaryDF[, "ort"] > 0) {
+              if (x@summaryDF[, "ort"] > 0) {
                 tCompMN <- cbind(x@scoreMN[, 1], x@orthoScoreMN[, 1])
                 pCompMN <- cbind(x@loadingMN[, 1], x@orthoLoadingMN[, 1])
                 colnames(pCompMN) <- colnames(tCompMN) <- c("h1", "o1")
@@ -1012,11 +1130,11 @@ setMethod("print", "opls",
             cxtCompMN <- cor(x@suppLs[["xModelMN"]], tCompMN,
                              use = "pairwise.complete.obs")
             
-            if(x@suppLs[["topLoadI"]] * 4 < ncol(x@suppLs[["xModelMN"]])) {
+            if (x@suppLs[["topLoadI"]] * 4 < ncol(x@suppLs[["xModelMN"]])) {
               
               pexVi <- integer(x@suppLs[["topLoadI"]] * ncol(pCompMN) * 2) ## 'ex'treme values
               
-              for(k in 1:ncol(pCompMN)) {
+              for (k in 1:ncol(pCompMN)) {
                 
                 pkVn <-  pCompMN[, k]
                 
@@ -1031,7 +1149,7 @@ setMethod("print", "opls",
             pxtCompMN <- cbind(pCompMN,
                                cxtCompMN)
             
-            if(ncol(pCompMN) == 1) {
+            if (ncol(pCompMN) == 1) {
               colnames(pxtCompMN)[2] <- paste0("cor_", colnames(pxtCompMN)[2])
             } else
               colnames(pxtCompMN)[3:4] <- paste0("cor_", colnames(pxtCompMN)[3:4])
@@ -1040,7 +1158,7 @@ setMethod("print", "opls",
             
             topLoadMN <- topLoadMN[pexVi, , drop = FALSE]
             
-            if(x@suppLs[["topLoadI"]] * 4 < ncol(x@suppLs[["xModelMN"]]) &&
+            if (x@suppLs[["topLoadI"]] * 4 < ncol(x@suppLs[["xModelMN"]]) &&
                ncol(pCompMN) > 1) {
               
               topLoadMN[(2 * x@suppLs[["topLoadI"]] + 1):(4 * x@suppLs[["topLoadI"]]), c(1, 3)] <- NA
@@ -1177,7 +1295,7 @@ setMethod("plot", signature(x = "opls"),
                    info.txtC = c("none", "interactive", "myfile.txt")[2],
                    
                    ...) {
-            
+
             if (!is.null(file.pdfC)) {
               warning("'file.pdfC' argument is deprecated; use 'fig.pdfC' instead.")
               fig.pdfC <- file.pdfC
@@ -1239,7 +1357,6 @@ setMethod("plot", signature(x = "opls"),
                             "x-score",
                             "x-loading")
             }
-            
             
             ## Checking arguments
             
@@ -1464,7 +1581,6 @@ setMethod("plot", signature(x = "opls"),
               }
             }
             
-            
             ## Plotting parameters
             
             if (fig.pdfC != "interactive")
@@ -1556,21 +1672,21 @@ setMethod("plot", signature(x = "opls"),
 setMethod("fitted", "opls",
           function(object, ...) {
             
-            if(!is.null(object@suppLs[["yPreMN"]])) {
+            if (!is.null(object@suppLs[["yPreMN"]])) {
               
-              if(mode(object@suppLs[["yMCN"]]) == "character") {
+              if (mode(object@suppLs[["yMCN"]]) == "character") {
                 
                 yPredMCN <- object@suppLs[[".char2numF"]](object@suppLs[["yPreMN"]],
                                                           c2nL = FALSE)
                 
-                if(is.vector(object@suppLs[["y"]])) {
+                if (is.vector(object@suppLs[["y"]])) {
                   fit <- c(yPredMCN)
                   names(fit) <- rownames(yPredMCN)
-                } else if(is.factor(object@suppLs[["y"]])) {
+                } else if (is.factor(object@suppLs[["y"]])) {
                   fit <- c(yPredMCN)
                   names(fit) <- rownames(yPredMCN)
                   fit <- factor(fit, levels = levels(object@suppLs[["y"]]))
-                } else if(is.matrix(object@suppLs[["y"]])) {
+                } else if (is.matrix(object@suppLs[["y"]])) {
                   fit <- yPredMCN
                 } else
                   stop() ## this case should not happen
@@ -1579,10 +1695,10 @@ setMethod("fitted", "opls",
                 
                 yPredMCN <- object@suppLs[["yPreMN"]]
                 
-                if(is.vector(object@suppLs[["y"]])) {
+                if (is.vector(object@suppLs[["y"]])) {
                   fit <- c(yPredMCN)
                   names(fit) <- rownames(yPredMCN)
-                } else if(is.matrix(object@suppLs[["y"]])) {
+                } else if (is.matrix(object@suppLs[["y"]])) {
                   fit <- yPredMCN
                 } else
                   stop() ## this case should not happen
@@ -1919,9 +2035,9 @@ setMethod("predict", "opls",
                   
                 }
                 
-              } else if(is.matrix(fitted(object))) {
+              } else if (is.matrix(fitted(object))) {
                 
-                if(mode(fitted(object)) == "character") {
+                if (mode(fitted(object)) == "character") {
                   predMCNFcVcn  <- object@suppLs[[".char2numF"]](yTesMN,
                                                                  c2nL = FALSE)
                 } else
@@ -2339,3 +2455,46 @@ setMethod("toW4M", "ExpressionSet",
             }
             
           })
+
+####    getMset    ####
+
+#' getMset method
+#'
+#' Extracts the complemented MultiDataSet when opls has been applied to a MultiDataSet
+#'
+#' @aliases getMset getMset, oplsMultiDataSet-method
+#' @param object An S4 object of class \code{oplsMultiDataSet}, created by \code{opls}
+#' function applied to a MultiDataSet
+#' @param ... Currently not used
+#' @return An S4 object of class \code{MultiDataSet}.
+#' @examples
+#' library(brgedata)
+#' data("brge_gexp") # Get the ExpressionSet from brgedata 
+#' gSet1 <- brge_gexp[sample(1:21916, 300), 1:50]   # Create ExpressionSet with samples from 01 to 50
+#' gSet2 <- brge_gexp[sample(1:21916, 300), 35:61]  # Create ExpressionSet with samples from 35 to 64
+#' brgeMset <- MultiDataSet::createMultiDataSet()
+#' brgeMset <- MultiDataSet::add_eset(brgeMset, gSet1, dataset.type = "expression",
+#' dataset.name = "gSet1", warnings = FALSE)
+#' brgeMset <- MultiDataSet::add_eset(brgeMset, gSet2, dataset.type = "expression",
+#' dataset.name = "gSet2", warnings = FALSE)
+#' brgeMset
+#' brgePca <- ropls::opls(brgeMset)
+#' brgeMset <- ropls::getMset(brgePca)
+#'
+#' @rdname getMset
+#' @export
+setMethod("getMset", "oplsMultiDataSet",
+          function(object) {
+            Mset <- MultiDataSet::createMultiDataSet()
+            for (setI in 1:length(object@oplsLs)) {
+              Mset <- MultiDataSet::add_eset(Mset,
+                                             ropls::getEset(object@oplsLs[[setI]]),
+                                             dataset.type = names(object@oplsLs)[setI],
+                                             GRanges = NA,
+                                             overwrite = TRUE,
+                                             warnings = FALSE)
+            }
+            return(Mset)
+          })
+
+

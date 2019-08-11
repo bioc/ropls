@@ -47,6 +47,11 @@ setGeneric("getSubsetVi",
 setGeneric("getEset",
            function(object, ...) {standardGeneric("getEset")})
 
+#' @rdname getMset
+#' @export
+setGeneric("getMset",
+           function(object, ...) {standardGeneric("getMset")})
+
 #' @rdname checkW4M
 #' @export
 setGeneric("checkW4M", function(eset, ...) {standardGeneric("checkW4M")})

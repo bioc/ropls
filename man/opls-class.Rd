@@ -63,7 +63,7 @@ An S4 class to store PCA and (O)PLS(-DA) models: Objects can be created by calls
 
 \item{\code{eset}}{ExpressionSet: when 'opls' has been applied to an ExpressionSet, the instance with additional
 columns in pData containing the scores and predictions, and in fData containing the loadings, VIP, coefficients
-are stored here}
+is stored here}
 }}
 
 \section{Objects from the Class}{

@@ -1043,7 +1043,7 @@
           
         } ## for(cvN in 1:length(xcvTraLs)) {
         
-        if(breL)
+        if (breL)
           break
         
       } ## for(noN in 1:(orthoI + 1)) {
@@ -1054,24 +1054,24 @@
       
       ## R2X
       
-      if(naxL) {
+      if (naxL) {
         modelDF["p1", "R2X(cum)"] <- modelDF["p1", "R2X"] <- sum((tcrossprod(tMN, pMN)[!is.na(xMN)])^2) / ssxTotN
       } else
         modelDF["p1", "R2X(cum)"] <- modelDF["p1", "R2X"] <- sum(tcrossprod(tMN, pMN)^2) / ssxTotN
       
       modelDF[1:(1 + orthoI), "R2X(cum)"] <- cumsum(modelDF[1:(1 + orthoI), "R2X"])
       
-      if(autNcoL) {
+      if (autNcoL) {
         
-        if(modelDF["p1", "Signif."] != "R1") {
+        if (modelDF["p1", "Signif."] != "R1") {
           
           stop("No model was built because the predictive component was not significant", call. = FALSE)
           
-        } else if(modelDF["o1", "Signif."] != "R1") {
+        } else if (modelDF["o1", "Signif."] != "R1") {
           
           stop("No model was built because the first orthogonal component was already not significant;\nSelect a number of orthogonal components of 1 if you want the algorithm to compute a model despite this.", call. = FALSE)
           
-        } else if(all(modelDF[, "Signif."] == "R1", na.rm = TRUE)) {
+        } else if (all(modelDF[, "Signif."] == "R1", na.rm = TRUE)) {
           
           orthoI <- noN - 1
           
@@ -1261,9 +1261,9 @@
   rownames(summaryDF) <- "Total"
   
   sigNamVc <- c("R2X", "R2X(cum)", "R2Y", "R2Y(cum)", "Q2", "Q2(cum)", "RMSEE", "RMSEP")
-  for(namC in intersect(colnames(modelDF), sigNamVc))
+  for (namC in intersect(colnames(modelDF), sigNamVc))
     modelDF[, namC] <- signif(modelDF[, namC], 3)
-  for(namC in intersect(colnames(summaryDF), sigNamVc))
+  for (namC in intersect(colnames(summaryDF), sigNamVc))
     summaryDF[, namC] <- signif(summaryDF[, namC], 3)
   
   ####   Returning   ####
@@ -1300,7 +1300,6 @@
   opl@suppLs <- list(.char2numF = .char2numF,
                      ## yLevelVc = NULL,
                      algoC = algoC,
-                     eset = NULL,
                      naxL = naxL,
                      nayL = nayL,
                      nayVi = nayVi,

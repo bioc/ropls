@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.17.8
+------------------------------
+
+NEW FEATURE
+
+    o opls can now be applied to MultiDataSet objects; getMset method to extract
+    the complemented MultiDataSet
+
 CHANGES IN VERSION 1.17.6
 ------------------------------
 

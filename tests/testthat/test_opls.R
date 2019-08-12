@@ -499,7 +499,7 @@ test_that("sampleNames_get", {
 
 test_that("variableNames_get", {
   
-  sacSet <- fromW4M(system.file("extdata/", package="ropls"))
+  sacSet <- fromW4M(system.file("extdata/", package = "ropls"))
   testthat::expect_identical(Biobase::featureNames(sacSet)[5], "X1.3.Dimethyluric.acid")
   
 })
@@ -521,6 +521,63 @@ test_that("imageF", {
   data(sacurine)
   imageF(sacurine[['dataMatrix']],
          fig.pdfC = "test.pdf")
+})
+
+test_that("MultiDataSet", {
+  
+  ## Application to a MultiDataSet
+
+  # Loading the 'NCI60_4arrays' from the 'omicade4' package
+  data("NCI60_4arrays", package = "omicade4")
+  # Selecting two of the four datasets
+  setNamesVc <- c("agilent", "hgu95")
+  # Creating the MultiDataSet instance
+  nciMset <- MultiDataSet::createMultiDataSet()
+  # Adding the two datasets as ExpressionSet instances
+  for (setC in setNamesVc) {
+    # Getting the data
+    exprMN <- as.matrix(NCI60_4arrays[[setC]])
+    pdataDF <- data.frame(row.names = colnames(exprMN),
+                          cancer = substr(colnames(exprMN), 1, 2),
+                          stringsAsFactors = FALSE)
+    fdataDF <- data.frame(row.names = rownames(exprMN),
+                          name = rownames(exprMN),
+                          stringsAsFactors = FALSE)
+    # Building the ExpressionSet
+    eset <- Biobase::ExpressionSet(assayData = exprMN,
+                                   phenoData = new("AnnotatedDataFrame",
+                                                   data = pdataDF),
+                                   featureData = new("AnnotatedDataFrame",
+                                                     data = fdataDF),
+                                   experimentData = new("MIAME",
+                                                        title = setC))
+    # Adding to the MultiDataSet
+    nciMset <- MultiDataSet::add_eset(nciMset, eset, dataset.type = setC,
+                                      GRanges = NA, warnings = FALSE)
+  }
+  # Principal Component Analysis of each data set
+  nciPca <- ropls::opls(nciMset)
+  
+  testthat::expect_equivalent(ropls::getSummaryDF(nciPca@oplsLs[["agilent"]])["Total", "R2X(cum)"],
+                              0.503,
+                              tol = 1e-3)
+  
+  # Getting the updated MultiDataSet (now including scores and loadings)
+  nciMset <- ropls::getMset(nciPca)
+  testthat::expect_equivalent(Biobase::fData(nciMset)[["hgu95"]]["USE1", "PCA_xload-p1"],
+                              -0.03092684,
+                              tol = 1e-8)
+  
+  # Restricting to the 'ME' and 'LE' cancer types
+  sampleNamesVc <- Biobase::sampleNames(nciMset[["agilent"]])
+  cancerTypeVc <- Biobase::pData(nciMset[["agilent"]])[, "cancer"]
+  nciMset <- nciMset[sampleNamesVc[cancerTypeVc %in% c("ME", "LE")], ]
+  # Building PLS-DA models for the cancer type, and getting back the updated MultiDataSet
+  nciPlsda <- ropls::opls(nciMset, "cancer", predI = 2)
+  testthat::expect_equivalent(ropls::getSummaryDF(nciPlsda@oplsLs[["hgu95"]])["Total", "Q2(cum)"],
+                              0.908,
+                              tol = 1e-3)  
+
 })
 
 

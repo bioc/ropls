@@ -1,4 +1,4 @@
-#### opls (mset) ####
+#### opls (MultiDataSet) ####
 
 #' @rdname opls
 #' @export
@@ -90,7 +90,7 @@ setMethod("opls", signature(x = "MultiDataSet"),
             
           })
 
-#### opls (eset) ####
+#### opls (ExpressionSet) ####
 
 #' @rdname opls
 #' @export
@@ -254,6 +254,8 @@ setMethod("opls", signature(x = "ExpressionSet"),
             
           })
 
+#### opls (data.frame) ####
+
 #' @rdname opls
 #' @export
 setMethod("opls", signature(x = "data.frame"),
@@ -266,8 +268,7 @@ setMethod("opls", signature(x = "data.frame"),
             return(invisible(opl))
           })
 
-####    opls    ####
-
+####    opls  (matrix)  ####
 
 #' PCA, PLS(-DA), and OPLS(-DA)
 #'
@@ -371,7 +372,7 @@ setMethod("opls", signature(x = "data.frame"),
 #' al. (2001). PLS-regression: a basic tool of chemometrics
 #' @examples
 #'
-#' # PCA
+#' ## PCA
 #'
 #' data(foods) ## see Eriksson et al. (2001); presence of 3 missing values (NA)
 #' head(foods)
@@ -380,14 +381,14 @@ setMethod("opls", signature(x = "data.frame"),
 #' head(foodMN)
 #' foo.pca <- opls(foodMN)
 #'
-#' # PLS with a single response
+#' ## PLS with a single response
 #'
 #' data(cornell) ## see Tenenhaus, 1998
 #' head(cornell)
 #' cornell.pls <- opls(as.matrix(cornell[, grep("x", colnames(cornell))]),
 #'                     cornell[, "y"])
 #'
-#' # Complementary graphics
+#' ## Complementary graphics
 #'
 #' plot(cornell.pls, typeVc = c("outlier", "predict-train", "xy-score", "xy-weight"))
 #'
@@ -399,17 +400,17 @@ setMethod("opls", signature(x = "data.frame"),
 #'                    as.matrix(lowarp[, grepl("^wrp", colnames(lowarp)) |
 #'                                       grepl("^st", colnames(lowarp))]))
 #'
-#' # PLS-DA
+#' ## PLS-DA
 #'
 #' data(sacurine)
 #' attach(sacurine)
 #' sacurine.plsda <- opls(dataMatrix, sampleMetadata[, "gender"])
 #'
-#' # OPLS-DA
+#' ## OPLS-DA
 #'
 #' sacurine.oplsda <- opls(dataMatrix, sampleMetadata[, "gender"], predI = 1, orthoI = NA)
 #'
-#' # Application to an ExpressionSet
+#' ## Application to an ExpressionSet
 #' 
 #' sacSet <- Biobase::ExpressionSet(assayData = t(dataMatrix), 
 #'                                  phenoData = new("AnnotatedDataFrame", 
@@ -426,24 +427,53 @@ setMethod("opls", signature(x = "data.frame"),
 #' 
 #' detach(sacurine)
 #' 
-#' # MultiDataSet
+#' ## Application to a MultiDataSet
 #' 
-#' # Building the MultiDataSet ('brgeData' Bioconductor package)
-#' data("brge_gexp", package = "brgedata")
-#' brge_gexp <- brge_gexp[1:1000, ]
-#' data("brge_prot", package = "brgedata")
-#' brgeMset <- MultiDataSet::createMultiDataSet()
-#' brgeMset <- MultiDataSet::add_eset(brgeMset, brge_gexp, dataset.type = "expression",
-#' dataset.name = "gexp", warnings = FALSE)
-#' brgeMset <- MultiDataSet::add_eset(brgeMset, brge_prot, dataset.type = "proteomics",
-#' dataset.name = "prot", warnings = FALSE)
+#' # Loading the 'NCI60_4arrays' from the 'omicade4' package
+#' data("NCI60_4arrays", package = "omicade4")
+#' # Selecting two of the four datasets
+#' setNamesVc <- c("agilent", "hgu95")
+#' # Creating the MultiDataSet instance
+#' nciMset <- MultiDataSet::createMultiDataSet()
+#' # Adding the two datasets as ExpressionSet instances
+#' for (setC in setNamesVc) {
+#'   # Getting the data
+#'   exprMN <- as.matrix(NCI60_4arrays[[setC]])
+#'   pdataDF <- data.frame(row.names = colnames(exprMN),
+#'                         cancer = substr(colnames(exprMN), 1, 2),
+#'                         stringsAsFactors = FALSE)
+#'   fdataDF <- data.frame(row.names = rownames(exprMN),
+#'                         name = rownames(exprMN),
+#'                         stringsAsFactors = FALSE)
+#'   # Building the ExpressionSet
+#'   eset <- Biobase::ExpressionSet(assayData = exprMN,
+#'                                  phenoData = new("AnnotatedDataFrame",
+#'                                                  data = pdataDF),
+#'                                  featureData = new("AnnotatedDataFrame",
+#'                                                    data = fdataDF),
+#'                                  experimentData = new("MIAME",
+#'                                                       title = setC))
+#'   # Adding to the MultiDataSet
+#'   nciMset <- MultiDataSet::add_eset(nciMset, eset, dataset.type = setC,
+#'                                     GRanges = NA, warnings = FALSE)
+#' }
 #' # Summary of the MultiDataSet
-#' brgeMset
-#' # Buidling PCA models for each dataset
-#' brgePca <- ropls::opls(brgeMset)
-#' # Getting the updated MultiDataSet instance (with scores, loadings, VIP, etc.)
-#' brgeMset <- ropls::getMset(brgePca)
-#'
+#' nciMset
+#' # Principal Component Analysis of each data set
+#' nciPca <- ropls::opls(nciMset)
+#' # Coloring the Score plot according to cancer types
+#' ropls::plot(nciPca, y = "cancer", typeVc = "x-score")
+#' # Getting the updated MultiDataSet (now including scores and loadings)
+#' nciMset <- ropls::getMset(nciPca)
+#' # Restricting to the 'ME' and 'LE' cancer types
+#' sampleNamesVc <- Biobase::sampleNames(nciMset[["agilent"]])
+#' cancerTypeVc <- Biobase::pData(nciMset[["agilent"]])[, "cancer"]
+#' nciMset <- nciMset[sampleNamesVc[cancerTypeVc %in% c("ME", "LE")], ]
+#' # Building PLS-DA models for the cancer type, and getting back the updated MultiDataSet
+#' nciPlsda <- ropls::opls(nciMset, "cancer", predI = 2)
+#' nciMset <- ropls::getMset(nciPlsda)
+#' # Viewing the new variable metadata (including VIP and coefficients)
+#' lapply(Biobase::fData(nciMset), head)
 #' @rdname opls
 #' @export
 setMethod("opls", signature(x = "matrix"),

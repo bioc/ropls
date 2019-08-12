@@ -7,26 +7,51 @@
 #' @aliases plot.oplsMultiDataSet plot,opls-method
 #' @param x An S4 object of class \code{oplsMultiDataSet}, created by the \code{opls}
 #' function applied to a MultiDataSet instance
-#' #' @param y Character: if x was generated from an ExpressionSet (i.e. if the 
+#' @param y Character: if x was generated from an ExpressionSet (i.e. if the 
 #' 'eset' slot from x is not NULL), the name of the pData(x) column to be used
 #' for coloring can be specified here (instead of 'parAsColFcVn')
 #' @param ... Currently not used.
 #' @examples
-#' # Building the MultiDataSet ('brgeData' Bioconductor package)
-#' data("brge_gexp", package = "brgedata")
-#' brge_gexp <- brge_gexp[1:1000, ]
-#' data("brge_prot", package = "brgedata")
-#' brgeMset <- MultiDataSet::createMultiDataSet()
-#' brgeMset <- MultiDataSet::add_eset(brgeMset, brge_gexp, dataset.type = "expression",
-#' dataset.name = "gexp", warnings = FALSE)
-#' brgeMset <- MultiDataSet::add_eset(brgeMset, brge_prot, dataset.type = "proteomics",
-#' dataset.name = "prot", warnings = FALSE)
+#' # Loading the 'NCI60_4arrays' from the 'omicade4' package
+#' data("NCI60_4arrays", package = "omicade4")
+#' # Selecting two of the four datasets
+#' setNamesVc <- c("agilent", "hgu95")
+#' # Creating the MultiDataSet instance
+#' nciMset <- MultiDataSet::createMultiDataSet()
+#' # Adding the two datasets as ExpressionSet instances
+#' for (setC in setNamesVc) {
+#'   # Getting the data
+#'   exprMN <- as.matrix(NCI60_4arrays[[setC]])
+#'   pdataDF <- data.frame(row.names = colnames(exprMN),
+#'                         cancer = substr(colnames(exprMN), 1, 2),
+#'                         stringsAsFactors = FALSE)
+#'   fdataDF <- data.frame(row.names = rownames(exprMN),
+#'                         name = rownames(exprMN),
+#'                         stringsAsFactors = FALSE)
+#'   # Building the ExpressionSet
+#'   eset <- Biobase::ExpressionSet(assayData = exprMN,
+#'                                  phenoData = new("AnnotatedDataFrame",
+#'                                                  data = pdataDF),
+#'                                  featureData = new("AnnotatedDataFrame",
+#'                                                    data = fdataDF),
+#'                                  experimentData = new("MIAME",
+#'                                                       title = setC))
+#'   # Adding to the MultiDataSet
+#'   nciMset <- MultiDataSet::add_eset(nciMset, eset, dataset.type = setC,
+#'                                     GRanges = NA, warnings = FALSE)
+#' }
 #' # Summary of the MultiDataSet
-#' brgeMset
-#' # Buidling PCA models for each dataset
-#' brgePca <- ropls::opls(brgeMset)
-#' # Coloring the score plots by gender
-#' plot(brgePca, "sex", typeVc = "x-score")
+#' nciMset
+#' # Principal Component Analysis of each data set
+#' nciPca <- ropls::opls(nciMset)
+#' # Coloring the Score plot according to cancer types
+#' ropls::plot(nciPca, y = "cancer", typeVc = "x-score")
+#' # Restricting to the 'ME' and 'LE' cancer types
+#' sampleNamesVc <- Biobase::sampleNames(nciMset[["agilent"]])
+#' cancerTypeVc <- Biobase::pData(nciMset[["agilent"]])[, "cancer"]
+#' nciMset <- nciMset[sampleNamesVc[cancerTypeVc %in% c("ME", "LE")], ]
+#' # Building PLS-DA models for the cancer type
+#' nciPlsda <- ropls::opls(nciMset, "cancer", predI = 2)
 #' @rdname plot
 #' @export
 setMethod("plot", signature(x = "oplsMultiDataSet"),
@@ -37,7 +62,8 @@ setMethod("plot", signature(x = "oplsMultiDataSet"),
             oplsLs <- x@oplsLs
             
             for (setI in 1:length(oplsLs))
-              plot(x@oplsLs[[setI]], y = y, parSetNameC = names(oplsLs)[setI], ...)
+              plot(x@oplsLs[[setI]], y = y,
+                   subC = paste0("[", names(oplsLs)[setI], "]"),...)
             
           })
 
@@ -87,7 +113,7 @@ setMethod("plot", signature(x = "oplsMultiDataSet"),
 #' @param .sinkC Character: deprecated; use the 'info.txtC' argument instead
 #' @param parCexMetricN Numeric: magnification of the metrics at the bottom of
 #' score plot (default -NA- is 1 in 1x1 and 0.7 in 2x2 display)
-#' @param parSetNameC Character: Data set name to be used in the subtitle
+#' @param subC Character: Data set name to be used in the subtitle
 #' @param fig.pdfC Character: File name with '.pdf' extension for the figure;
 #' if 'interactive' (default), figures will be displayed interactively; if 'none',
 #' no figure will be generated
@@ -170,7 +196,7 @@ setMethod("plot", signature(x = "opls"),
                    .sinkC = NULL,
                    
                    parCexMetricN = NA,
-                   parSetNameC = NA,
+                   subC = NA,
                    fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
                    info.txtC = c("none", "interactive", "myfile.txt")[2],
                    
@@ -257,10 +283,10 @@ setMethod("plot", signature(x = "opls"),
             
             eset <- getEset(x)
             
-            if (is.na(parSetNameC) && !is.null(eset))
-              parSetNameC <- Biobase::experimentData(eset)@title
-            if (nchar(parSetNameC) > 32)
-              parSetNameC <- paste0(substr(parSetNameC, 1, 32), ".")
+            if (is.na(subC) && !is.null(eset))
+              subC <- Biobase::experimentData(eset)@title
+            if (nchar(subC) > 32)
+              subC <- paste0(substr(subC, 1, 32), ".")
               
             if (!missing(y)) {
               if (is.null(eset))
@@ -520,7 +546,7 @@ setMethod("plot", signature(x = "opls"),
             for (ploC in typeVc) {
               if (length(typeVc) == 1 ||
                   ploC == "overview") {
-                parTitleSetC <- parSetNameC
+                parTitleSetC <- subC
               } else
                 parTitleSetC <- ""
               

@@ -56,14 +56,14 @@
 #' @export
 setMethod("plot", signature(x = "oplsMultiDataSet"),
           function(x,
-                   y,
+                   y = NULL,
                    ...) {
             
             oplsLs <- x@oplsLs
             
             for (setI in 1:length(oplsLs))
               plot(x@oplsLs[[setI]], y = y,
-                   subC = paste0("[", names(oplsLs)[setI], "]"),...)
+                   parSubC = paste0("[", names(oplsLs)[setI], "]"),...)
             
           })
 
@@ -113,7 +113,7 @@ setMethod("plot", signature(x = "oplsMultiDataSet"),
 #' @param .sinkC Character: deprecated; use the 'info.txtC' argument instead
 #' @param parCexMetricN Numeric: magnification of the metrics at the bottom of
 #' score plot (default -NA- is 1 in 1x1 and 0.7 in 2x2 display)
-#' @param subC Character: Data set name to be used in the subtitle
+#' @param parSubC Character: Graphic subtitle
 #' @param fig.pdfC Character: File name with '.pdf' extension for the figure;
 #' if 'interactive' (default), figures will be displayed interactively; if 'none',
 #' no figure will be generated
@@ -196,7 +196,7 @@ setMethod("plot", signature(x = "opls"),
                    .sinkC = NULL,
                    
                    parCexMetricN = NA,
-                   subC = NA,
+                   parSubC = NA,
                    fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
                    info.txtC = c("none", "interactive", "myfile.txt")[2],
                    
@@ -283,10 +283,10 @@ setMethod("plot", signature(x = "opls"),
             
             eset <- getEset(x)
             
-            if (is.na(subC) && !is.null(eset))
-              subC <- Biobase::experimentData(eset)@title
-            if (nchar(subC) > 32)
-              subC <- paste0(substr(subC, 1, 32), ".")
+            if (is.na(parSubC) && !is.null(eset))
+              parSubC <- Biobase::experimentData(eset)@title
+            if (nchar(parSubC) > 32)
+              parSubC <- paste0(substr(parSubC, 1, 32), ".")
               
             if (!missing(y)) {
               if (is.null(eset))
@@ -546,7 +546,7 @@ setMethod("plot", signature(x = "opls"),
             for (ploC in typeVc) {
               if (length(typeVc) == 1 ||
                   ploC == "overview") {
-                parTitleSetC <- subC
+                parTitleSetC <- parSubC
               } else
                 parTitleSetC <- ""
               

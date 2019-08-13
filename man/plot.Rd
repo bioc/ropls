@@ -9,7 +9,7 @@
 \alias{plot.opls}
 \title{Plot Method for (O)PLS(-DA)}
 \usage{
-\S4method{plot}{oplsMultiDataSet,ANY}(x, y, ...)
+\S4method{plot}{oplsMultiDataSet,ANY}(x, y = NULL, ...)
 
 \S4method{plot}{opls,ANY}(x, y, typeVc = c("correlation", "outlier",
   "overview", "permutation", "predict-train", "predict-test", "summary",
@@ -17,8 +17,8 @@
   parAsColFcVn = NA, parCexN = 0.8, parCompVi = c(1, 2),
   parEllipsesL = NA, parLabVc = NA, parPaletteVc = NA,
   parTitleL = TRUE, file.pdfC = NULL, .sinkC = NULL,
-  parCexMetricN = NA, subC = NA, fig.pdfC = c("none", "interactive",
-  "myfile.pdf")[2], info.txtC = c("none", "interactive",
+  parCexMetricN = NA, parSubC = NA, fig.pdfC = c("none",
+  "interactive", "myfile.pdf")[2], info.txtC = c("none", "interactive",
   "myfile.txt")[2], ...)
 }
 \arguments{
@@ -76,7 +76,7 @@ the user wishes to add specific titles a posteriori}
 \item{parCexMetricN}{Numeric: magnification of the metrics at the bottom of
 score plot (default -NA- is 1 in 1x1 and 0.7 in 2x2 display)}
 
-\item{subC}{Character: Data set name to be used in the subtitle}
+\item{parSubC}{Character: Graphic subtitle}
 
 \item{fig.pdfC}{Character: File name with '.pdf' extension for the figure;
 if 'interactive' (default), figures will be displayed interactively; if 'none',

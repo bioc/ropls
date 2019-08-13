@@ -16,10 +16,10 @@
   "x-loading", "x-score", "x-variance", "xy-score", "xy-weight")[7],
   parAsColFcVn = NA, parCexN = 0.8, parCompVi = c(1, 2),
   parEllipsesL = NA, parLabVc = NA, parPaletteVc = NA,
-  parTitleL = TRUE, file.pdfC = NULL, .sinkC = NULL,
-  parCexMetricN = NA, parSubC = NA, fig.pdfC = c("none",
-  "interactive", "myfile.pdf")[2], info.txtC = c("none", "interactive",
-  "myfile.txt")[2], ...)
+  parTitleL = TRUE, parCexMetricN = NA, plotSubC = NA,
+  fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
+  info.txtC = c("none", "interactive", "myfile.txt")[2],
+  file.pdfC = NULL, .sinkC = NULL, ...)
 }
 \arguments{
 \item{x}{An S4 object of class \code{oplsMultiDataSet}, created by the \code{opls}
@@ -69,14 +69,10 @@ the plot; default is NA [ie row names of 'x', if available, or indices of
 (default = TRUE); It may be convenient to set this argument to FALSE when
 the user wishes to add specific titles a posteriori}
 
-\item{file.pdfC}{Character: deprecated; use the 'fig.pdfC' argument instead}
-
-\item{.sinkC}{Character: deprecated; use the 'info.txtC' argument instead}
-
 \item{parCexMetricN}{Numeric: magnification of the metrics at the bottom of
 score plot (default -NA- is 1 in 1x1 and 0.7 in 2x2 display)}
 
-\item{parSubC}{Character: Graphic subtitle}
+\item{plotSubC}{Character: Graphic subtitle}
 
 \item{fig.pdfC}{Character: File name with '.pdf' extension for the figure;
 if 'interactive' (default), figures will be displayed interactively; if 'none',
@@ -85,6 +81,10 @@ no figure will be generated}
 \item{info.txtC}{Character: File name with '.txt' extension for the printed
 results (call to sink()'); if 'interactive' (default), messages will be
 printed on the screen; if 'none', no verbose will be generated}
+
+\item{file.pdfC}{Character: deprecated; use the 'fig.pdfC' argument instead}
+
+\item{.sinkC}{Character: deprecated; use the 'info.txtC' argument instead}
 
 \item{x}{An S4 object of class \code{opls}, created by the \code{opls}
 function.}

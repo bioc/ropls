@@ -20,9 +20,9 @@
 \S4method{opls}{matrix}(x, y = NULL, predI = NA, orthoI = 0,
   algoC = c("default", "nipals", "svd")[1], crossvalI = 7,
   log10L = FALSE, permI = 20, scaleC = c("none", "center", "pareto",
-  "standard")[4], subset = NULL, printL = TRUE, plotL = TRUE,
-  .sinkC = NULL, fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
-  info.txtC = c("none", "interactive", "myfile.txt")[2], ...)
+  "standard")[4], subset = NULL, plotSubC = NA, fig.pdfC = c("none",
+  "interactive", "myfile.pdf")[2], info.txtC = c("none", "interactive",
+  "myfile.txt")[2], printL = TRUE, plotL = TRUE, .sinkC = NULL, ...)
 }
 \arguments{
 \item{x}{Numerical data frame or matrix (observations x variables; NAs are
@@ -88,6 +88,8 @@ mean-centering only ('center'), mean-centering and pareto scaling
 training (in a classification scheme); use NULL [default] for no partition
 of the dataset; use 'odd' for a partition of the dataset in two equal sizes
 (with respect to the classes proportions)}
+
+\item{plotSubC}{Character: Graphic subtitle}
 
 \item{printL}{Logical: deprecated: use the 'info.txtC' argument instead}
 

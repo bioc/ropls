@@ -63,7 +63,7 @@ setMethod("plot", signature(x = "oplsMultiDataSet"),
             
             for (setI in 1:length(oplsLs))
               plot(x@oplsLs[[setI]], y = y,
-                   parSubC = paste0("[", names(oplsLs)[setI], "]"),...)
+                   plotSubC = paste0("[", names(oplsLs)[setI], "]"),...)
             
           })
 
@@ -109,17 +109,17 @@ setMethod("plot", signature(x = "oplsMultiDataSet"),
 #' @param parTitleL Should the titles of the plots be printed on the graphics
 #' (default = TRUE); It may be convenient to set this argument to FALSE when
 #' the user wishes to add specific titles a posteriori
-#' @param file.pdfC Character: deprecated; use the 'fig.pdfC' argument instead
-#' @param .sinkC Character: deprecated; use the 'info.txtC' argument instead
 #' @param parCexMetricN Numeric: magnification of the metrics at the bottom of
 #' score plot (default -NA- is 1 in 1x1 and 0.7 in 2x2 display)
-#' @param parSubC Character: Graphic subtitle
+#' @param plotSubC Character: Graphic subtitle
 #' @param fig.pdfC Character: File name with '.pdf' extension for the figure;
 #' if 'interactive' (default), figures will be displayed interactively; if 'none',
 #' no figure will be generated
 #' @param info.txtC Character: File name with '.txt' extension for the printed
 #' results (call to sink()'); if 'interactive' (default), messages will be
 #' printed on the screen; if 'none', no verbose will be generated
+#' @param file.pdfC Character: deprecated; use the 'fig.pdfC' argument instead
+#' @param .sinkC Character: deprecated; use the 'info.txtC' argument instead
 #' @param ... Currently not used.
 #' @examples
 #'
@@ -192,14 +192,13 @@ setMethod("plot", signature(x = "opls"),
                    parLabVc = NA,
                    parPaletteVc = NA,
                    parTitleL = TRUE,
+                   parCexMetricN = NA,
+                   plotSubC = NA,
+                   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
+                   info.txtC = c("none", "interactive", "myfile.txt")[2],                   
+                   
                    file.pdfC = NULL,
                    .sinkC = NULL,
-                   
-                   parCexMetricN = NA,
-                   parSubC = NA,
-                   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
-                   info.txtC = c("none", "interactive", "myfile.txt")[2],
-                   
                    ...) {
             
             if (!is.null(file.pdfC)) {
@@ -283,10 +282,10 @@ setMethod("plot", signature(x = "opls"),
             
             eset <- getEset(x)
             
-            if (is.na(parSubC) && !is.null(eset))
-              parSubC <- Biobase::experimentData(eset)@title
-            if (nchar(parSubC) > 32)
-              parSubC <- paste0(substr(parSubC, 1, 32), ".")
+            if (is.na(plotSubC) && !is.null(eset))
+              plotSubC <- Biobase::experimentData(eset)@title
+            if (nchar(plotSubC) > 32)
+              plotSubC <- paste0(substr(plotSubC, 1, 32), ".")
               
             if (!missing(y)) {
               if (is.null(eset))
@@ -546,7 +545,7 @@ setMethod("plot", signature(x = "opls"),
             for (ploC in typeVc) {
               if (length(typeVc) == 1 ||
                   ploC == "overview") {
-                parTitleSetC <- parSubC
+                parTitleSetC <- plotSubC
               } else
                 parTitleSetC <- ""
               

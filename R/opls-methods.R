@@ -324,15 +324,17 @@ setMethod("opls", signature(x = "data.frame"),
 #' training (in a classification scheme); use NULL [default] for no partition
 #' of the dataset; use 'odd' for a partition of the dataset in two equal sizes
 #' (with respect to the classes proportions)
-#' @param printL Logical: deprecated: use the 'info.txtC' argument instead
-#' @param plotL Logical: deprecated: use the 'fig.pdfC' argument instead
-#' @param .sinkC Character: deprecated: use the 'info.txtC' argument instead
+#' @param plotSubC Character: Graphic subtitle
 #' @param fig.pdfC Character: File name with '.pdf' extension for the figure;
 #' if 'interactive' (default), figures will be displayed interactively; if 'none',
 #' no figure will be generated
 #' @param info.txtC Character: File name with '.txt' extension for the printed
 #' results (call to sink()'); if 'interactive' (default), messages will be
 #' printed on the screen; if 'none', no verbose will be generated
+
+#' @param printL Logical: deprecated: use the 'info.txtC' argument instead
+#' @param plotL Logical: deprecated: use the 'fig.pdfC' argument instead
+#' @param .sinkC Character: deprecated: use the 'info.txtC' argument instead
 #' @param ... Currently not used.
 #' @return An S4 object of class 'opls' containing the following slots:
 #' \itemize{
@@ -488,15 +490,14 @@ setMethod("opls", signature(x = "matrix"),
                    permI = 20,
                    scaleC = c("none", "center", "pareto", "standard")[4],
                    subset = NULL,
-                   
-                   printL = TRUE,
-                   plotL = TRUE,
-                   
-                   .sinkC = NULL,
 
+                   plotSubC = NA,                   
                    fig.pdfC = c("none", "interactive", "myfile.pdf")[2],                   
                    info.txtC = c("none", "interactive", "myfile.txt")[2],
                    
+                   printL = TRUE,
+                   plotL = TRUE,
+                   .sinkC = NULL,
                    ...) {
             
             if (!printL) {
@@ -998,13 +999,12 @@ setMethod("opls", signature(x = "matrix"),
             
             if (info.txtC != "none") {
               show(opl)
-              warnings()
             }
 
             ## Plotting
 
             if (fig.pdfC != "none")
-              plot(opl, typeVc = "summary", fig.pdfC = fig.pdfC)
+              plot(opl, typeVc = "summary", plotSubC = plotSubC, fig.pdfC = fig.pdfC)
           
             ## Closing connection
             

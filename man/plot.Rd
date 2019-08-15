@@ -9,15 +9,15 @@
 \alias{plot.opls}
 \title{Plot Method for (O)PLS(-DA)}
 \usage{
-\S4method{plot}{oplsMultiDataSet,ANY}(x, y = NULL, ...)
+\S4method{plot}{oplsMultiDataSet,ANY}(x, y, ...)
 
 \S4method{plot}{opls,ANY}(x, y, typeVc = c("correlation", "outlier",
   "overview", "permutation", "predict-train", "predict-test", "summary",
   "x-loading", "x-score", "x-variance", "xy-score", "xy-weight")[7],
   parAsColFcVn = NA, parCexN = 0.8, parCompVi = c(1, 2),
   parEllipsesL = NA, parLabVc = NA, parPaletteVc = NA,
-  parTitleL = TRUE, parCexMetricN = NA, plotSubC = NA,
-  fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
+  parTitleL = TRUE, parCexMetricN = NA, plotPhenoDataC = NA,
+  plotSubC = NA, fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
   info.txtC = c("none", "interactive", "myfile.txt")[2],
   file.pdfC = NULL, .sinkC = NULL, ...)
 }
@@ -25,9 +25,7 @@
 \item{x}{An S4 object of class \code{oplsMultiDataSet}, created by the \code{opls}
 function applied to a MultiDataSet instance}
 
-\item{y}{Character: if x was generated from an ExpressionSet (i.e. if the 
-'eset' slot from x is not NULL), the name of the pData(x) column to be used
-for coloring can be specified here (instead of 'parAsColFcVn')}
+\item{y}{Currently not used.}
 
 \item{...}{Currently not used.}
 
@@ -72,6 +70,10 @@ the user wishes to add specific titles a posteriori}
 \item{parCexMetricN}{Numeric: magnification of the metrics at the bottom of
 score plot (default -NA- is 1 in 1x1 and 0.7 in 2x2 display)}
 
+\item{plotPhenoDataC}{Character: if x was generated from an ExpressionSet (i.e. if the 
+'eset' slot from x is not NULL), the name of the pData(x) column to be used
+for coloring can be specified here (instead of 'parAsColFcVn')}
+
 \item{plotSubC}{Character: Graphic subtitle}
 
 \item{fig.pdfC}{Character: File name with '.pdf' extension for the figure;
@@ -89,9 +91,7 @@ printed on the screen; if 'none', no verbose will be generated}
 \item{x}{An S4 object of class \code{opls}, created by the \code{opls}
 function.}
 
-\item{y}{Character: if x was generated from an ExpressionSet (i.e. if the 
-'eset' slot from x is not NULL), the name of the pData(x) column to be used
-for coloring can be specified here (instead of 'parAsColFcVn')}
+\item{y}{Currently not used}
 
 \item{...}{Currently not used.}
 }

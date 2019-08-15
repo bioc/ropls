@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.17.20
+------------------------------
+
+NEW FEATURE
+
+    o plotPhenoDataC parameter for coloring (score plots) according to one column from
+    the pData data frame when the opls method has been applied to an ExpresssionSet
+
 CHANGES IN VERSION 1.17.18
 ------------------------------
 

@@ -7,9 +7,7 @@
 #' @aliases plot.oplsMultiDataSet plot,opls-method
 #' @param x An S4 object of class \code{oplsMultiDataSet}, created by the \code{opls}
 #' function applied to a MultiDataSet instance
-#' @param y Character: if x was generated from an ExpressionSet (i.e. if the 
-#' 'eset' slot from x is not NULL), the name of the pData(x) column to be used
-#' for coloring can be specified here (instead of 'parAsColFcVn')
+#' @param y Currently not used.
 #' @param ... Currently not used.
 #' @examples
 #' # Loading the 'NCI60_4arrays' from the 'omicade4' package
@@ -56,15 +54,19 @@
 #' @export
 setMethod("plot", signature(x = "oplsMultiDataSet"),
           function(x,
-                   y = NULL,
+                   y,
                    ...) {
             
             oplsLs <- x@oplsLs
             
-            for (setI in 1:length(oplsLs))
-              plot(x@oplsLs[[setI]], y = y,
+            for (setI in 1:length(oplsLs)) {
+              opl <- x@oplsLs[[setI]]
+              if (nrow(opl@modelDF) < 1) {
+                cat("No model has been built for the '", names(oplsLs)[setI], "' dataset and thus no plot can be displayed.", sep = "")
+              } else
+              plot(opl,
                    plotSubC = paste0("[", names(oplsLs)[setI], "]"),...)
-            
+            }
           })
 
 ####    plot  (opls)  ####
@@ -76,9 +78,7 @@ setMethod("plot", signature(x = "oplsMultiDataSet"),
 #' @aliases plot.opls plot,opls-method
 #' @param x An S4 object of class \code{opls}, created by the \code{opls}
 #' function.
-#' @param y Character: if x was generated from an ExpressionSet (i.e. if the 
-#' 'eset' slot from x is not NULL), the name of the pData(x) column to be used
-#' for coloring can be specified here (instead of 'parAsColFcVn')
+#' @param y Currently not used
 #' @param typeVc Character vector: the following plots are available:
 #' 'correlation': Variable correlations with the components, 'outlier':
 #' Observation diagnostics (score and orthogonal distances), 'overview': Model
@@ -111,6 +111,9 @@ setMethod("plot", signature(x = "oplsMultiDataSet"),
 #' the user wishes to add specific titles a posteriori
 #' @param parCexMetricN Numeric: magnification of the metrics at the bottom of
 #' score plot (default -NA- is 1 in 1x1 and 0.7 in 2x2 display)
+#' @param plotPhenoDataC Character: if x was generated from an ExpressionSet (i.e. if the 
+#' 'eset' slot from x is not NULL), the name of the pData(x) column to be used
+#' for coloring can be specified here (instead of 'parAsColFcVn')
 #' @param plotSubC Character: Graphic subtitle
 #' @param fig.pdfC Character: File name with '.pdf' extension for the figure;
 #' if 'interactive' (default), figures will be displayed interactively; if 'none',
@@ -193,6 +196,7 @@ setMethod("plot", signature(x = "opls"),
                    parPaletteVc = NA,
                    parTitleL = TRUE,
                    parCexMetricN = NA,
+                   plotPhenoDataC = NA,
                    plotSubC = NA,
                    fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
                    info.txtC = c("none", "interactive", "myfile.txt")[2],                   
@@ -264,6 +268,9 @@ setMethod("plot", signature(x = "opls"),
             }
             
             ## Checking arguments
+             
+            if (nrow(x@modelDF) < 1)
+              stop("No model has been built and thus no plot can be displayed.", call. = FALSE)
             
             if (!all(typeVc %in% c('correlation', 'outlier', 'overview', 'permutation', 'predict-train', 'predict-test', 'x-loading', 'x-score', 'x-variance', 'xy-score', 'xy-weight')))
               stop("'typeVc' elements must be either 'correlation', 'outlier', 'overview', 'permutation', 'predict-train', 'predict-test', 'x-loading', 'x-score', 'x-variance', 'xy-score', 'xy-weight'", call. = FALSE)
@@ -287,16 +294,16 @@ setMethod("plot", signature(x = "opls"),
             if (nchar(plotSubC) > 32)
               plotSubC <- paste0(substr(plotSubC, 1, 32), ".")
               
-            if (!missing(y)) {
+            if (!is.na(plotPhenoDataC)) {
               if (is.null(eset))
-                stop("'y' is provided but the 'eset' slot from the 'opls' instance is NULL")
-              if (!is.character(y))
-                stop("'y' must be a character when the 'plot' method is applied to an 'opls' instance")
+                stop("'plotPhenoDataC' is provided but the 'eset' slot from the 'opls' instance is NULL")
+              if (!is.character(plotPhenoDataC))
+                stop("'plotPhenoDataC' must be a character when the 'plot' method is applied to an 'opls' instance")
               pdataDF <- Biobase::pData(eset)
-              if (!(y %in% colnames(pdataDF))) {
-                stop("'y' must be the name of a column of the sampleMetadata slot of the 'ExpressionSet' instance")
+              if (!(plotPhenoDataC %in% colnames(pdataDF))) {
+                stop("'plotPhenoDataC' must be the name of a column of the sampleMetadata slot of the 'ExpressionSet' instance")
               } else
-                parAsColFcVn <- pdataDF[, y]
+                parAsColFcVn <- pdataDF[, plotPhenoDataC]
             }
             
             # if (!any(is.na(parAsColFcVn))) {
@@ -305,7 +312,7 @@ setMethod("plot", signature(x = "opls"),
                 stop("When 'subset' is not NULL, 'parAsColFcVn' vector length must be equal to the number of train + test samples (here: ", nrow(x@suppLs[["yMCN"]]), ").", call. = FALSE)
               } else if (length(parAsColFcVn) != nrow(x@scoreMN))
                 stop("'parAsColFcVn' vector length must be equal to the number of 'x' rows", call. = FALSE)
-              if (!(mode(parAsColFcVn) %in% c("character", "numeric")))
+                if (!(mode(parAsColFcVn) %in% c("character", "numeric")))
                 stop("'parAsColFcVn' must be of 'character' or 'numeric' type", call. = FALSE)
               if (is.character(parAsColFcVn)) {
                 parAsColFcVn <- factor(parAsColFcVn)

@@ -14,7 +14,7 @@
 #' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
 #' @seealso \code{\link{opls}}
 #' @examples
-#' In progress
+#' # In progress
 #' @exportClass oplsMultiDataSet
 setClass(Class = "oplsMultiDataSet",
          representation = representation(oplsLs = "list"))

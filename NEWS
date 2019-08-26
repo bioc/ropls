@@ -1,3 +1,10 @@
+CHANGES IN VERSION 1.17.22
+------------------------------
+
+INTERNAL MODIFICATION
+
+    o Correction of the example in the oplsMultiDataSet class documentation
+
 CHANGES IN VERSION 1.17.20
 ------------------------------
 

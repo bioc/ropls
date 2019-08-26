@@ -7,7 +7,6 @@
 #' @aliases plot.oplsMultiDataSet plot,opls-method
 #' @param x An S4 object of class \code{oplsMultiDataSet}, created by the \code{opls}
 #' function applied to a MultiDataSet instance
-#' @param y Currently not used.
 #' @param ... Currently not used.
 #' @examples
 #' # Loading the 'NCI60_4arrays' from the 'omicade4' package

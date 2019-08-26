@@ -25,7 +25,7 @@
 \item{x}{An S4 object of class \code{oplsMultiDataSet}, created by the \code{opls}
 function applied to a MultiDataSet instance}
 
-\item{y}{Currently not used.}
+\item{y}{Currently not used}
 
 \item{...}{Currently not used.}
 
@@ -90,8 +90,6 @@ printed on the screen; if 'none', no verbose will be generated}
 
 \item{x}{An S4 object of class \code{opls}, created by the \code{opls}
 function.}
-
-\item{y}{Currently not used}
 
 \item{...}{Currently not used.}
 }

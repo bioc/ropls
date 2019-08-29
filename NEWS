@@ -1,3 +1,10 @@
+CHANGES IN VERSION 1.17.24
+------------------------------
+
+MINOR MODIFICATION
+
+    o Correction of the documentation for 'residuals' and 'plot-oplsMultidDataSet
+
 CHANGES IN VERSION 1.17.22
 ------------------------------
 

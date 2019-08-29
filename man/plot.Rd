@@ -4,9 +4,10 @@
 \name{plot,oplsMultiDataSet,ANY-method}
 \alias{plot,oplsMultiDataSet,ANY-method}
 \alias{plot.oplsMultiDataSet}
-\alias{plot,opls-method}
+\alias{plot,oplsMultiDataSet-method}
 \alias{plot,opls,ANY-method}
 \alias{plot.opls}
+\alias{plot,opls-method}
 \title{Plot Method for (O)PLS(-DA)}
 \usage{
 \S4method{plot}{oplsMultiDataSet,ANY}(x, y, ...)
@@ -22,8 +23,8 @@
   file.pdfC = NULL, .sinkC = NULL, ...)
 }
 \arguments{
-\item{x}{An S4 object of class \code{oplsMultiDataSet}, created by the \code{opls}
-function applied to a MultiDataSet instance}
+\item{x}{An S4 object of class \code{opls} or \code{oplsMultiDataSet},
+created by the \code{opls} function.}
 
 \item{y}{Currently not used}
 
@@ -87,11 +88,6 @@ printed on the screen; if 'none', no verbose will be generated}
 \item{file.pdfC}{Character: deprecated; use the 'fig.pdfC' argument instead}
 
 \item{.sinkC}{Character: deprecated; use the 'info.txtC' argument instead}
-
-\item{x}{An S4 object of class \code{opls}, created by the \code{opls}
-function.}
-
-\item{...}{Currently not used.}
 }
 \description{
 This function plots values based upon a model trained by \code{opls}.

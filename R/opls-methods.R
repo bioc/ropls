@@ -1416,6 +1416,7 @@ setMethod("coef", "opls",
 #'
 #' @rdname residuals
 #' @export
+setGeneric("residuals", getGeneric("residuals", package = "stats"))
 setMethod("residuals", "opls",
           function(object, ...) {
             

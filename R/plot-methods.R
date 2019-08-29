@@ -4,10 +4,7 @@
 #'
 #' This function plots values based upon a model trained by \code{opls}.
 #'
-#' @aliases plot.oplsMultiDataSet plot,opls-method
-#' @param x An S4 object of class \code{oplsMultiDataSet}, created by the \code{opls}
-#' function applied to a MultiDataSet instance
-#' @param ... Currently not used.
+#' @aliases plot.oplsMultiDataSet plot,oplsMultiDataSet-method
 #' @examples
 #' # Loading the 'NCI60_4arrays' from the 'omicade4' package
 #' data("NCI60_4arrays", package = "omicade4")
@@ -75,8 +72,8 @@ setMethod("plot", signature(x = "oplsMultiDataSet"),
 #' This function plots values based upon a model trained by \code{opls}.
 #'
 #' @aliases plot.opls plot,opls-method
-#' @param x An S4 object of class \code{opls}, created by the \code{opls}
-#' function.
+#' @param x An S4 object of class \code{opls} or \code{oplsMultiDataSet},
+#' created by the \code{opls} function.
 #' @param y Currently not used
 #' @param typeVc Character vector: the following plots are available:
 #' 'correlation': Variable correlations with the components, 'outlier':

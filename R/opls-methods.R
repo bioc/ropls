@@ -73,6 +73,7 @@ setMethod("opls", signature(x = "MultiDataSet"),
               if (fig.pdfC != "none" && plotL)
                 ropls::plot(oplsMsetLs[[setC]],
                             parSetNameC = setC,
+                            plotSubC = paste0("[", setC, "]"),
                             fig.pdfC = fig.pdfC)
               
             }

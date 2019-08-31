@@ -1,9 +1,16 @@
+CHANGES IN VERSION 1.17.26
+------------------------------
+
+MINOR MODIFICATION
+
+    o Including the set name in the figure of MultiDataSet models
+
 CHANGES IN VERSION 1.17.24
 ------------------------------
 
 MINOR MODIFICATION
 
-    o Correction of the documentation for 'residuals' and 'plot-oplsMultidDataSet
+    o Correction of the documentation for 'residuals' and 'plot-oplsMultidDataSet'
 
 CHANGES IN VERSION 1.17.22
 ------------------------------

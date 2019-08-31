@@ -25,19 +25,40 @@ An S4 object of class \code{MultiDataSet}.
 Extracts the complemented MultiDataSet when opls has been applied to a MultiDataSet
 }
 \examples{
-# Building the MultiDataSet ('brgeData' Bioconductor package)
-data("brge_gexp", package = "brgedata")
-brge_gexp <- brge_gexp[1:1000, ]
-data("brge_prot", package = "brgedata")
-brgeMset <- MultiDataSet::createMultiDataSet()
-brgeMset <- MultiDataSet::add_eset(brgeMset, brge_gexp, dataset.type = "expression",
-dataset.name = "gexp", warnings = FALSE)
-brgeMset <- MultiDataSet::add_eset(brgeMset, brge_prot, dataset.type = "proteomics",
-dataset.name = "prot", warnings = FALSE)
+# Building a MultiDataSet object
+# Loading the 'NCI60_4arrays' from the 'omicade4' package
+data("NCI60_4arrays", package = "omicade4")
+# Selecting two of the four datasets
+setNamesVc <- c("agilent", "hgu95")
+# Creating the MultiDataSet instance
+nciMset <- MultiDataSet::createMultiDataSet()
+# Adding the two datasets as ExpressionSet instances
+for (setC in setNamesVc) {
+  # Getting the data
+  exprMN <- as.matrix(NCI60_4arrays[[setC]])
+  pdataDF <- data.frame(row.names = colnames(exprMN),
+                        cancer = substr(colnames(exprMN), 1, 2),
+                        stringsAsFactors = FALSE)
+  fdataDF <- data.frame(row.names = rownames(exprMN),
+                        name = rownames(exprMN),
+                        stringsAsFactors = FALSE)
+  # Building the ExpressionSet
+  eset <- Biobase::ExpressionSet(assayData = exprMN,
+                                 phenoData = new("AnnotatedDataFrame",
+                                                 data = pdataDF),
+                                 featureData = new("AnnotatedDataFrame",
+                                                   data = fdataDF),
+                                 experimentData = new("MIAME",
+                                                      title = setC))
+  # Adding to the MultiDataSet
+  nciMset <- MultiDataSet::add_eset(nciMset, eset, dataset.type = setC,
+                                    GRanges = NA, warnings = FALSE)
+}
 # Summary of the MultiDataSet
-brgeMset
-# Buidling PCA models for each dataset
-brgePca <- ropls::opls(brgeMset)
-# Getting the updated MultiDataSet instance (with scores, loadings, VIP, etc.)
-brgeMset <- ropls::getMset(brgePca)
+nciMset
+# Principal Component Analysis of each data set
+nciPca <- ropls::opls(nciMset)
+# Getting the MultiDataSet with additional information in pData (scores)
+and fData (loadings; also VIP, coefficients in case of PLS modeling) data frames
+nciMset <- ropls::getMset(nciPca)
 }

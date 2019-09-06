@@ -44,7 +44,7 @@
 #' # Principal Component Analysis of each data set
 #' nciPca <- ropls::opls(nciMset)
 #' # Getting the MultiDataSet with additional information in pData (scores)
-#' and fData (loadings; also VIP, coefficients in case of PLS modeling) data frames
+#' # and fData (loadings; also VIP, coefficients in case of PLS modeling) data frames
 #' nciMset <- ropls::getMset(nciPca)
 #' @rdname getMset
 #' @export

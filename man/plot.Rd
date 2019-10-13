@@ -10,7 +10,9 @@
 \alias{plot,opls-method}
 \title{Plot Method for (O)PLS(-DA)}
 \usage{
-\S4method{plot}{oplsMultiDataSet,ANY}(x, y, ...)
+\S4method{plot}{oplsMultiDataSet,ANY}(x, y, fig.pdfC = c("none",
+  "interactive", "myfile.pdf")[2], info.txtC = c("none", "interactive",
+  "myfile.txt")[2], ...)
 
 \S4method{plot}{opls,ANY}(x, y, typeVc = c("correlation", "outlier",
   "overview", "permutation", "predict-train", "predict-test", "summary",
@@ -27,6 +29,14 @@
 created by the \code{opls} function.}
 
 \item{y}{Currently not used}
+
+\item{fig.pdfC}{Character: File name with '.pdf' extension for the figure;
+if 'interactive' (default), figures will be displayed interactively; if 'none',
+no figure will be generated}
+
+\item{info.txtC}{Character: File name with '.txt' extension for the printed
+results (call to sink()'); if 'interactive' (default), messages will be
+printed on the screen; if 'none', no verbose will be generated}
 
 \item{...}{Currently not used.}
 
@@ -76,14 +86,6 @@ score plot (default -NA- is 1 in 1x1 and 0.7 in 2x2 display)}
 for coloring can be specified here (instead of 'parAsColFcVn')}
 
 \item{plotSubC}{Character: Graphic subtitle}
-
-\item{fig.pdfC}{Character: File name with '.pdf' extension for the figure;
-if 'interactive' (default), figures will be displayed interactively; if 'none',
-no figure will be generated}
-
-\item{info.txtC}{Character: File name with '.txt' extension for the printed
-results (call to sink()'); if 'interactive' (default), messages will be
-printed on the screen; if 'none', no verbose will be generated}
 
 \item{file.pdfC}{Character: deprecated; use the 'fig.pdfC' argument instead}
 

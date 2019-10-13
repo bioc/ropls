@@ -51,7 +51,25 @@
 setMethod("plot", signature(x = "oplsMultiDataSet"),
           function(x,
                    y,
+                   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
+                   info.txtC = c("none", "interactive", "myfile.txt")[2],
                    ...) {
+            
+            if (!(info.txtC %in% c("none", "interactive"))) {
+              sink(info.txtC, append = TRUE)
+            }
+            
+            infTxtC <- info.txtC
+            if (infTxtC != "none")
+              infTxtC <- "interactive"
+            
+            if (!(fig.pdfC %in% c("none", "interactive"))) {
+              pdf(fig.pdfC)
+            }
+            
+            figPdfC <- fig.pdfC
+            if (figPdfC != "none")
+              figPdfC <- "interactive"
             
             oplsLs <- x@oplsLs
             
@@ -61,8 +79,18 @@ setMethod("plot", signature(x = "oplsMultiDataSet"),
                 cat("No model has been built for the '", names(oplsLs)[setI], "' dataset and thus no plot can be displayed.", sep = "")
               } else
               plot(opl,
-                   plotSubC = paste0("[", names(oplsLs)[setI], "]"),...)
+                   plotSubC = paste0("[", names(oplsLs)[setI], "]"),
+                   fig.pdfC = figPdfC,
+                   info.txtC = infTxtC,
+                   ...)
             }
+            
+            if (!(fig.pdfC %in% c("none", "interactive")))
+              dev.off()
+            
+            if (!(info.txtC %in% c("none", "interactive")))
+              sink()
+            
           })
 
 ####    plot  (opls)  ####

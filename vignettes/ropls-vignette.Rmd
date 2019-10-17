@@ -121,24 +121,24 @@ names(sacurine)
 
 We attach **sacurine** to the search path and display a summary of the content
 of the **dataMatrix**, **sampleMetadata** and **variableMetadata** with the
-`strF` *F*unction of the
-[ropls](http://bioconductor.org/packages/release/bioc/html/ropls.html) package
-(see also `str`):
+`view` method from the
+[ropls](http://bioconductor.org/packages/release/bioc/html/ropls.html) package:
 
 ```{r attach_code, message = FALSE}
 attach(sacurine)
 ```
 ```{r strF}
-strF(dataMatrix)
-strF(sampleMetadata)
-strF(variableMetadata)
+view(dataMatrix)
+view(sampleMetadata)
+view(variableMetadata)
 ```
 
-We may also have a look at the data matrix with the `imageF` function:
+Note:
 
-```{r imageF}
-imageF(dataMatrix)
-```
+1. the `view` method applied to a numeric matrix also generates a graphical display
+
+2. the `view` method can also be applied to an ExpressionSet object (see below)
+
 
 ## Principal Component Analysis (PCA)
 
@@ -520,13 +520,14 @@ object as the `x` argument, and, for (O)PLS(-DA), by indicating as the `y`
 argument the name of the sampleMetadata to be used as the response.
 
 In the example below, we will first build a minimal **ExpressionSet** object
-from the *sacurine* data set, and we subsequently perform an OPLS-DA.
+from the *sacurine* data set and view the data, and we subsequently perform an OPLS-DA.
 
 ```{r expressionset_code, warning=FALSE}
 library(Biobase)
 sacSet <- ExpressionSet(assayData = t(dataMatrix),
                         phenoData = new("AnnotatedDataFrame",
                                         data = sampleMetadata))
+view(sacSet)
 opls(sacSet, "gender", orthoI = NA)
 ```
 

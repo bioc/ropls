@@ -52,6 +52,11 @@ setGeneric("getEset",
 setGeneric("getMset",
            function(object, ...) {standardGeneric("getMset")})
 
+#' @rdname view
+#' @export
+setGeneric("view",
+           function(x, ...) {standardGeneric("view")})
+
 #' @rdname checkW4M
 #' @export
 setGeneric("checkW4M", function(eset, ...) {standardGeneric("checkW4M")})

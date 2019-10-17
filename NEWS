@@ -1,3 +1,10 @@
+CHANGES IN VERSION 1.17.34
+------------------------------
+
+NEW FEATURE
+
+    o 'view' method (wrapper of the imageF and strF functions)
+
 CHANGES IN VERSION 1.17.32
 ------------------------------
 

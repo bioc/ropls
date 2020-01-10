@@ -1,9 +1,9 @@
-CHANGES IN VERSION 1.17.34
+CHANGES IN VERSION 1.18.2
 ------------------------------
 
-NEW FEATURE
+BUG FIXED
 
-    o 'view' method (wrapper of the imageF and strF functions)
+    o 'view' method: in case the matrix has no row nor column names
 
 CHANGES IN VERSION 1.17.32
 ------------------------------

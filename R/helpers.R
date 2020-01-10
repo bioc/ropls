@@ -555,6 +555,8 @@ imageF <- function(x,
     
     namesVc <- rep("", times = dim(matMN)[dimI])
     
+    namesCharVsNumL <- TRUE
+    
   } else {
     
     namesVc <- dimnames(matMN)[[dimI]]

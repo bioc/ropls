@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.18.4
+------------------------------
+
+NEW FEATURE
+
+    o 'view' method: plot extended to data.frame and ExpressionSet objects
+
+
 CHANGES IN VERSION 1.18.2
 ------------------------------
 

@@ -7,11 +7,20 @@ setMethod("view", signature(x = "ExpressionSet"),
                    ...) {
             
             message("'exprs(x)':")
-            ropls::view(Biobase::exprs(x), ...)
+            ropls::view(Biobase::exprs(x),
+                        mainC = Biobase::experimentData(x)@title,
+                        subC = "exprs",
+                        ...)
             message("'pData(x)':")
-            ropls::view(Biobase::pData(x), ...)
+            ropls::view(Biobase::pData(x),
+                        mainC = Biobase::experimentData(x)@title,
+                        subC = "pData",
+                        ...)
             message("'fData(x)':")
-            ropls::view(Biobase::fData(x), ...)
+            ropls::view(Biobase::fData(x),
+                        mainC = Biobase::experimentData(x)@title,
+                        subC = "fData",
+                        ...)
             
           })
 
@@ -21,9 +30,89 @@ setMethod("view", signature(x = "ExpressionSet"),
 #' @export
 setMethod("view", signature(x = "data.frame"),
           function(x,
-                   ...) {
+                   printL = TRUE,
+                   plotL = TRUE,
+                   mainC = "",
+                   subC = "",
+                   paletteC = c("heat",
+                                "revHeat",
+                                "grey",
+                                "revGrey",
+                                "palette",
+                                "ramp")[1],
+                   rowAllL = FALSE,
+                   rowCexN = 1,
+                   rowMarN = 5.1,
+                   rowLabC = "",
+                   rowTruncI = 0,
+                   colAllL = FALSE,
+                   colCexN = 1,
+                   colMarN = 1.1,
+                   colLabC = "",
+                   colTruncI = 0,
+                   drawScaleL = TRUE,
+                   delimitReplicatesL = FALSE,
+                   fig.pdfC = "interactive") {
             
+            if (printL)
             ropls::strF(x)
+            
+            if (plotL) {
+              
+              class.vc <- sapply(x, data.class)
+              class.vuc <- unique(class.vc)
+              
+              if ("logical" %in% class.vuc) {
+                logical.vi <- which(class.vc == "logical")
+                warning(length(logical.vi), " data.frame 'logical' column(s) converted to 'numeric' for plotting.",
+                        immediate. = TRUE,
+                        call. = FALSE)
+                for (j in logical.vi)
+                  x[, j] <- as.numeric(x[, j])
+              }
+              if ("character" %in% class.vuc) {
+                character.vi <- which(class.vc == "character")
+                warning(length(character.vi), " data.frame 'character' column(s) converted to 'numeric' for plotting.",
+                        immediate. = TRUE,
+                        call. = FALSE)
+                for (j in character.vi) {
+                  x.fc <- factor(x[, j])
+                  x[, j] <- as.numeric(x.fc)
+                }
+              }
+              if ("factor" %in% class.vuc) {
+                factor.vi <- which(class.vc == "factor")
+                warning(length(factor.vi), " data.frame 'factor' column(s) converted to 'numeric' for plotting.",
+                        immediate. = TRUE,
+                        call. = FALSE)
+                for (j in factor.vi) {
+                  x[, j] <- as.numeric(x[, j])
+                }
+              }
+              
+              if (all(sapply(x, data.class) == "numeric")) {
+                imageF(x = as.matrix(x),
+                       mainC = mainC,
+                       subC = subC,
+                       paletteC = paletteC,
+                       rowAllL = rowAllL,
+                       rowCexN = rowCexN,
+                       rowMarN = rowMarN,
+                       rowLabC = rowLabC,
+                       rowTruncI = rowTruncI,
+                       colAllL = colAllL,
+                       colCexN = colCexN,
+                       colMarN = colMarN,
+                       colLabC = colLabC,
+                       colTruncI = colTruncI,
+                       drawScaleL = drawScaleL,
+                       delimitReplicatesL = delimitReplicatesL,
+                       fig.pdfC = fig.pdfC)
+              } else {
+                warning("Data frame could not be plotted because some columns could not be converted to 'numeric'.",
+                        call. = FALSE)
+              }
+            }
             
           })
 
@@ -107,7 +196,22 @@ setMethod("view", signature(x = "matrix"),
             if (printL)
               strF(x)
             
-            if (plotL)
+            if (plotL) {
+              if (mode(x) == "logical") {
+                warning("Matrix converted from 'logical' to 'numeric' mode for plotting",
+                        immediate. = TRUE,
+                        call. = FALSE)
+                mode(x) <- "numeric"
+              } else if (mode(x) == "character") {
+                warning("Matrix converted from 'character' to 'numeric' mode for plotting",
+                        immediate. = TRUE,
+                        call. = FALSE)
+                x <- apply(x, 2, function(y) {
+                  y <- factor(y)
+                  levels(y) <- seq_along(levels(y))
+                  y
+                })
+              }
               imageF(x = x,
                      mainC = mainC,
                      subC = subC,
@@ -125,6 +229,7 @@ setMethod("view", signature(x = "matrix"),
                      drawScaleL = drawScaleL,
                      delimitReplicatesL = delimitReplicatesL,
                      fig.pdfC = fig.pdfC)
+            }
             
             invisible(NA)
             
@@ -292,9 +397,9 @@ strF <- function(tableMF,
       } else
         bordColVi <- 1:ncol(tableMF)
       
-      for (borderI in bordColVi)
-        if (is.factor(tableMF[, borderI]))
-          tableMF[, borderI] <- as.character(tableMF[, borderI])
+      for (j in bordColVi)
+        if (is.factor(tableMF[, j]))
+          tableMF[, j] <- as.character(tableMF[, j])
     }
     
     if (all(dimAbbVl)) {
@@ -837,10 +942,10 @@ imageF <- function(x,
     mtext(adj = 1,
           cex = 0.9,
           font = 3,
-          line = 0.75,
+          line = 0.6,
           outer = TRUE,
           side = 1,
-          text = subC)
+          text = paste0(subC, " "))
   
 }
 

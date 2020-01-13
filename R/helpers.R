@@ -55,65 +55,73 @@ setMethod("view", signature(x = "data.frame"),
                    fig.pdfC = "interactive") {
             
             if (printL)
-            ropls::strF(x)
+              ropls::strF(x)
             
             if (plotL) {
               
-              class.vc <- sapply(x, data.class)
-              class.vuc <- unique(class.vc)
-              
-              if ("logical" %in% class.vuc) {
-                logical.vi <- which(class.vc == "logical")
-                warning(length(logical.vi), " data.frame 'logical' column(s) converted to 'numeric' for plotting.",
+              if (cumprod(dim(x))[2] == 0) {
+                
+                warning("Data frame with no row and/or no column cannot be plotted.",
                         immediate. = TRUE,
                         call. = FALSE)
-                for (j in logical.vi)
-                  x[, j] <- as.numeric(x[, j])
-              }
-              if ("character" %in% class.vuc) {
-                character.vi <- which(class.vc == "character")
-                warning(length(character.vi), " data.frame 'character' column(s) converted to 'numeric' for plotting.",
-                        immediate. = TRUE,
-                        call. = FALSE)
-                for (j in character.vi) {
-                  x.fc <- factor(x[, j])
-                  x[, j] <- as.numeric(x.fc)
-                }
-              }
-              if ("factor" %in% class.vuc) {
-                factor.vi <- which(class.vc == "factor")
-                warning(length(factor.vi), " data.frame 'factor' column(s) converted to 'numeric' for plotting.",
-                        immediate. = TRUE,
-                        call. = FALSE)
-                for (j in factor.vi) {
-                  x[, j] <- as.numeric(x[, j])
-                }
-              }
-              
-              if (all(sapply(x, data.class) == "numeric")) {
-                imageF(x = as.matrix(x),
-                       mainC = mainC,
-                       subC = subC,
-                       paletteC = paletteC,
-                       rowAllL = rowAllL,
-                       rowCexN = rowCexN,
-                       rowMarN = rowMarN,
-                       rowLabC = rowLabC,
-                       rowTruncI = rowTruncI,
-                       colAllL = colAllL,
-                       colCexN = colCexN,
-                       colMarN = colMarN,
-                       colLabC = colLabC,
-                       colTruncI = colTruncI,
-                       drawScaleL = drawScaleL,
-                       delimitReplicatesL = delimitReplicatesL,
-                       fig.pdfC = fig.pdfC)
+                
               } else {
-                warning("Data frame could not be plotted because some columns could not be converted to 'numeric'.",
-                        call. = FALSE)
+                
+                class.vc <- sapply(x, data.class)
+                class.vuc <- unique(class.vc)
+                
+                if ("logical" %in% class.vuc) {
+                  logical.vi <- which(class.vc == "logical")
+                  warning(length(logical.vi), " data.frame 'logical' column(s) converted to 'numeric' for plotting.",
+                          immediate. = TRUE,
+                          call. = FALSE)
+                  for (j in logical.vi)
+                    x[, j] <- as.numeric(x[, j])
+                }
+                if ("character" %in% class.vuc) {
+                  character.vi <- which(class.vc == "character")
+                  warning(length(character.vi), " data.frame 'character' column(s) converted to 'numeric' for plotting.",
+                          immediate. = TRUE,
+                          call. = FALSE)
+                  for (j in character.vi) {
+                    x.fc <- factor(x[, j])
+                    x[, j] <- as.numeric(x.fc)
+                  }
+                }
+                if ("factor" %in% class.vuc) {
+                  factor.vi <- which(class.vc == "factor")
+                  warning(length(factor.vi), " data.frame 'factor' column(s) converted to 'numeric' for plotting.",
+                          immediate. = TRUE,
+                          call. = FALSE)
+                  for (j in factor.vi) {
+                    x[, j] <- as.numeric(x[, j])
+                  }
+                }
+                
+                if (all(sapply(x, data.class) == "numeric")) {
+                  imageF(x = as.matrix(x),
+                         mainC = mainC,
+                         subC = subC,
+                         paletteC = paletteC,
+                         rowAllL = rowAllL,
+                         rowCexN = rowCexN,
+                         rowMarN = rowMarN,
+                         rowLabC = rowLabC,
+                         rowTruncI = rowTruncI,
+                         colAllL = colAllL,
+                         colCexN = colCexN,
+                         colMarN = colMarN,
+                         colLabC = colLabC,
+                         colTruncI = colTruncI,
+                         drawScaleL = drawScaleL,
+                         delimitReplicatesL = delimitReplicatesL,
+                         fig.pdfC = fig.pdfC)
+                } else {
+                  warning("Data frame could not be plotted because some columns could not be converted to 'numeric'.",
+                          call. = FALSE)
+                }
               }
             }
-            
           })
 
 
@@ -197,38 +205,49 @@ setMethod("view", signature(x = "matrix"),
               strF(x)
             
             if (plotL) {
-              if (mode(x) == "logical") {
-                warning("Matrix converted from 'logical' to 'numeric' mode for plotting",
+              
+              if (cumprod(dim(x))[2] == 0) {
+                
+                warning("Matrix with no row and/or no column cannot be plotted.",
                         immediate. = TRUE,
                         call. = FALSE)
-                mode(x) <- "numeric"
-              } else if (mode(x) == "character") {
-                warning("Matrix converted from 'character' to 'numeric' mode for plotting",
-                        immediate. = TRUE,
-                        call. = FALSE)
-                x <- apply(x, 2, function(y) {
-                  y <- factor(y)
-                  levels(y) <- seq_along(levels(y))
-                  y
-                })
+                
+              } else {
+                
+                if (mode(x) == "logical") {
+                  warning("Matrix converted from 'logical' to 'numeric' mode for plotting",
+                          immediate. = TRUE,
+                          call. = FALSE)
+                  mode(x) <- "numeric"
+                } else if (mode(x) == "character") {
+                  warning("Matrix converted from 'character' to 'numeric' mode for plotting",
+                          immediate. = TRUE,
+                          call. = FALSE)
+                  x <- apply(x, 2, function(y) {
+                    y <- factor(y)
+                    levels(y) <- seq_along(levels(y))
+                    y
+                  })
+                }
+                imageF(x = x,
+                       mainC = mainC,
+                       subC = subC,
+                       paletteC = paletteC,
+                       rowAllL = rowAllL,
+                       rowCexN = rowCexN,
+                       rowMarN = rowMarN,
+                       rowLabC = rowLabC,
+                       rowTruncI = rowTruncI,
+                       colAllL = colAllL,
+                       colCexN = colCexN,
+                       colMarN = colMarN,
+                       colLabC = colLabC,
+                       colTruncI = colTruncI,
+                       drawScaleL = drawScaleL,
+                       delimitReplicatesL = delimitReplicatesL,
+                       fig.pdfC = fig.pdfC)
               }
-              imageF(x = x,
-                     mainC = mainC,
-                     subC = subC,
-                     paletteC = paletteC,
-                     rowAllL = rowAllL,
-                     rowCexN = rowCexN,
-                     rowMarN = rowMarN,
-                     rowLabC = rowLabC,
-                     rowTruncI = rowTruncI,
-                     colAllL = colAllL,
-                     colCexN = colCexN,
-                     colMarN = colMarN,
-                     colLabC = colLabC,
-                     colTruncI = colTruncI,
-                     drawScaleL = drawScaleL,
-                     delimitReplicatesL = delimitReplicatesL,
-                     fig.pdfC = fig.pdfC)
+              
             }
             
             invisible(NA)
@@ -257,31 +276,31 @@ setMethod("view", signature(x = "matrix"),
 strF <- function(tableMF,
                  borderI = 2,
                  bigMarkC = ",") {
-
-    if (any(class(tableMF) %in% c("character", "integer", "logical", "numeric", "double"))) {
-        classC <- "vector"
-     } else
-        classC <- class(tableMF)
-
-    numericL <- mode(tableMF) %in% c("numeric", "integer", "double")
-
-    if (!(classC %in% c("vector", "matrix", "data.frame"))) {
-        str(tableMF)
-        return(invisible(NULL))
-    }
-
-    .header(tableMF = tableMF,
-            borderI = borderI,
-            bigMarkC = bigMarkC,
-            classC = classC,
-            numericL = numericL)
-
-    if (tail(cumprod(dim(tableMF)), 1) > 0)
-      .table(tableMF = tableMF,
-             borderI = borderI,
-             classC = classC,
-             numericL = numericL)
-
+  
+  if (any(class(tableMF) %in% c("character", "integer", "logical", "numeric", "double"))) {
+    classC <- "vector"
+  } else
+    classC <- class(tableMF)
+  
+  numericL <- mode(tableMF) %in% c("numeric", "integer", "double")
+  
+  if (!(classC %in% c("vector", "matrix", "data.frame"))) {
+    str(tableMF)
+    return(invisible(NULL))
+  }
+  
+  .header(tableMF = tableMF,
+          borderI = borderI,
+          bigMarkC = bigMarkC,
+          classC = classC,
+          numericL = numericL)
+  
+  if (tail(cumprod(dim(tableMF)), 1) > 0)
+    .table(tableMF = tableMF,
+           borderI = borderI,
+           classC = classC,
+           numericL = numericL)
+  
 } ## strF
 
 .header <- function(tableMF,
@@ -319,22 +338,22 @@ strF <- function(tableMF,
          matrix = {
            
            headerDF <- data.frame(dim = paste(format(nrow(tableMF), big.mark = bigMarkC), format(ncol(tableMF), big.mark = bigMarkC), sep = " x "),
-                               class = class(tableMF),
-                               mode = mode(tableMF),
-                               typeof = typeof(tableMF),
-                               size = format(object.size(tableMF), units = "Mb"),
-                               NAs = length(which(is.na(tableMF))))
+                                  class = class(tableMF),
+                                  mode = mode(tableMF),
+                                  typeof = typeof(tableMF),
+                                  size = format(object.size(tableMF), units = "Mb"),
+                                  NAs = length(which(is.na(tableMF))))
            
            if (numericL)
              headerDF <- cbind.data.frame(headerDF,
-                                       data.frame(min = formatC(min(tableMF, na.rm = TRUE),
-                                                                digits = 2, format = "g"),
-                                                  mean = formatC(mean(tableMF, na.rm = TRUE),
-                                                                 digits = 2, format = "g"),
-                                                  median = formatC(median(tableMF, na.rm = TRUE),
+                                          data.frame(min = formatC(min(tableMF, na.rm = TRUE),
                                                                    digits = 2, format = "g"),
-                                                  max = formatC(max(tableMF, na.rm = TRUE),
-                                                                digits = 2, format = "g")))
+                                                     mean = formatC(mean(tableMF, na.rm = TRUE),
+                                                                    digits = 2, format = "g"),
+                                                     median = formatC(median(tableMF, na.rm = TRUE),
+                                                                      digits = 2, format = "g"),
+                                                     max = formatC(max(tableMF, na.rm = TRUE),
+                                                                   digits = 2, format = "g")))
            
            
          }, ## matrix
@@ -405,27 +424,27 @@ strF <- function(tableMF,
     if (all(dimAbbVl)) {
       
       tableMF <- rbind(cbind(tableMF[1:borderI, 1:borderI, drop = FALSE],
-                           ... = rep("...", times = borderI),
-                           tableMF[1:borderI, (ncol(tableMF) - borderI + 1):ncol(tableMF), drop = FALSE]),
-                     rep("...", 2 * borderI + 1),
-                     cbind(tableMF[(nrow(tableMF) - borderI + 1):nrow(tableMF), 1:borderI, drop = FALSE],
-                           ... = rep("...", times = borderI),
-                           tableMF[(nrow(tableMF) - borderI + 1):nrow(tableMF), (ncol(tableMF) - borderI + 1):ncol(tableMF), drop = FALSE]))
+                             ... = rep("...", times = borderI),
+                             tableMF[1:borderI, (ncol(tableMF) - borderI + 1):ncol(tableMF), drop = FALSE]),
+                       rep("...", 2 * borderI + 1),
+                       cbind(tableMF[(nrow(tableMF) - borderI + 1):nrow(tableMF), 1:borderI, drop = FALSE],
+                             ... = rep("...", times = borderI),
+                             tableMF[(nrow(tableMF) - borderI + 1):nrow(tableMF), (ncol(tableMF) - borderI + 1):ncol(tableMF), drop = FALSE]))
       
       if (classC == "matrix") {
         
         if (!is.null(rownames(tableMF)) && any(duplicated(rownames(tableMF)))) {
           rownames(tableMF) <- make.names(rownames(tableMF),
-                                        unique = TRUE)
+                                          unique = TRUE)
         } else if (is.null(rownames(tableMF)))
           rownames(tableMF) <- c(1:borderI,
-                               "...",
-                               (nrow(tableMF) - borderI + 1):nrow(tableMF))
+                                 "...",
+                                 (nrow(tableMF) - borderI + 1):nrow(tableMF))
         
         if (is.null(colnames(tableMF)))
           colnames(tableMF) <- c(1:borderI,
-                               "...",
-                               (ncol(tableMF) - borderI + 1):ncol(tableMF))
+                                 "...",
+                                 (ncol(tableMF) - borderI + 1):ncol(tableMF))
         
         tableMF <- as.data.frame(tableMF)
         
@@ -439,18 +458,18 @@ strF <- function(tableMF,
         colnames(tableMF) <- 1:ncol(tableMF)
       
       tableMF <- rbind(tableMF[1:borderI, , drop = FALSE],
-                     rep("...", ncol(tableMF)),
-                     tableMF[(nrow(tableMF) - borderI + 1):nrow(tableMF), , drop = FALSE])
+                       rep("...", ncol(tableMF)),
+                       tableMF[(nrow(tableMF) - borderI + 1):nrow(tableMF), , drop = FALSE])
       
       if (classC == "matrix") {
         
         if (!is.null(rownames(tableMF)) && any(duplicated(rownames(tableMF)))) {
           rownames(tableMF) <- make.names(rownames(tableMF),
-                                        unique = TRUE)
+                                          unique = TRUE)
         } else if (is.null(rownames(tableMF)))
           rownames(tableMF) <- c(1:borderI,
-                               "...",
-                               (nrow(tableMF) - borderI + 1):nrow(tableMF))
+                                 "...",
+                                 (nrow(tableMF) - borderI + 1):nrow(tableMF))
         
         if (is.null(colnames(tableMF)))
           colnames(tableMF) <- 1:ncol(tableMF)
@@ -464,19 +483,19 @@ strF <- function(tableMF,
     } else if (dimAbbVl[2]) {
       
       tableMF <- cbind(tableMF[, 1:borderI, drop = FALSE],
-                     ... = rep("...", times = nrow(tableMF)),
-                     tableMF[, (ncol(tableMF) - borderI + 1):ncol(tableMF), drop = FALSE])
+                       ... = rep("...", times = nrow(tableMF)),
+                       tableMF[, (ncol(tableMF) - borderI + 1):ncol(tableMF), drop = FALSE])
       
       if (classC == "matrix") {
         
         if (!is.null(rownames(tableMF)) && any(duplicated(rownames(tableMF))))
           rownames(tableMF) <- make.names(rownames(tableMF),
-                                        unique = TRUE)
+                                          unique = TRUE)
         
         if (is.null(colnames(tableMF)))
           colnames(tableMF) <- c(1:borderI,
-                               "...",
-                               (ncol(tableMF) - borderI + 1):ncol(tableMF))
+                                 "...",
+                                 (ncol(tableMF) - borderI + 1):ncol(tableMF))
         
         tableMF <- as.data.frame(tableMF)
         
@@ -561,10 +580,10 @@ imageF <- function(x,
                    drawScaleL = TRUE,
                    delimitReplicatesL = FALSE,
                    fig.pdfC = "interactive") {
- 
+  
   if (class(x) != "matrix" || mode(x) != "numeric")
     stop("'x must be a matrix of number for the 'image' plot type", call. = FALSE)
-
+  
   
   if (delimitReplicatesL && (length(rownames(x)) * length(colnames(x))) == 0)
     stop("Rownames and colnames are required when the delimitReplicatesL argument is TRUE", call. = FALSE)
@@ -665,7 +684,7 @@ imageF <- function(x,
   } else {
     
     namesVc <- dimnames(matMN)[[dimI]]
-  
+    
     namesCharVsNumL <- suppressWarnings(any(is.na(as.numeric(namesVc))))
     
     if (namesCharVsNumL) {
@@ -770,13 +789,13 @@ imageF <- function(x,
        xpd = TRUE)
   
   graphics::arrows(par("usr")[2],
-         par("usr")[4],
-         par("usr")[2],
-         par("usr")[3],
-         code = 0,
-         lwd = 2,
-         xpd = TRUE)
- 
+                   par("usr")[4],
+                   par("usr")[2],
+                   par("usr")[3],
+                   code = 0,
+                   lwd = 2,
+                   xpd = TRUE)
+  
   graphics::arrows(par("usr")[1],
                    par("usr")[4],
                    par("usr")[1],
@@ -822,7 +841,7 @@ imageF <- function(x,
     }
   
   prettyAxisLs <- list(atVn = prettyAtVn,
-                               labelVn = prettyLabelsVn)
+                       labelVn = prettyLabelsVn)
   
   
   return(prettyAxisLs)
@@ -845,7 +864,7 @@ imageF <- function(x,
                        drawScaleL,
                        delimitReplicatesL,
                        dimnamesLs) {
-
+  
   par(mar = c(1.1,
               rowMarN,
               ifelse(colAllL,
@@ -854,15 +873,15 @@ imageF <- function(x,
               ifelse(drawScaleL, yes = 0.3, no = 1.6)))
   
   graphics::image(x = 1:nrow(imageMN),
-        y = 1:ncol(imageMN),
-        z = imageMN,
-        col = paletteVc,
-        font.axis = 2,
-        font.lab = 2,
-        xaxt = "n",
-        yaxt = "n",
-        xlab = "",
-        ylab = "")
+                  y = 1:ncol(imageMN),
+                  z = imageMN,
+                  col = paletteVc,
+                  font.axis = 2,
+                  font.lab = 2,
+                  xaxt = "n",
+                  yaxt = "n",
+                  xlab = "",
+                  ylab = "")
   
   .drawAxis(imageMN = imageMN,
             rowAllL = rowAllL,
@@ -870,13 +889,13 @@ imageF <- function(x,
             rowCexN = rowCexN,
             colCexN = colCexN,
             dimnamesLs = dimnamesLs)
-    
-    ## xlab
-    
-    mtext(font = 2,
-          line = colMarN - 1,
-          side = 3,
-          text = colLabC)
+  
+  ## xlab
+  
+  mtext(font = 2,
+        line = colMarN - 1,
+        side = 3,
+        text = colLabC)
   
   ## ylab
   
@@ -910,20 +929,20 @@ imageF <- function(x,
   ## arrows at the end of the axes
   
   graphics::arrows(par("usr")[1],
-         par("usr")[4],
-         par("usr")[1],
-         par("usr")[3],
-         length = 0.1,
-         lwd = 2,
-         xpd = TRUE)
+                   par("usr")[4],
+                   par("usr")[1],
+                   par("usr")[3],
+                   length = 0.1,
+                   lwd = 2,
+                   xpd = TRUE)
   
   graphics::arrows(par("usr")[1],
-         par("usr")[4],
-         par("usr")[2],
-         par("usr")[4],
-         length = 0.1,
-         lwd = 2,
-         xpd = TRUE)
+                   par("usr")[4],
+                   par("usr")[2],
+                   par("usr")[4],
+                   length = 0.1,
+                   lwd = 2,
+                   xpd = TRUE)
   
   ## writing figure title
   
@@ -1038,7 +1057,7 @@ imageF <- function(x,
         labelAtVn <- labelLowIndiceVn - rep(1, times = length(labelLowIndiceVn)) + labelSpanVn / 2 + rep(0.5, times = length(labelLowIndiceVn))
         
         par(cex = dimCexN)
-
+        
         if (dimI == 1) {
           labelAtVn <- ncol(imageMN) - rev(labelLowIndiceVn) + rep(1, times = length(labelLowIndiceVn)) - rev(labelSpanVn) / 2 + rep(0.5, times = length(labelLowIndiceVn))
           labelVc <- rev(labelVc)
@@ -1131,89 +1150,89 @@ fromW4M <- function(dirC,
                                          "sampleMetadata",
                                          "variableMetadata"),
                     verboseL = TRUE) {
-
-    tabVc <- c("dataMatrix",
-               "sampleMetadata",
-               "variableMetadata")
-
-    if (!file.exists(dirC))
-        stop("Directory '", dirC, "' was not found.",
-             call. = FALSE)
-
-    filVc <- character(length(tabVc))
-    names(filVc) <- tabVc
-
-    filAllVc <- list.files(dirC,
-                           pattern = "^.*\\.tsv$")
-
-    ## restricting to files with pattern
-    if (namePatternC != "")
-        filAllVc <- grep(namePatternC, filAllVc, value = TRUE)
-
-    ## restricting to one file for each table
-    for (tabC in tabVc) {
-        namC <- fileTableNamesVc[tabVc == tabC]
-        filC <- grep(namC, filAllVc, value = TRUE)
-        if (length(filC) == 0) {
-            stop("No file found for the ", tabC, " with ",
-                 ifelse(namePatternC != "",
-                        paste0("'", namC, "' pattern and "), ""),
-                 "a name including '", namC, "' in the '", dirC,
-                 "' directory.", call. = FALSE)
-        } else if (length(filC) > 1) {
-            stop("Several files found for the ", tabC, " with ",
-                 ifelse(namePatternC != "", paste0("'", namC, "' pattern and "),
-                        ""), "a name including '", namC, "' in the '",
-                 dirC, "' directory.", call. = FALSE)
-        } else {
-            filVc[tabC] <- filC
-            ## R standards for row and column names in matrices and data frames
-            .checkRformatF(dirC, filC, verboseL)
-        }
+  
+  tabVc <- c("dataMatrix",
+             "sampleMetadata",
+             "variableMetadata")
+  
+  if (!file.exists(dirC))
+    stop("Directory '", dirC, "' was not found.",
+         call. = FALSE)
+  
+  filVc <- character(length(tabVc))
+  names(filVc) <- tabVc
+  
+  filAllVc <- list.files(dirC,
+                         pattern = "^.*\\.tsv$")
+  
+  ## restricting to files with pattern
+  if (namePatternC != "")
+    filAllVc <- grep(namePatternC, filAllVc, value = TRUE)
+  
+  ## restricting to one file for each table
+  for (tabC in tabVc) {
+    namC <- fileTableNamesVc[tabVc == tabC]
+    filC <- grep(namC, filAllVc, value = TRUE)
+    if (length(filC) == 0) {
+      stop("No file found for the ", tabC, " with ",
+           ifelse(namePatternC != "",
+                  paste0("'", namC, "' pattern and "), ""),
+           "a name including '", namC, "' in the '", dirC,
+           "' directory.", call. = FALSE)
+    } else if (length(filC) > 1) {
+      stop("Several files found for the ", tabC, " with ",
+           ifelse(namePatternC != "", paste0("'", namC, "' pattern and "),
+                  ""), "a name including '", namC, "' in the '",
+           dirC, "' directory.", call. = FALSE)
+    } else {
+      filVc[tabC] <- filC
+      ## R standards for row and column names in matrices and data frames
+      .checkRformatF(dirC, filC, verboseL)
     }
-
-    ## Loading data
-
-    for(tabC in tabVc) {
-
-        tabDF <- read.table(file.path(dirC, filVc[tabC]),
-                            check.names = FALSE,
-                            header = TRUE,
-                            row.names = 1,
-                            sep = "\t",
-                            stringsAsFactors = FALSE)
-        switch(tabC,
-               dataMatrix = {
-                   datMN <- as.matrix(tabDF)
-               },
-               sampleMetadata = {
-                   samDF <- tabDF
-               },
-               variableMetadata = {
-                   varDF <- tabDF
-               })
-
-    }
-
-    chkL <- .checkW4mFormatF(t(datMN), samDF, varDF)
-
-    if(chkL) {
-        TRUE
-    } else
-        "Problem with the sample or variable names in the tables (see above)"
-
-    eset <- ExpressionSet(assayData = datMN,
-                          phenoData = new("AnnotatedDataFrame",
-                              data = samDF),
-                          featureData = new("AnnotatedDataFrame",
-                              data = varDF),
-                          experimentData = new("MIAME",
-                              title = namePatternC))
-
-    validObject(eset)
-
-    return(eset)
-
+  }
+  
+  ## Loading data
+  
+  for(tabC in tabVc) {
+    
+    tabDF <- read.table(file.path(dirC, filVc[tabC]),
+                        check.names = FALSE,
+                        header = TRUE,
+                        row.names = 1,
+                        sep = "\t",
+                        stringsAsFactors = FALSE)
+    switch(tabC,
+           dataMatrix = {
+             datMN <- as.matrix(tabDF)
+           },
+           sampleMetadata = {
+             samDF <- tabDF
+           },
+           variableMetadata = {
+             varDF <- tabDF
+           })
+    
+  }
+  
+  chkL <- .checkW4mFormatF(t(datMN), samDF, varDF)
+  
+  if(chkL) {
+    TRUE
+  } else
+    "Problem with the sample or variable names in the tables (see above)"
+  
+  eset <- ExpressionSet(assayData = datMN,
+                        phenoData = new("AnnotatedDataFrame",
+                                        data = samDF),
+                        featureData = new("AnnotatedDataFrame",
+                                          data = varDF),
+                        experimentData = new("MIAME",
+                                             title = namePatternC))
+  
+  validObject(eset)
+  
+  return(eset)
+  
 }
 
 # deprecated

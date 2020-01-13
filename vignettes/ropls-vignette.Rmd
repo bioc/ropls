@@ -522,7 +522,7 @@ argument the name of the sampleMetadata to be used as the response.
 In the example below, we will first build a minimal **ExpressionSet** object
 from the *sacurine* data set and view the data, and we subsequently perform an OPLS-DA.
 
-```{r expressionset_code, warning=FALSE}
+```{r expressionset_code, message = FALSE, warning=FALSE}
 library(Biobase)
 sacSet <- ExpressionSet(assayData = t(dataMatrix),
                         phenoData = new("AnnotatedDataFrame",

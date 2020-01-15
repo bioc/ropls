@@ -277,7 +277,6 @@ setMethod("opls", signature(x = "data.frame"),
 #' NIPALS algorithm
 #'
 #' @name opls
-#' @rdname opls
 #' @aliases opls opls,ExpressionSet-method opls,data.frame-method
 #' opls,matrix-method
 #' @docType methods

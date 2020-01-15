@@ -1,3 +1,10 @@
+CHANGES IN VERSION 1.18.8
+------------------------------
+
+NEW FEATURE
+
+    o 'view' method: 'standardizeL' argument to standardize table columns before display
+
 CHANGES IN VERSION 1.18.6
 ------------------------------
 

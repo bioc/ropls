@@ -1,31 +1,183 @@
 #### view (ExpressionSet) ####
 
+#' view
+#'
+#' Numeric and graphical display of exprs, pData and fData slots
+#' from an ExpressionSet object
+#'
+#' @param x data frame to be viewed
+#' @param printL should the numerical summary be printed?
+#' @param plotL should the graphical image be displayed?
+#' @param mainC character: plot main title
+#' @param paletteC character: color palette; either 'heat' [default], 'revHeat', 'grey', 'revGrey', 'palette', 'ramp'
+#' @param rowAllL logical: should all rownames be displayed or only the first and
+#' last ones?
+#' @param rowCexN numeric: size of row labels [default: 1]
+#' @param rowMarN numeric: row margin [default: 6.1]
+#' @param rowLabC character: label for the y (row) axis
+#' @param rowTruncI integer: number of character for truncation of rownames (default,
+#' 0, means no truncation)
+#' @param colAllL logical: should all column names be displayed or only the first and
+#' last ones?
+#' @param colCexN numeric: size of column labels [default: 1]
+#' @param colMarN numeric: column margin [default: 6.1]
+#' @param colLabC character: label for the x (column) axis
+#' @param colTruncI integer: number of character for truncation of colnames (default,
+#' 0, means no truncation)
+#' @param drawScaleL logical: should the color scale be drawn? [default: TRUE]
+#' @param delimitReplicatesL logical: should lines be added to the image to delimit
+#' replicates in row or column names?
+#' @param standardizeL Logical: should columns be standardized for display? 
+#' (i.e. subtracting the mean and dividing by the standard deviation) [default: FALSE]
+#' @param fig.pdfC character: either 'interactive' [default] or the name of the pdf file to save the figure
+#' @param ... Currently not used.
+#' @return this method has no output
+#' @examples
+#' library(ropls)
+#' data(sacurine)
+#' sacSet <- Biobase::ExpressionSet(assayData = t(sacurine[["dataMatrix"]]), 
+#'                                  phenoData = new("AnnotatedDataFrame", 
+#'                                                  data = sacurine[["sampleMetadata"]]), 
+#'                                  featureData = new("AnnotatedDataFrame", 
+#'                                                    data = sacurine[["variableMetadata"]]),
+#'                                  experimentData = new("MIAME", 
+#'                                                       title = "sacurine"))
+#' view(sacSet)
 #' @rdname view
 #' @export
 setMethod("view", signature(x = "ExpressionSet"),
           function(x,
-                   ...) {
+                   printL = TRUE,
+                   plotL = TRUE,
+                   mainC = "",
+                   paletteC = c("heat",
+                                "revHeat",
+                                "grey",
+                                "revGrey",
+                                "palette",
+                                "ramp")[1],
+                   rowAllL = FALSE,
+                   rowCexN = 1,
+                   rowMarN = 5.1,
+                   rowLabC = "",
+                   rowTruncI = 0,
+                   colAllL = FALSE,
+                   colCexN = 1,
+                   colMarN = 1.1,
+                   colLabC = "",
+                   colTruncI = 0,
+                   drawScaleL = TRUE,
+                   delimitReplicatesL = FALSE,
+                   standardizeL = FALSE,
+                   fig.pdfC = "interactive") {
+            
+            if (is.na(mainC) || mainC == "")
+              mainC <- Biobase::experimentData(x)@title
             
             message("'exprs(x)':")
             ropls::view(Biobase::exprs(x),
-                        mainC = Biobase::experimentData(x)@title,
+                        printL = printL,
+                        plotL = plotL,
+                        mainC = mainC,
                         subC = "exprs",
-                        ...)
+                        paletteC = paletteC,
+                        rowAllL = rowAllL,
+                        rowCexN = rowCexN,
+                        rowMarN = rowMarN,
+                        rowLabC = rowLabC,
+                        rowTruncI = rowTruncI,
+                        colAllL = colAllL,
+                        colCexN = colCexN,
+                        colMarN = colMarN,
+                        colLabC = colLabC,
+                        colTruncI = colTruncI,
+                        drawScaleL = drawScaleL,
+                        delimitReplicatesL = delimitReplicatesL,
+                        standardizeL = standardizeL,
+                        fig.pdfC = fig.pdfC)
             message("'pData(x)':")
             ropls::view(Biobase::pData(x),
-                        mainC = Biobase::experimentData(x)@title,
+                        printL = printL,
+                        plotL = plotL,
+                        mainC = mainC,
                         subC = "pData",
-                        ...)
+                        paletteC = paletteC,
+                        rowAllL = rowAllL,
+                        rowCexN = rowCexN,
+                        rowMarN = rowMarN,
+                        rowLabC = rowLabC,
+                        rowTruncI = rowTruncI,
+                        colAllL = colAllL,
+                        colCexN = colCexN,
+                        colMarN = colMarN,
+                        colLabC = colLabC,
+                        colTruncI = colTruncI,
+                        drawScaleL = drawScaleL,
+                        delimitReplicatesL = delimitReplicatesL,
+                        standardizeL = standardizeL,
+                        fig.pdfC = fig.pdfC)
             message("'fData(x)':")
             ropls::view(Biobase::fData(x),
-                        mainC = Biobase::experimentData(x)@title,
+                        printL = printL,
+                        plotL = plotL,
+                        mainC = mainC,
                         subC = "fData",
-                        ...)
+                        paletteC = paletteC,
+                        rowAllL = rowAllL,
+                        rowCexN = rowCexN,
+                        rowMarN = rowMarN,
+                        rowLabC = rowLabC,
+                        rowTruncI = rowTruncI,
+                        colAllL = colAllL,
+                        colCexN = colCexN,
+                        colMarN = colMarN,
+                        colLabC = colLabC,
+                        colTruncI = colTruncI,
+                        drawScaleL = drawScaleL,
+                        delimitReplicatesL = delimitReplicatesL,
+                        standardizeL = standardizeL,
+                        fig.pdfC = fig.pdfC)
             
           })
 
 #### view (data.frame) ####
 
+#' view
+#'
+#' Numeric and graphical display of a data frame
+#'
+#' @param x data frame to be viewed
+#' @param printL should the numerical summary be printed?
+#' @param plotL should the graphical image be displayed?
+#' @param mainC character: plot main title
+#' @param subC character: plot subtitle
+#' @param paletteC character: color palette; either 'heat' [default], 'revHeat', 'grey', 'revGrey', 'palette', 'ramp'
+#' @param rowAllL logical: should all rownames be displayed or only the first and
+#' last ones?
+#' @param rowCexN numeric: size of row labels [default: 1]
+#' @param rowMarN numeric: row margin [default: 6.1]
+#' @param rowLabC character: label for the y (row) axis
+#' @param rowTruncI integer: number of character for truncation of rownames (default,
+#' 0, means no truncation)
+#' @param colAllL logical: should all column names be displayed or only the first and
+#' last ones?
+#' @param colCexN numeric: size of column labels [default: 1]
+#' @param colMarN numeric: column margin [default: 6.1]
+#' @param colLabC character: label for the x (column) axis
+#' @param colTruncI integer: number of character for truncation of colnames (default,
+#' 0, means no truncation)
+#' @param drawScaleL logical: should the color scale be drawn? [default: TRUE]
+#' @param delimitReplicatesL logical: should lines be added to the image to delimit
+#' replicates in row or column names?
+#' @param standardizeL Logical: should columns be standardized for display? 
+#' (i.e. subtracting the mean and dividing by the standard deviation) [default: FALSE]
+#' @param fig.pdfC character: either 'interactive' [default] or the name of the pdf file to save the figure
+#' @param ... Currently not used.
+#' @return this method has no output
+#' @examples
+#' library(ropls)
+#' data(sacurine)
+#' view(sacurine[["sampleMetadata"]])
 #' @rdname view
 #' @export
 setMethod("view", signature(x = "data.frame"),
@@ -52,6 +204,7 @@ setMethod("view", signature(x = "data.frame"),
                    colTruncI = 0,
                    drawScaleL = TRUE,
                    delimitReplicatesL = FALSE,
+                   standardizeL = FALSE,
                    fig.pdfC = "interactive") {
             
             if (printL)
@@ -72,17 +225,13 @@ setMethod("view", signature(x = "data.frame"),
                 
                 if ("logical" %in% class.vuc) {
                   logical.vi <- which(class.vc == "logical")
-                  warning(length(logical.vi), " data.frame 'logical' column(s) converted to 'numeric' for plotting.",
-                          immediate. = TRUE,
-                          call. = FALSE)
+                  message(length(logical.vi), " data.frame 'logical' column(s) converted to 'numeric' for plotting.")
                   for (j in logical.vi)
                     x[, j] <- as.numeric(x[, j])
                 }
                 if ("character" %in% class.vuc) {
                   character.vi <- which(class.vc == "character")
-                  warning(length(character.vi), " data.frame 'character' column(s) converted to 'numeric' for plotting.",
-                          immediate. = TRUE,
-                          call. = FALSE)
+                  message(length(character.vi), " data.frame 'character' column(s) converted to 'numeric' for plotting.")
                   for (j in character.vi) {
                     x.fc <- factor(x[, j])
                     x[, j] <- as.numeric(x.fc)
@@ -90,9 +239,7 @@ setMethod("view", signature(x = "data.frame"),
                 }
                 if ("factor" %in% class.vuc) {
                   factor.vi <- which(class.vc == "factor")
-                  warning(length(factor.vi), " data.frame 'factor' column(s) converted to 'numeric' for plotting.",
-                          immediate. = TRUE,
-                          call. = FALSE)
+                  message(length(factor.vi), " data.frame 'factor' column(s) converted to 'numeric' for plotting.")
                   for (j in factor.vi) {
                     x[, j] <- as.numeric(x[, j])
                   }
@@ -115,6 +262,7 @@ setMethod("view", signature(x = "data.frame"),
                          colTruncI = colTruncI,
                          drawScaleL = drawScaleL,
                          delimitReplicatesL = delimitReplicatesL,
+                         standardizeL = standardizeL,
                          fig.pdfC = fig.pdfC)
                 } else {
                   warning("Data frame could not be plotted because some columns could not be converted to 'numeric'.",
@@ -129,9 +277,9 @@ setMethod("view", signature(x = "data.frame"),
 
 #' view
 #'
-#' Display numeric matrix with colors
+#' Numeric and graphical display of a matrix
 #'
-#' @param x object to be viewed (numerical matrix, ExpressionSet, or data.frame)
+#' @param x matrix to be viewed
 #' @param printL should the numerical summary be printed?
 #' @param plotL should the graphical image be displayed?
 #' @param mainC character: plot main title
@@ -154,8 +302,10 @@ setMethod("view", signature(x = "data.frame"),
 #' @param drawScaleL logical: should the color scale be drawn? [default: TRUE]
 #' @param delimitReplicatesL logical: should lines be added to the image to delimit
 #' replicates in row or column names?
+#' @param standardizeL Logical: should columns be standardized for display? 
+#' (i.e. subtracting the mean and dividing by the standard deviation) [default: FALSE]
 #' @param fig.pdfC character: either 'interactive' [default] or the name of the pdf file to save the figure
-#' @param ... parameters to be passed from the methods to the internal functions
+#' @param ... Currently not used.
 #' @return this method has no output
 #' @examples
 #' library(ropls)
@@ -199,6 +349,7 @@ setMethod("view", signature(x = "matrix"),
                    colTruncI = 0,
                    drawScaleL = TRUE,
                    delimitReplicatesL = FALSE,
+                   standardizeL = FALSE,
                    fig.pdfC = "interactive") {
             
             if (printL)
@@ -215,12 +366,12 @@ setMethod("view", signature(x = "matrix"),
               } else {
                 
                 if (mode(x) == "logical") {
-                  warning("Matrix converted from 'logical' to 'numeric' mode for plotting",
+                  warning("Matrix converted from 'logical' to 'numeric' mode for plotting.",
                           immediate. = TRUE,
                           call. = FALSE)
                   mode(x) <- "numeric"
                 } else if (mode(x) == "character") {
-                  warning("Matrix converted from 'character' to 'numeric' mode for plotting",
+                  warning("Matrix converted from 'character' to 'numeric' mode for plotting.",
                           immediate. = TRUE,
                           call. = FALSE)
                   x <- apply(x, 2, function(y) {
@@ -245,8 +396,10 @@ setMethod("view", signature(x = "matrix"),
                        colTruncI = colTruncI,
                        drawScaleL = drawScaleL,
                        delimitReplicatesL = delimitReplicatesL,
+                       standardizeL = standardizeL,
                        fig.pdfC = fig.pdfC)
               }
+              
             }
             
             invisible(NA)
@@ -578,14 +731,28 @@ imageF <- function(x,
                    colTruncI = 0,
                    drawScaleL = TRUE,
                    delimitReplicatesL = FALSE,
+                   standardizeL = FALSE,
                    fig.pdfC = "interactive") {
   
   if (class(x) != "matrix" || mode(x) != "numeric")
     stop("'x must be a matrix of number for the 'image' plot type", call. = FALSE)
   
-  
   if (delimitReplicatesL && (length(rownames(x)) * length(colnames(x))) == 0)
     stop("Rownames and colnames are required when the delimitReplicatesL argument is TRUE", call. = FALSE)
+  
+  if (standardizeL) {
+    message("Standardization of the columns for plotting.")
+    mainC <- paste0(mainC, " (standardized)")
+    x <- apply(x, 2, function(y) {
+      y <- y - mean(y, na.rm = TRUE)
+      sd.n <- sqrt(var(y, na.rm = TRUE))
+      if (sd.n < .Machine$double.eps) {
+        return(y)
+      } else {
+        return(y / sd.n)
+      }
+    })
+  }
   
   dimVc <- c("row", "col")
   dimnamesLs <- lapply(dimVc,
@@ -814,7 +981,7 @@ imageF <- function(x,
   
   if (NA %in% axisValuesVn) {
     
-    warning("NA in axisValuesVn")
+    warning("NA in axisValuesVn", call. = FALSE)
     
     axisValuesVn <- as.vector(stats::na.omit(axisValuesVn))
     
@@ -1249,7 +1416,7 @@ fromW4M <- function(dirC,
                              sep = "\t",
                              stringsAsFactors = FALSE))[-1]
   
-  if(any(duplicated(rowVc)))
+  if (any(duplicated(rowVc)))
     stop("The following ",
          ifelse(names(filCa) == 'sampleMetadata', 'sample', 'variable'),
          " name(s) is/are duplicated in the ",
@@ -1258,28 +1425,28 @@ fromW4M <- function(dirC,
          paste(rowVc[duplicated(rowVc)], collapse = "', '"), "'",
          call. = FALSE)
   
-  if(any(duplicated(colVc)))
+  if (any(duplicated(colVc)))
     stop("The following ", ifelse(names(filCa) == 'sampleMetadata', 'variable', 'sample'), " name(s) is/are duplicated in the ",
          names(filCa),
          ": '",
-         paste(colVc[duplicated(colVc)], collapse="', '"), "'",
+         paste(colVc[duplicated(colVc)], collapse = "', '"), "'",
          call. = FALSE)
   
   rowMakVc <- make.names(rowVc, unique = TRUE)
   
   rowDifVl <- rowVc != rowMakVc
   
-  if(any(rowDifVl)) {
+  if (any(rowDifVl)) {
     rowDifDF <- data.frame(row = 1:length(rowVc),
                            actual = rowVc,
                            preferred = rowMakVc)
     rowDifDF <- rowDifDF[rowDifVl, , drop = FALSE]
-    if(vrbLa) {
-      cat("\n\nWarning: The following ",
-          ifelse(names(filCa) == 'sampleMetadata', 'sample', 'variable'),
-          " name(s) of the ",
-          names(filCa),
-          " is/are not in the standard R format, which may result in errors when loading the data:\n", sep = "")
+    if (vrbLa) {
+      warning("The following ",
+              ifelse(names(filCa) == 'sampleMetadata', 'sample', 'variable'),
+              " name(s) of the ",
+              names(filCa),
+              " is/are not in the standard R format, which may result in errors when loading the data:")
       print(rowDifDF)
     }
   }
@@ -1288,17 +1455,17 @@ fromW4M <- function(dirC,
   
   colDifVl <- colVc != colMakVc
   
-  if(any(colDifVl)) {
+  if (any(colDifVl)) {
     colDifDF <- data.frame(col = 1:length(colVc),
                            actual = colVc,
                            preferred = colMakVc)
     colDifDF <- colDifDF[colDifVl, , drop = FALSE]
-    if(vrbLa) {
-      cat("\n\nWarning: The following ",
-          ifelse(names(filCa) == 'sampleMetadata', 'variable', 'sample'),
-          " name(s) of the ",
-          names(filCa),
-          " is/are not in the standard R format, which may result in errors when loading the data:\n", sep="")
+    if (vrbLa) {
+      warning("The following ",
+              ifelse(names(filCa) == 'sampleMetadata', 'variable', 'sample'),
+              " name(s) of the ",
+              names(filCa),
+              " is/are not in the standard R format, which may result in errors when loading the data:")
       print(colDifDF)
     }
   }

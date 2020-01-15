@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.19.8
+------------------------------
+
+NEW FEATURE
+
+    o 'view' method: 'standardizeL' argument for the standardization of column values
+    for display
+
 CHANGES IN VERSION 1.19.6
 ------------------------------
 

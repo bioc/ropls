@@ -9,20 +9,37 @@
 \alias{opls,matrix-method}
 \title{PCA, PLS(-DA), and OPLS(-DA)}
 \usage{
-\S4method{opls}{MultiDataSet}(x, y = NULL, fig.pdfC = c("none",
-  "interactive", "myfile.pdf")[2], info.txtC = c("none", "interactive",
-  "myfile.txt")[2], ...)
+\S4method{opls}{MultiDataSet}(
+  x,
+  y = NULL,
+  fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
+  info.txtC = c("none", "interactive", "myfile.txt")[2],
+  ...
+)
 
 \S4method{opls}{ExpressionSet}(x, y = NULL, ...)
 
 \S4method{opls}{data.frame}(x, ...)
 
-\S4method{opls}{matrix}(x, y = NULL, predI = NA, orthoI = 0,
-  algoC = c("default", "nipals", "svd")[1], crossvalI = 7,
-  log10L = FALSE, permI = 20, scaleC = c("none", "center", "pareto",
-  "standard")[4], subset = NULL, plotSubC = NA, fig.pdfC = c("none",
-  "interactive", "myfile.pdf")[2], info.txtC = c("none", "interactive",
-  "myfile.txt")[2], printL = TRUE, plotL = TRUE, .sinkC = NULL, ...)
+\S4method{opls}{matrix}(
+  x,
+  y = NULL,
+  predI = NA,
+  orthoI = 0,
+  algoC = c("default", "nipals", "svd")[1],
+  crossvalI = 7,
+  log10L = FALSE,
+  permI = 20,
+  scaleC = c("none", "center", "pareto", "standard")[4],
+  subset = NULL,
+  plotSubC = NA,
+  fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
+  info.txtC = c("none", "interactive", "myfile.txt")[2],
+  printL = TRUE,
+  plotL = TRUE,
+  .sinkC = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{Numerical data frame or matrix (observations x variables; NAs are

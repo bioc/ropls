@@ -4,8 +4,12 @@
 \alias{fromW4M}
 \title{fromW4M (deprecated)}
 \usage{
-fromW4M(dirC, namePatternC = "", fileTableNamesVc = c("dataMatrix",
-  "sampleMetadata", "variableMetadata"), verboseL = TRUE)
+fromW4M(
+  dirC,
+  namePatternC = "",
+  fileTableNamesVc = c("dataMatrix", "sampleMetadata", "variableMetadata"),
+  verboseL = TRUE
+)
 }
 \arguments{
 \item{dirC}{Character: directory containing the 3 .tsv files}

@@ -429,17 +429,33 @@ strF <- function(tableMF,
                  borderI = 2,
                  bigMarkC = ",") {
   
-  if (any(class(tableMF) %in% c("character", "integer", "logical", "numeric", "double"))) {
+  if (is.character(tableMF) ||
+      is.integer(tableMF) ||
+      is.logical(tableMF) ||
+      is.numeric(tableMF) ||
+      is.double(tableMF)) {
     classC <- "vector"
-  } else
-    classC <- class(tableMF)
-  
-  numericL <- mode(tableMF) %in% c("numeric", "integer", "double")
-  
-  if (!(classC %in% c("vector", "matrix", "data.frame"))) {
+  } else if (is.matrix(tableMF)) {
+    classC <- "matrix"
+  } else if (is.data.frame(tableMF)) {
+    classC <- "data.frame"
+  } else {
     str(tableMF)
     return(invisible(NULL))
   }
+    
+  
+  # if (any(class(tableMF) %in% c("character", "integer", "logical", "numeric", "double"))) {
+  #   classC <- "vector"
+  # } else
+  #   classC <- class(tableMF)
+  
+  numericL <- mode(tableMF) %in% c("numeric", "integer", "double")
+  
+  # if (!(classC %in% c("vector", "matrix", "data.frame"))) {
+  #   str(tableMF)
+  #   return(invisible(NULL))
+  # }
   
   .header(tableMF = tableMF,
           borderI = borderI,
@@ -734,8 +750,9 @@ imageF <- function(x,
                    standardizeL = FALSE,
                    fig.pdfC = "interactive") {
   
-  if (class(x) != "matrix" || mode(x) != "numeric")
-    stop("'x must be a matrix of number for the 'image' plot type", call. = FALSE)
+  if (!is.matrix(x) || mode(x) != "numeric")
+    # if (class(x) != "matrix" || mode(x) != "numeric")
+    stop("'x must be a matrix of numerics for the 'image' plot type", call. = FALSE)
   
   if (delimitReplicatesL && (length(rownames(x)) * length(colnames(x))) == 0)
     stop("Rownames and colnames are required when the delimitReplicatesL argument is TRUE", call. = FALSE)

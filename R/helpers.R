@@ -429,21 +429,20 @@ strF <- function(tableMF,
                  borderI = 2,
                  bigMarkC = ",") {
   
-  if (is.character(tableMF) ||
-      is.integer(tableMF) ||
-      is.logical(tableMF) ||
-      is.numeric(tableMF) ||
-      is.double(tableMF)) {
-    classC <- "vector"
-  } else if (is.matrix(tableMF)) {
+  if (is.matrix(tableMF)) {
     classC <- "matrix"
   } else if (is.data.frame(tableMF)) {
     classC <- "data.frame"
+  } else if (is.character(tableMF) ||
+             is.integer(tableMF) ||
+             is.logical(tableMF) ||
+             is.numeric(tableMF) ||
+             is.double(tableMF)) {
+    classC <- "vector"
   } else {
     str(tableMF)
     return(invisible(NULL))
   }
-    
   
   # if (any(class(tableMF) %in% c("character", "integer", "logical", "numeric", "double"))) {
   #   classC <- "vector"

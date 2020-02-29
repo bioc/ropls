@@ -1,9 +1,16 @@
+CHANGES IN VERSION 1.19.12
+------------------------------
+
+INTERNAL MODIFICATION
+
+    o 'strF' function: replacement by 'is(x, )': cont'd
+
 CHANGES IN VERSION 1.19.10
 ------------------------------
 
 INTERNAL MODIFICATION
 
-    o 'strF' method: 'class(x) ==' replaced by 'is(x, )' as required by R/Bioconductor
+    o 'strF' function: 'class(x) ==' replaced by 'is(x, )' as required by R/Bioconductor
 
 CHANGES IN VERSION 1.19.8
 ------------------------------

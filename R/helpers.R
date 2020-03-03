@@ -429,7 +429,7 @@ strF <- function(tableMF,
                  borderI = 2,
                  bigMarkC = ",") {
   
-  if (is.matrix(tableMF)) {
+  if (is.array(tableMF) && length(dim(tableMF)) == 2) {
     classC <- "matrix"
   } else if (is.data.frame(tableMF)) {
     classC <- "data.frame"

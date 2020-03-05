@@ -429,7 +429,7 @@ strF <- function(tableMF,
                  borderI = 2,
                  bigMarkC = ",") {
   
-  if (is.array(tableMF) && length(dim(tableMF)) == 2) {
+  if (is.matrix(tableMF)) {
     classC <- "matrix"
   } else if (is.data.frame(tableMF)) {
     classC <- "data.frame"
@@ -481,7 +481,7 @@ strF <- function(tableMF,
          vector = {
            
            headerDF <- data.frame(length = format(length(tableMF), big.mark = bigMarkC),
-                                  class = class(tableMF),
+                                  class = classC,
                                   mode = mode(tableMF),
                                   typeof = typeof(tableMF),
                                   size = format(object.size(tableMF), units = "Mb"),
@@ -505,7 +505,7 @@ strF <- function(tableMF,
          matrix = {
            
            headerDF <- data.frame(dim = paste(format(nrow(tableMF), big.mark = bigMarkC), format(ncol(tableMF), big.mark = bigMarkC), sep = " x "),
-                                  class = class(tableMF),
+                                  class = classC,
                                   mode = mode(tableMF),
                                   typeof = typeof(tableMF),
                                   size = format(object.size(tableMF), units = "Mb"),

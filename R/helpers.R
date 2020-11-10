@@ -1269,7 +1269,7 @@ imageF <- function(x,
           indiceVn[k] <- which(abs(dimNamesVn - prettyVn[k]) == min(abs(dimNamesVn - prettyVn[k])))[1]
         
         if (dimI == 1)
-          indiceVn <- nrow(imageMN) - indiceVn + 1
+          indiceVn <- ncol(imageMN) - indiceVn + 1
         
         axis(side = dimI + 1,
              at = indiceVn,

@@ -1,3 +1,10 @@
+CHANGES IN VERSION 1.23.4
+------------------------------
+
+BUG FIXED
+
+    o 'view' method: display of row names
+
 CHANGES IN VERSION 1.23.2
 ------------------------------
 

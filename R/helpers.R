@@ -63,7 +63,7 @@ setMethod("view", signature(x = "ExpressionSet"),
                    rowTruncI = 0,
                    colAllL = FALSE,
                    colCexN = 1,
-                   colMarN = 1.1,
+                   colMarN = 3.1,
                    colLabC = "",
                    colTruncI = 0,
                    drawScaleL = TRUE,
@@ -199,7 +199,7 @@ setMethod("view", signature(x = "data.frame"),
                    rowTruncI = 0,
                    colAllL = FALSE,
                    colCexN = 1,
-                   colMarN = 1.1,
+                   colMarN = 3.1,
                    colLabC = "",
                    colTruncI = 0,
                    drawScaleL = TRUE,
@@ -344,7 +344,7 @@ setMethod("view", signature(x = "matrix"),
                    rowTruncI = 0,
                    colAllL = FALSE,
                    colCexN = 1,
-                   colMarN = 1.1,
+                   colMarN = 3.1,
                    colLabC = "",
                    colTruncI = 0,
                    drawScaleL = TRUE,
@@ -1258,19 +1258,18 @@ imageF <- function(x,
         
         dimNamesVn <- as.numeric(dimNamesVc)
         
-        prettyVn <- pretty(dimNamesVn)
-        
-        prettyVn <- prettyVn[min(dimNamesVn) <= prettyVn & prettyVn <= max(dimNamesVn)]
+        if (length(dimNamesVn) > 5) {
+          prettyVn <- pretty(dimNamesVn)
+          prettyVn <- prettyVn[min(dimNamesVn) <= prettyVn & prettyVn <= max(dimNamesVn)]
+        } else
+          prettyVn <- dimNamesVn
         
         indiceVn <- numeric()
-        for (k in 1:length(prettyVn)) {
-          
+        for (k in 1:length(prettyVn))
           indiceVn[k] <- which(abs(dimNamesVn - prettyVn[k]) == min(abs(dimNamesVn - prettyVn[k])))[1]
-          
-        }
         
         if (dimI == 1)
-          indiceVn <- nrow(imageMN) - rev(indiceVn)
+          indiceVn <- nrow(imageMN) - indiceVn + 1
         
         axis(side = dimI + 1,
              at = indiceVn,

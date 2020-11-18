@@ -13,14 +13,14 @@
 #' @param rowAllL logical: should all rownames be displayed or only the first and
 #' last ones?
 #' @param rowCexN numeric: size of row labels [default: 1]
-#' @param rowMarN numeric: row margin [default: 6.1]
+#' @param rowMarN numeric: row margin [default: 5.1]
 #' @param rowLabC character: label for the y (row) axis
 #' @param rowTruncI integer: number of character for truncation of rownames (default,
 #' 0, means no truncation)
 #' @param colAllL logical: should all column names be displayed or only the first and
 #' last ones?
 #' @param colCexN numeric: size of column labels [default: 1]
-#' @param colMarN numeric: column margin [default: 6.1]
+#' @param colMarN numeric: column margin [default: 3.1]
 #' @param colLabC character: label for the x (column) axis
 #' @param colTruncI integer: number of character for truncation of colnames (default,
 #' 0, means no truncation)
@@ -155,14 +155,14 @@ setMethod("view", signature(x = "ExpressionSet"),
 #' @param rowAllL logical: should all rownames be displayed or only the first and
 #' last ones?
 #' @param rowCexN numeric: size of row labels [default: 1]
-#' @param rowMarN numeric: row margin [default: 6.1]
+#' @param rowMarN numeric: row margin [default: 5.1]
 #' @param rowLabC character: label for the y (row) axis
 #' @param rowTruncI integer: number of character for truncation of rownames (default,
 #' 0, means no truncation)
 #' @param colAllL logical: should all column names be displayed or only the first and
 #' last ones?
 #' @param colCexN numeric: size of column labels [default: 1]
-#' @param colMarN numeric: column margin [default: 6.1]
+#' @param colMarN numeric: column margin [default: 3.1]
 #' @param colLabC character: label for the x (column) axis
 #' @param colTruncI integer: number of character for truncation of colnames (default,
 #' 0, means no truncation)
@@ -288,14 +288,14 @@ setMethod("view", signature(x = "data.frame"),
 #' @param rowAllL logical: should all rownames be displayed or only the first and
 #' last ones?
 #' @param rowCexN numeric: size of row labels [default: 1]
-#' @param rowMarN numeric: row margin [default: 6.1]
+#' @param rowMarN numeric: row margin [default: 5.1]
 #' @param rowLabC character: label for the y (row) axis
 #' @param rowTruncI integer: number of character for truncation of rownames (default,
 #' 0, means no truncation)
 #' @param colAllL logical: should all column names be displayed or only the first and
 #' last ones?
 #' @param colCexN numeric: size of column labels [default: 1]
-#' @param colMarN numeric: column margin [default: 6.1]
+#' @param colMarN numeric: column margin [default: 3.1]
 #' @param colLabC character: label for the x (column) axis
 #' @param colTruncI integer: number of character for truncation of colnames (default,
 #' 0, means no truncation)

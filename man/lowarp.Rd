@@ -4,7 +4,8 @@
 \name{lowarp}
 \alias{lowarp}
 \title{A multi response optimization data set (LOWARP)}
-\format{A data frame with the following parameters:
+\format{
+A data frame with the following parameters:
 \itemize{
 \item num mixture number
 \item glas glas constituent
@@ -25,7 +26,8 @@
 \item st4 strength response 4
 \item st5 strength response 5
 \item st6 strength response 6
-}}
+}
+}
 \value{
 Data frame (numeric type only; the first column can be transformed
 into row names) with 17 rows and 19 columns corresponding to the subject's

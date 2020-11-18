@@ -4,7 +4,8 @@
 \name{aminoacids}
 \alias{aminoacids}
 \title{Amino-Acids Dataset}
-\format{A data frame with the following parameters:
+\format{
+A data frame with the following parameters:
 \itemize{
 \item AA amino acid
 \item PIE lipophilicity constant
@@ -23,7 +24,8 @@ molecular volume of AA's calculated by MOLSV
 \item DDGTS free
 energy of unfolding of the tryptophane synthase a unit of bacteriophage T4
 lysosome
-}}
+}
+}
 \source{
 'aminoacids' dataset.
 }

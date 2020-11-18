@@ -4,14 +4,16 @@
 \name{mark}
 \alias{mark}
 \title{'mark' Dataset}
-\format{A data frame with the following parameters:
+\format{
+A data frame with the following parameters:
 \itemize{
 \item nom names of the students
 \item math marks in mathematics
 \item phys marks in physics
 \item fran marks in french
 \item angl marks in english
-}}
+}
+}
 \source{
 'mark' dataset.
 }

@@ -4,7 +4,8 @@
 \name{linnerud}
 \alias{linnerud}
 \title{Linnerud Dataset}
-\format{A data frame with the following parameters:
+\format{
+A data frame with the following parameters:
 \itemize{
 \item num subject number
 \item weight weight
@@ -13,7 +14,8 @@
 \item pullUp pull-up
 \item squat situp
 \item jump jump
-}}
+}
+}
 \source{
 'mixOmics' 'linnerud' dataset.
 }

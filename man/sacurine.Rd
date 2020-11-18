@@ -5,7 +5,8 @@
 \alias{sacurine}
 \title{Analysis of the human adult urinary metabolome variations with age, body
 mass index and gender}
-\format{A list with the following elements:
+\format{
+A list with the following elements:
 \itemize{
 \item dataMatrix a 183 samples x
 109 variables matrix of numeric type corresponding to the intensity profiles
@@ -17,7 +18,8 @@ numeric), and gender ('gender', factor)
 MSI identification level ('msiLevel':
 either 1 or 2), HMDB ID when available ('hmdb', character), chemical class
 according to the 'super class' taxonomy of HMDB ('chemicalClass', character)
-}}
+}
+}
 \value{
 List containing the 'dataMatrix' matrix (numeric) of data (samples
 as rows, variables as columns), the 'sampleMetadata' data frame of sample

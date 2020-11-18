@@ -4,7 +4,8 @@
 \name{foods}
 \alias{foods}
 \title{Food consumption patterns accross European countries (FOODS)}
-\format{A data frame with the following parameters:
+\format{
+A data frame with the following parameters:
 \itemize{
 \item Country Name of the country
 \item Gr_CoffeGround Coffee
@@ -24,7 +25,8 @@
 \item Olive_Oil Olive Oil
 \item Yoghurt Yoghurt
 \item Crisp_Brea Crisp Bread
-}}
+}
+}
 \value{
 Data frame (numeric type except the first column, which can be
 transformed into row names) with 16 rows and 21 columns, corresponding to

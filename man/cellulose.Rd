@@ -5,12 +5,14 @@
 \alias{cellulose}
 \title{NIR-Viscosity example data set to illustrate multivariate calibration using
 PLS, spectral filtering and OPLS}
-\format{A list with the following elements:
+\format{
+A list with the following elements:
 \itemize{
 \item nirMN a matrix of 180 samples x 1201 wavelengths in the VIS-NIR region
 \item viscoVn a vector (length = 180) of viscosity of cellulose powder
 \item classVn a vector (length = 180) of class membership (1 or 2)
-}}
+}
+}
 \value{
 For details see the Format section above.
 }

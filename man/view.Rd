@@ -24,7 +24,7 @@ view(x, ...)
   rowTruncI = 0,
   colAllL = FALSE,
   colCexN = 1,
-  colMarN = 1.1,
+  colMarN = 3.1,
   colLabC = "",
   colTruncI = 0,
   drawScaleL = TRUE,
@@ -47,7 +47,7 @@ view(x, ...)
   rowTruncI = 0,
   colAllL = FALSE,
   colCexN = 1,
-  colMarN = 1.1,
+  colMarN = 3.1,
   colLabC = "",
   colTruncI = 0,
   drawScaleL = TRUE,
@@ -70,7 +70,7 @@ view(x, ...)
   rowTruncI = 0,
   colAllL = FALSE,
   colCexN = 1,
-  colMarN = 1.1,
+  colMarN = 3.1,
   colLabC = "",
   colTruncI = 0,
   drawScaleL = TRUE,
@@ -120,7 +120,7 @@ last ones?}
 
 \item{rowCexN}{numeric: size of row labels [default: 1]}
 
-\item{rowMarN}{numeric: row margin [default: 6.1]}
+\item{rowMarN}{numeric: row margin [default: 5.1]}
 
 \item{rowLabC}{character: label for the y (row) axis}
 
@@ -132,7 +132,7 @@ last ones?}
 
 \item{colCexN}{numeric: size of column labels [default: 1]}
 
-\item{colMarN}{numeric: column margin [default: 6.1]}
+\item{colMarN}{numeric: column margin [default: 3.1]}
 
 \item{colLabC}{character: label for the x (column) axis}
 

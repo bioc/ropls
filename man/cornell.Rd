@@ -4,7 +4,8 @@
 \name{cornell}
 \alias{cornell}
 \title{Octane of various blends of gasoline}
-\format{A data frame with the following parameters:
+\format{
+A data frame with the following parameters:
 \itemize{
 \item num mixture number
 \item x1 proportion of
@@ -16,7 +17,8 @@ component 1
 \item x6 proportion of component 6
 \item x7 proportion of component 7 Note: the 7 variables are correlated since they sum up to 1
 \item y octane (quantitative variable)
-}}
+}
+}
 \source{
 Tenenhaus (1998), Table 6, page 78.
 }

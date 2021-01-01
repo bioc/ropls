@@ -230,13 +230,9 @@ qualitative response:
 ```{r plsda}
 sacurine.plsda <- opls(dataMatrix, genderFc)
 ```
-**Figure 3: PLS-DA model of the gender response.** **Top left**:
-`significance` diagnostic: the **R2Y** and **Q2Y** of the model are compared
+**Figure 3: PLS-DA model of the gender response.** **Top left**: `inertia` barplot: the graphic here suggests that 3 orthogonal components may be sufficient to capture most of the inertia; **Top right**: `significance` diagnostic: the **R2Y** and **Q2Y** of the model are compared
 with the corresponding values obtained after random permutation of the *y*
-response; **Top right**: `inertia` barplot: the graphic here suggests that 3
-orthogonal components may be sufficient to capture most of the inertia; **Bottom
-left**: `outlier` diagnostics; **Bottom right**: `x-score` plot: the number of
-components and the cumulative **R2X**, **R2Y** and **Q2Y** are indicated below the
+response; **Bottom left**: `outlier` diagnostics; **Bottom right**: `x-score` plot: the number of components and the cumulative **R2X**, **R2Y** and **Q2Y** are indicated below the
 plot.
 
 Note:

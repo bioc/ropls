@@ -85,10 +85,10 @@ test_that("PCA", {
   
   foo.pca <- opls(fooMN, permI = 0, fig.pdfC = "none", info.txtC = "none")
   testthat::expect_equivalent(getPcaVarVn(foo.pca)[1],
-                              6.19,
+                              6.197,
                               tolerance = 1e-3)
   testthat::expect_equivalent(getScoreMN(foo.pca)[1, 1],
-                              1.309494,
+                              1.32997,
                               tolerance = 1e-5)
   
 })
@@ -135,6 +135,75 @@ test_that("PCA_sacurine",  {
   
 })
 
+
+test_that("na", {
+  
+  data(sacurine)
+  
+  sac.df <- sacurine[["sampleMetadata"]]
+  
+  sac.mn <- sacurine[["dataMatrix"]]
+  sac.mn[1, 1] <- NA
+  sac.mn[2, 2] <- NA
+  sac.mn[3, 3] <- NA
+ 
+  # PCA
+  
+  sac.pca <- opls(sac.mn,
+                  fig.pdfC = "none", info.txtC = "none")
+  
+  testthat::expect_equivalent(getScoreMN(sac.pca)["HU_011", 1],
+                              -8.720933,
+                              tolerance = 1e-5)
+  
+  # PLS
+  
+  sac.pls <- opls(sac.mn, sac.df[, "age"],
+                  fig.pdfC = "none", info.txtC = "none")
+  
+  testthat::expect_equivalent(getScoreMN(sac.pls)["HU_011", 1],
+                              2.711087,
+                              tolerance = 1e-5)
+  
+  sac.plsda <- opls(sac.mn, sac.df[, "gender"],
+                  fig.pdfC = "none", info.txtC = "none")
+  
+  testthat::expect_equivalent(getScoreMN(sac.plsda)["HU_011", 1],
+                              -2.656104,
+                              tolerance = 1e-5)
+  
+  
+  
+  # OPLS
+  
+  sac.opls <- opls(sac.mn, sac.df[, "age"],
+                   predI = 1, orthoI = 1,
+                   fig.pdfC = "none", info.txtC = "none")
+  
+  testthat::expect_equivalent(getScoreMN(sac.opls)["HU_011", 1],
+                              -1.562676,
+                              tolerance = 1e-5)
+  
+  testthat::expect_equivalent(getScoreMN(sac.opls, orthoL = TRUE)["HU_011", 1],
+                              7.772245,
+                              tolerance = 1e-5)
+  
+  sac.oplsda <- opls(sac.mn, sac.df[, "gender"],
+                     predI = 1, orthoI = NA,
+                     fig.pdfC = "none", info.txtC = "none")
+  
+  testthat::expect_equivalent(getScoreMN(sac.oplsda)["HU_011", 1],
+                              -1.549203,
+                              tolerance = 1e-5)
+  
+  testthat::expect_equivalent(getScoreMN(sac.oplsda, orthoL = TRUE)["HU_011", 1],
+                              -4.986983,
+                              tolerance = 1e-5)
+  
+  
+  
+})
+
 test_that("PLS_single", {
   
   data(cornell) ## see Tenenhaus, 1998
@@ -163,11 +232,11 @@ test_that("PLS_multiple", {
                                         grepl("^st", colnames(lowarp))]),
                      permI = 0, fig.pdfC = "none", info.txtC = "none")
   testthat::expect_equivalent(lowarp.pls@weightStarMN[2, 1],
-                              -0.0861,
-                              tolerance = 1e-3)
+                              -0.107853,
+                              tolerance = 1e-6)
   testthat::expect_equivalent(lowarp.pls@uMN["s5", "p2"],
-                              0.596598855,
-                              tolerance = 1e-8)
+                              0.5932295,
+                              tolerance = 1e-7)
   
 })
 

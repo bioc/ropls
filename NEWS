@@ -1,3 +1,10 @@
+CHANGES IN VERSION 1.23.10
+------------------------------
+
+NEW FEATURE
+
+    o modification in computations in the case of NAs for speed up (as suggested by Michal Krassowski): 'crossprod' restricted to non missing values of x and y is replaced by sum(x * y, na.rm = TRUE); modification in score values observed at ~ 1e-3
+
 CHANGES IN VERSION 1.23.8
 ------------------------------
 

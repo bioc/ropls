@@ -1542,9 +1542,8 @@ setMethod("predict", "opls",
                   if(object@suppLs[["naxL"]]) {
                     xtoMN <- matrix(0, nrow = nrow(xteMN), ncol = 1)
                     for(i in 1:nrow(xtoMN)) {
-                      # comVl <- complete.cases(xteMN[i, ])
-                      # xtoMN[i, ] <- crossprod(xteMN[i, comVl], object@orthoWeightMN[comVl, noN]) / drop(crossprod(object@orthoWeightMN[comVl, noN]))
-                      xtoMN[i, ] <- sum(xteMN[i, ] * object@orthoWeightMN[, noN], na.rm = TRUE) / sum(object@orthoWeightMN[, noN]^2, na.rm = TRUE)
+                      comVl <- complete.cases(xteMN[i, ])
+                      xtoMN[i, ] <- crossprod(xteMN[i, comVl], object@orthoWeightMN[comVl, noN]) / drop(crossprod(object@orthoWeightMN[comVl, noN]))
                     }
                   } else
                     xtoMN <- xteMN %*% object@orthoWeightMN[, noN]
@@ -1559,9 +1558,8 @@ setMethod("predict", "opls",
                                     dimnames = list(rownames(xteMN), colnames(object@coefficientMN)))
                 for(j in 1:ncol(yTesScaMN))
                   for(i in 1:nrow(yTesScaMN)) {
-                    # comVl <- complete.cases(xteMN[i, ])
-                    # yTesScaMN[i, j] <- crossprod(xteMN[i, comVl], object@coefficientMN[comVl, j])
-                    yTesScaMN[i, j] <- sum(xteMN[i, ] * object@coefficientMN[, j], na.rm = TRUE)
+                    comVl <- complete.cases(xteMN[i, ])
+                    yTesScaMN[i, j] <- crossprod(xteMN[i, comVl], object@coefficientMN[comVl, j])
                   }
               } else
                 yTesScaMN <- xteMN %*% object@coefficientMN

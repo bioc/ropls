@@ -201,10 +201,9 @@
                  if(naxL) {
                    pNewVn <- numeric(length(pOldVn))
                    for(j in 1:length(pNewVn)) {
-                     # comVl <- complete.cases(xOldMN[, j]) &
-                     #   complete.cases(tOldVn)
-                     # pNewVn[j] <- crossprod(xOldMN[comVl, j], tOldVn[comVl]) / drop(crossprod(tOldVn[comVl]))
-                     pNewVn[j] <- sum(xOldMN[, j] * tOldVn, na.rm = TRUE) / sum(tOldVn^2, na.rm = TRUE)
+                     comVl <- complete.cases(xOldMN[, j]) &
+                       complete.cases(tOldVn)
+                     pNewVn[j] <- crossprod(xOldMN[comVl, j], tOldVn[comVl]) / drop(crossprod(tOldVn[comVl]))
                    }
                  } else {
                    pNewVn <- crossprod(xOldMN, tOldVn) / drop(crossprod(tOldVn))
@@ -215,9 +214,8 @@
                  if(naxL) {
                    tNewVn <- numeric(length(tOldVn))
                    for(i in 1:length(tNewVn)) {
-                     # comVl <- complete.cases(xOldMN[i, ])
-                     # tNewVn[i] <- crossprod(xOldMN[i, comVl], pNewVn[comVl])
-                     tNewVn[i] <- sum(xOldMN[i, ] * pNewVn, na.rm = TRUE)
+                     comVl <- complete.cases(xOldMN[i, ])
+                     tNewVn[i] <- crossprod(xOldMN[i, comVl], pNewVn[comVl])
                    }
                  } else {
                    tNewVn <- xOldMN %*% pNewVn
@@ -400,10 +398,9 @@
           if(naxL || nayL) {
             wVn <- numeric(ncol(xnMN))
             for(j in 1:ncol(xnMN)) {
-              # comVl <- complete.cases(xnMN[, j]) &
-              #   complete.cases(uVn)
-              # wVn[j] <- crossprod(xnMN[comVl, j], uVn[comVl]) / drop(crossprod(uVn[comVl]))
-              wVn[j] <- sum(xnMN[, j] * uVn, na.rm = TRUE) / sum(uVn^2, na.rm = TRUE)
+              comVl <- complete.cases(xnMN[, j]) &
+                complete.cases(uVn)
+              wVn[j] <- crossprod(xnMN[comVl, j], uVn[comVl]) / drop(crossprod(uVn[comVl]))
             }
           } else
             wVn <- crossprod(xnMN, uVn) / drop(crossprod(uVn))
@@ -413,9 +410,8 @@
           if(naxL) {
             tVn <- numeric(nrow(xnMN))
             for(i in 1:nrow(xnMN)) {
-              # comVl <- complete.cases(xnMN[i, ])
-              # tVn[i] <- crossprod(xnMN[i, comVl], wVn[comVl]) / drop(crossprod(wVn[comVl]))
-              tVn[i] <- sum(xnMN[i, ] * wVn, na.rm = TRUE) / sum(wVn^2, na.rm = TRUE)
+              comVl <- complete.cases(xnMN[i, ])
+              tVn[i] <- crossprod(xnMN[i, comVl], wVn[comVl]) / drop(crossprod(wVn[comVl]))
             }
           } else
             tVn <- xnMN %*% wVn
@@ -423,9 +419,8 @@
           if(nayL) {
             cVn <- numeric(ncol(ynMN))
             for(j in 1:ncol(ynMN)) {
-              # comVl <- complete.cases(ynMN[, j])
-              # cVn[j] <- crossprod(ynMN[comVl, j], tVn[comVl]) / drop(crossprod(tVn[comVl]))
-              cVn[j] <- sum(ynMN[, j] * tVn, na.rm = TRUE) / sum(tVn^2, na.rm = TRUE)
+              comVl <- complete.cases(ynMN[, j])
+              cVn[j] <- crossprod(ynMN[comVl, j], tVn[comVl]) / drop(crossprod(tVn[comVl]))
             }
           } else
             cVn <- crossprod(ynMN, tVn) / drop(crossprod(tVn))
@@ -441,9 +436,8 @@
             if(nayL) {
               uVn <- numeric(nrow(xnMN))
               for(i in 1:nrow(xnMN)) {
-                # comVl <- complete.cases(ynMN[i, ])
-                # uVn[i] <- crossprod(ynMN[i, comVl], cVn[comVl]) / drop(crossprod(cVn[comVl]))
-                uVn[i] <- sum(ynMN[i, ] * cVn, na.rm = TRUE) / sum(cVn^2, na.rm = TRUE)
+                comVl <- complete.cases(ynMN[i, ])
+                uVn[i] <- crossprod(ynMN[i, comVl], cVn[comVl]) / drop(crossprod(cVn[comVl]))
               }
             } else
               uVn <- ynMN %*% cVn / drop(crossprod(cVn))
@@ -459,9 +453,8 @@
         if(naxL) {
           pVn <- numeric(ncol(xnMN))
           for(j in 1:ncol(xnMN)) {
-            # comVl <- complete.cases(xnMN[, j])
-            # pVn[j] <- crossprod(xnMN[comVl, j], tVn[comVl]) / drop(crossprod(tVn[comVl]))
-            pVn[j] <- sum(xnMN[, j] * tVn, na.rm = TRUE) / sum(tVn^2, na.rm = TRUE)
+            comVl <- complete.cases(xnMN[, j])
+            pVn[j] <- crossprod(xnMN[comVl, j], tVn[comVl]) / drop(crossprod(tVn[comVl]))
           }
         } else
           pVn <- crossprod(xnMN, tVn) / drop(crossprod(tVn))
@@ -504,11 +497,10 @@
             if(nkxL || nkyL) {
               ckwVn <- numeric(ncol(ckxMN))
               for(j in 1:ncol(ckxMN)) {
-                # comVl <- complete.cases(ckxMN[, j]) &
-                #   complete.cases(ckuVn)
-                # ## ckwVn[j] <- crossprod(ckxMN[comVl, j], ckuVn[comVl])
-                # ckwVn[j] <- crossprod(ckxMN[comVl, j], ckuVn[comVl]) / drop(crossprod(ckuVn[comVl]))
-                ckwVn[j] <- sum(ckxMN[, j] * ckuVn, na.rm = TRUE) / sum(ckuVn^2, na.rm = TRUE)
+                comVl <- complete.cases(ckxMN[, j]) &
+                  complete.cases(ckuVn)
+                ## ckwVn[j] <- crossprod(ckxMN[comVl, j], ckuVn[comVl])
+                ckwVn[j] <- crossprod(ckxMN[comVl, j], ckuVn[comVl]) / drop(crossprod(ckuVn[comVl]))
               }
             } else
               ckwVn <- drop(crossprod(ckxMN, ckuVn)) / drop(crossprod(ckuVn))
@@ -518,10 +510,9 @@
             if(nkxL) {
               cktVn <- numeric(nrow(ckxMN))
               for(i in 1:nrow(ckxMN)) {
-                # comVl <- complete.cases(ckxMN[i, ])
-                # cktVn[i] <- crossprod(ckxMN[i, comVl], ckwVn[comVl]) / drop(crossprod(ckwVn[comVl]))
+                comVl <- complete.cases(ckxMN[i, ])
+                cktVn[i] <- crossprod(ckxMN[i, comVl], ckwVn[comVl]) / drop(crossprod(ckwVn[comVl]))
                 ## cktVn[i] <- crossprod(ckxMN[i, comVl], ckwVn[comVl])
-                cktVn[i] <- sum(ckxMN[i, ] * ckwVn, na.rm = TRUE) / sum(ckwVn^2, na.rm = TRUE)
               }
             } else
               cktVn <- ckxMN %*% ckwVn
@@ -529,9 +520,8 @@
             if(nkyL) {
               ckcVn <- numeric(ncol(ckyMN))
               for(j in 1:ncol(ckyMN)) {
-                # comVl <- complete.cases(ckyMN[, j])
-                # ckcVn[j] <- crossprod(ckyMN[comVl, j], cktVn[comVl]) / drop(crossprod(cktVn[comVl]))
-                ckcVn[j] <- sum(ckyMN[, j] * cktVn, na.rm = TRUE) / sum(cktVn^2, na.rm = TRUE)
+                comVl <- complete.cases(ckyMN[, j])
+                ckcVn[j] <- crossprod(ckyMN[comVl, j], cktVn[comVl]) / drop(crossprod(cktVn[comVl]))
               }
             } else
               ckcVn <- crossprod(ckyMN, cktVn) / drop(crossprod(cktVn))
@@ -546,9 +536,8 @@
               if(nkyL) {
                 ckuVn <- numeric(nrow(ckxMN))
                 for(i in 1:nrow(ckxMN)) {
-                  # comVl <- complete.cases(ckyMN[i, ])
-                  # ckuVn[i] <- crossprod(ckyMN[i, comVl], ckcVn[comVl]) / drop(crossprod(ckcVn[comVl]))
-                  ckuVn[i] <- sum(ckyMN[i, ] * ckcVn, na.rm = TRUE) / sum(ckcVn^2, na.rm = TRUE)
+                  comVl <- complete.cases(ckyMN[i, ])
+                  ckuVn[i] <- crossprod(ckyMN[i, comVl], ckcVn[comVl]) / drop(crossprod(ckcVn[comVl]))
                 }
               } else
                 ckuVn <- ckyMN %*% ckcVn / drop(crossprod(ckcVn))
@@ -562,10 +551,9 @@
           if(any(is.na(xnMN[cvfOutLs[[k]], ]))) {
             prxVn <- numeric(length(cvfOutLs[[k]]))
             for(r in 1:length(prxVn)) {
-              # comVl <- complete.cases(xnMN[cvfOutLs[[k]][r], ])
-              # ## prxVn[r] <- crossprod(xnMN[cvfOutLs[[k]][r], comVl], ckwVn[comVl])
-              # prxVn[r] <- crossprod(xnMN[cvfOutLs[[k]][r], comVl], ckwVn[comVl]) / drop(crossprod(ckwVn[comVl]))
-              prxVn[r] <- sum(xnMN[cvfOutLs[[k]][r], ] * ckwVn, na.rm = TRUE) / sum(ckwVn^2, na.rm = TRUE)
+              comVl <- complete.cases(xnMN[cvfOutLs[[k]][r], ])
+              ## prxVn[r] <- crossprod(xnMN[cvfOutLs[[k]][r], comVl], ckwVn[comVl])
+              prxVn[r] <- crossprod(xnMN[cvfOutLs[[k]][r], comVl], ckwVn[comVl]) / drop(crossprod(ckwVn[comVl]))
             }
             prkVn[k] <- sum((ynMN[cvfOutLs[[k]], , drop = FALSE] - prxVn %*% t(ckcVn))^2, na.rm = TRUE)
           } else
@@ -691,9 +679,8 @@
           yTesScaMN <- matrix(0, nrow = nrow(xteMN), ncol = ncol(bMN))
           for(j in 1:ncol(yTesScaMN))
             for(i in 1:nrow(yTesScaMN)) {
-              # comVl <- complete.cases(xteMN[i, ])
-              # yTesScaMN[i, j] <- crossprod(xteMN[i, comVl], bMN[comVl, j])
-              yTesScaMN[i, j] <- sum(xteMN[i, ] * bMN[, j], na.rm = TRUE)
+              comVl <- complete.cases(xteMN[i, ])
+              yTesScaMN[i, j] <- crossprod(xteMN[i, comVl], bMN[comVl, j])
             }
         } else
           yTesScaMN <- xteMN %*% bMN
@@ -806,9 +793,8 @@
                             function(colVn) {
                               wwjVn <- numeric(ncol(xcvTraMN))
                               for(j in 1:ncol(xcvTraMN)) {
-                                # comVl <- complete.cases(xcvTraMN[, j]) & complete.cases(colVn)
-                                # wwjVn[j] <- crossprod(xcvTraMN[comVl,j], colVn[comVl]) / drop(crossprod(colVn[comVl]))
-                                wwjVn[j] <- sum(xcvTraMN[, j] * colVn, na.rm = TRUE) / sum(colVn^2, na.rm = TRUE)
+                                comVl <- complete.cases(xcvTraMN[, j]) & complete.cases(colVn)
+                                wwjVn[j] <- crossprod(xcvTraMN[comVl,j], colVn[comVl]) / drop(crossprod(colVn[comVl]))
                               }
                               wwjVn
                             })
@@ -839,10 +825,9 @@
             if(naxL || nayL) {
               wVn <- numeric(ncol(xcvTraMN))
               for(j in 1:ncol(xcvTraMN)) {
-                # comVl <- complete.cases(xcvTraMN[, j]) &
-                #   complete.cases(uOldVn)
-                # wVn[j] <- crossprod(xcvTraMN[comVl, j], uOldVn[comVl]) / drop(crossprod(uOldVn[comVl]))
-                wVn[j] <- sum(xcvTraMN[, j] * uOldVn, na.rm = TRUE) / sum(uOldVn^2, na.rm = TRUE)
+                comVl <- complete.cases(xcvTraMN[, j]) &
+                  complete.cases(uOldVn)
+                wVn[j] <- crossprod(xcvTraMN[comVl, j], uOldVn[comVl]) / drop(crossprod(uOldVn[comVl]))
               }
             } else
               wVn <- crossprod(xcvTraMN, uOldVn) / drop(crossprod(uOldVn))
@@ -856,9 +841,8 @@
             if(naxL) {
               tVn <- numeric(nrow(xcvTraMN))
               for(i in 1:nrow(xcvTraMN)) {
-                # comVl <- complete.cases(xcvTraMN[i, ])
-                # tVn[i] <- crossprod(xcvTraMN[i, comVl], wVn[comVl]) / drop(crossprod(wVn[comVl]))
-                tVn[i] <- sum(xcvTraMN[i, ] * wVn, na.rm = TRUE) / sum(wVn^2, na.rm = TRUE)
+                comVl <- complete.cases(xcvTraMN[i, ])
+                tVn[i] <- crossprod(xcvTraMN[i, comVl], wVn[comVl]) / drop(crossprod(wVn[comVl]))
               }
             } else
               tVn <- xcvTraMN %*% wVn
@@ -868,9 +852,8 @@
             if(nayL) {
               cVn <- numeric(ncol(ycvTraMN))
               for(j in 1:ncol(ycvTraMN)) {
-                # comVl <- complete.cases(ycvTraMN[, j])
-                # cVn[j] <- crossprod(ycvTraMN[comVl, j], tVn[comVl]) / drop(crossprod(tVn[comVl]))
-                cVn[j] <- sum(ycvTraMN[, j] * tVn, na.rm = TRUE) / sum(tVn^2, na.rm = TRUE)
+                comVl <- complete.cases(ycvTraMN[, j])
+                cVn[j] <- crossprod(ycvTraMN[comVl, j], tVn[comVl]) / drop(crossprod(tVn[comVl]))
               }
             } else
               cVn <- crossprod(ycvTraMN, tVn) / drop(crossprod(tVn))
@@ -880,17 +863,15 @@
             if(nayL) {
               uVn <- numeric(nrow(xcvTraMN))
               for(i in 1:nrow(xcvTraMN)) {
-                # comVl <- complete.cases(ycvTraMN[i, ])
-                # uVn[i] <- crossprod(ycvTraMN[i, comVl], cVn[comVl]) / drop(crossprod(cVn[comVl]))
-                uVn[i] <- sum(ycvTraMN[i, ] * cVn, na.rm = TRUE) / sum(cVn^2, na.rm = TRUE)
+                comVl <- complete.cases(ycvTraMN[i, ])
+                uVn[i] <- crossprod(ycvTraMN[i, comVl], cVn[comVl]) / drop(crossprod(cVn[comVl]))
               }
             } else
               uVn <- ycvTraMN %*% cVn / drop(crossprod(cVn))
             
             if(nayL) {
-              # comVl <- complete.cases(uOldVn)
-              # dscN <- drop(sqrt(crossprod((uVn[comVl] - uOldVn[comVl] / uVn[comVl]))))
-              dscN <- sqrt(sum((uVn - uOldVn / uVn)^2, na.rm = TRUE))
+              comVl <- complete.cases(uOldVn)
+              dscN <- drop(sqrt(crossprod((uVn[comVl] - uOldVn[comVl] / uVn[comVl]))))
             } else
               dscN <- drop(sqrt(crossprod((uVn - uOldVn) / uVn)))
             
@@ -912,9 +893,8 @@
           if(naxL) {
             pVn <- numeric(ncol(xcvTraMN))
             for(j in 1:ncol(xcvTraMN)) {
-              # comVl <- complete.cases(xcvTraMN[, j])
-              # pVn[j] <- crossprod(xcvTraMN[comVl, j], tVn[comVl]) / drop(crossprod(tVn[comVl]))
-              pVn[j] <- sum(xcvTraMN[, j] * tVn, na.rm = TRUE) / sum(tVn^2, na.rm = TRUE)
+              comVl <- complete.cases(xcvTraMN[, j])
+              pVn[j] <- crossprod(xcvTraMN[comVl, j], tVn[comVl]) / drop(crossprod(tVn[comVl]))
             }
           } else
             pVn <- crossprod(xcvTraMN, tVn) / drop(crossprod(tVn))
@@ -936,9 +916,8 @@
           if(naxL) {
             toVn <- numeric(nrow(xcvTraMN))
             for(i in 1:nrow(xcvTraMN)) {
-              # comVl <- complete.cases(xcvTraMN[i, ])
-              # toVn[i] <- crossprod(xcvTraMN[i, comVl], woVn[comVl]) / drop(crossprod(woVn[comVl]))
-              toVn[i] <- sum(xcvTraMN[i, ] * woVn, na.rm = TRUE) / sum(woVn^2, na.rm = TRUE)
+              comVl <- complete.cases(xcvTraMN[i, ])
+              toVn[i] <- crossprod(xcvTraMN[i, comVl], woVn[comVl]) / drop(crossprod(woVn[comVl]))
             }
           } else
             toVn <- xcvTraMN %*% woVn
@@ -946,9 +925,8 @@
           if(nayL) {
             coVn <- numeric(ncol(ycvTraMN))
             for(j in 1:ncol(ycvTraMN)) {
-              # comVl <- complete.cases(ycvTraMN[, j])
-              # coVn[j] <- crossprod(ycvTraMN[comVl, j], toVn[comVl]) / drop(crossprod(toVn[comVl]))
-              coVn[j] <- sum(ycvTraMN[, j] * toVn, na.rm = TRUE) / sum(toVn^2, na.rm = TRUE)
+              comVl <- complete.cases(ycvTraMN[, j])
+              coVn[j] <- crossprod(ycvTraMN[comVl, j], toVn[comVl]) / drop(crossprod(toVn[comVl]))
             }
           } else
             coVn <- crossprod(ycvTraMN, toVn) / drop(crossprod(toVn))
@@ -958,9 +936,8 @@
           if(naxL) {
             poVn <- numeric(ncol(xcvTraMN))
             for(j in 1:ncol(xcvTraMN)) {
-              # comVl <- complete.cases(xcvTraMN[, j])
-              # poVn[j] <- crossprod(xcvTraMN[comVl, j], toVn[comVl]) / drop(crossprod(toVn[comVl]))
-              poVn[j] <- sum(xcvTraMN[, j] * toVn, na.rm = TRUE) / sum(toVn^2, na.rm = TRUE)
+              comVl <- complete.cases(xcvTraMN[, j])
+              poVn[j] <- crossprod(xcvTraMN[comVl, j], toVn[comVl]) / drop(crossprod(toVn[comVl]))
             }
           } else
             poVn <- crossprod(xcvTraMN, toVn) / drop(crossprod(toVn))
@@ -975,9 +952,8 @@
             if(any(is.na(xcvTesMN))) {
               prxVn <- numeric(nrow(xcvTesMN))
               for(r in 1:length(prxVn)) {
-                # comVl <- complete.cases(xcvTesMN[r, ])
-                # prxVn[r] <- crossprod(xcvTesMN[r, comVl], wVn[comVl]) / drop(crossprod(wVn[comVl]))
-                prxVn[r] <- sum(xcvTesMN[r, ] * wVn, na.rm = TRUE) / sum(wVn^2, na.rm = TRUE)
+                comVl <- complete.cases(xcvTesMN[r, ])
+                prxVn[r] <- crossprod(xcvTesMN[r, comVl], wVn[comVl]) / drop(crossprod(wVn[comVl]))
               }
               prkVn[cvN] <- sum((ycvTesMN - prxVn %*% t(cVn))^2, na.rm = TRUE)
             } else
@@ -986,9 +962,8 @@
             if(naxL) {
               toTesVn <- numeric(nrow(xcvTesMN))
               for(i in 1:nrow(xcvTesMN)) {
-                # comVl <- complete.cases(xcvTesMN[i, ])
-                # toTesVn[i] <- crossprod(xcvTesMN[i, comVl], woVn[comVl]) / drop(crossprod(woVn[comVl]))
-                toTesVn[i] <- sum(xcvTesMN[i, ] * woVn, na.rm = TRUE) / sum(woVn^2, na.rm = TRUE)
+                comVl <- complete.cases(xcvTesMN[i, ])
+                toTesVn[i] <- crossprod(xcvTesMN[i, comVl], woVn[comVl]) / drop(crossprod(woVn[comVl]))
               }
             } else
               toTesVn <- xcvTesMN %*% woVn
@@ -1175,9 +1150,8 @@
           if(naxL) {
             xtoMN <- matrix(0, nrow = nrow(xteMN), ncol = 1)
             for(i in 1:nrow(xtoMN)) {
-              # comVl <- complete.cases(xteMN[i, ])
-              # xtoMN[i, ] <- crossprod(xteMN[i, comVl], woMN[comVl, noN]) / drop(crossprod(woMN[comVl, noN]))
-              xtoMN[i, ] <- sum(xteMN[i, ] * woMN[, noN], na.rm = TRUE) / sum(woMN[, noN]^2, na.rm = TRUE)
+              comVl <- complete.cases(xteMN[i, ])
+              xtoMN[i, ] <- crossprod(xteMN[i, comVl], woMN[comVl, noN]) / drop(crossprod(woMN[comVl, noN]))
             }
           } else
             xtoMN <- xteMN %*% woMN[, noN]
@@ -1189,9 +1163,8 @@
           yTesScaMN <- matrix(0, nrow = nrow(xteMN), ncol = ncol(bMN), dimnames = list(rownames(xteMN), colnames(bMN)))
           for(j in 1:ncol(yTesScaMN))
             for(i in 1:nrow(yTesScaMN)) {
-              # comVl <- complete.cases(xteMN[i, ])
-              # yTesScaMN[i, j] <- crossprod(xteMN[i, comVl], bMN[comVl, j])
-              yTesScaMN[i, j] <- sum(xteMN[i, ] * bMN[, j], na.rm = TRUE)
+              comVl <- complete.cases(xteMN[i, ])
+              yTesScaMN[i, j] <- crossprod(xteMN[i, comVl], bMN[comVl, j])
             }
         } else
           yTesScaMN <- xteMN %*% bMN

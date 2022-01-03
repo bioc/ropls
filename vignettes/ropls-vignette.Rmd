@@ -1,6 +1,5 @@
 ---
-title: "*ropls*: PCA, PLS(-DA) and OPLS(-DA) for multivariate analysis and
-feature selection of omics data"
+title: "*ropls*: PCA, PLS(-DA) and OPLS(-DA) for multivariate analysis and feature selection of omics data"
 author: "Etienne A. Thevenot"
 date: "`r doc_date()`"
 package: "`r pkg_ver('ropls')`"

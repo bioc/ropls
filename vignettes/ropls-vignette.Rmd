@@ -1,6 +1,5 @@
 ---
-title: "*ropls*: PCA, PLS(-DA) and OPLS(-DA) for multivariate analysis and
-feature selection of omics data"
+title: "*ropls*: PCA, PLS(-DA) and OPLS(-DA) for multivariate analysis and feature selection of omics data"
 author: "Etienne A. Thevenot"
 date: "`r doc_date()`"
 package: "`r pkg_ver('ropls')`"
@@ -27,8 +26,8 @@ knitr::opts_chunk$set(fig.width = 6,
 The [ropls](http://bioconductor.org/packages/release/bioc/html/ropls.html) R
 package implements the **PCA**, **PLS(-DA)** and **OPLS(-DA)** approaches with
 the original, **NIPALS**-based, versions of the algorithms
-[@Wold2001, @Trygg2002]. It includes the **R2** and **Q2** quality metrics
-[@Eriksson2001, @Tenenhaus1998], the permutation **diagnostics**
+[@Wold2001; @Trygg2002]. It includes the **R2** and **Q2** quality metrics
+[@Eriksson2001; @Tenenhaus1998], the permutation **diagnostics**
 [@Szymanska2012], the computation of the **VIP** values [@Wold2001], the score
 and orthogonal distances to detect **outliers** [@Hubert2005], as well as many
 **graphics** (scores, loadings, predictions, diagnostics, outliers, etc).
@@ -382,7 +381,7 @@ random permutation of the labels**.
 ### VIP from OPLS models
 
 The classical **VIP** metric is not useful for OPLS modeling of a single response
-since [@Galindo-Prieto2014, @Thevenot2015]:
+since [@Galindo-Prieto2014; @Thevenot2015]:
 1. **VIP** values remain identical whatever the number of orthogonal components
 selected,
 2. **VIP** values are univariate (i.e., they do not provide information about
@@ -530,8 +529,8 @@ opls(sacSet, "gender", orthoI = NA)
 ## Importing/exporting data from/to the Workflow4metabolomics infrastructure
 
 Galaxy is a web-based environment providing powerful graphical user interface
-and workflow management functionalities for omics data analysis (@Goecks2010;
-@Boekel2015). Wrapping an R code into a Galaxy module is quite straight-forward:
+and workflow management functionalities for omics data analysis [@Goecks2010;
+@Boekel2015]. Wrapping an R code into a Galaxy module is quite straight-forward:
 examples can be found on the [toolshed](https://toolshed.g2.bx.psu.edu) central
 repository and in the
 [RGalaxy](https://www.bioconductor.org/packages/release/bioc/html/RGalaxy.html)

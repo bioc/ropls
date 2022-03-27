@@ -369,8 +369,7 @@ by the (sub)matrix of **X** restricted to the first 2, 20, or 200 features, are
 displayed (i.e., the observation/feature ratios are 0.1, 1, and 10,
 respectively). Despite the good separation obtained on the bottom left score
 plot, we see that the **Q2Y** estimation of predictive performance is low
-(negative); **Bottom right**: a significant proportion of the models (in fact
-here all models) trained after random permutations of the labels have a higher
+(negative); **Bottom right**: a significant proportion of the models trained after random permutations of the labels have a higher
 **Q2Y** value than the model trained with the true labels, confirming that PLS
 cannot specifically model the **y** response with the **X** predictors, as
 expected.

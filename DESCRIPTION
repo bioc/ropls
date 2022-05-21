@@ -1,12 +1,14 @@
 Package: ropls
 Type: Package
-Title: PCA, PLS(-DA) and OPLS(-DA) for multivariate analysis and feature selection of omics data
+Title: PCA, PLS(-DA) and OPLS(-DA) for multivariate analysis and
+        feature selection of omics data
 Version: 1.29.2
-Date: 2022-05-18
+Date: 2022-05-21
 Author: Etienne A. Thevenot <etienne.thevenot@cea.fr>
 Maintainer: Etienne A. Thevenot <etienne.thevenot@cea.fr>
-biocViews: Regression, Classification, PrincipalComponent, Transcriptomics, Proteomics, Metabolomics,
-    Lipidomics, MassSpectrometry, ImmunoOncology
+biocViews: Regression, Classification, PrincipalComponent,
+        Transcriptomics, Proteomics, Metabolomics, Lipidomics,
+        MassSpectrometry, ImmunoOncology
 Description: Latent variable modeling with Principal Component Analysis(PCA) and Partial Least Squares (PLS) are
     powerful methods for visualization, regression, classification, and feature selection of omics data where the
     number of variables exceeds the number of samples and with multicollinearity among variables. Orthogonal Partial
@@ -19,28 +21,20 @@ Description: Latent variable modeling with Principal Component Analysis(PCA) and
     permutation testing, detect outliers, and perform feature selection (e.g. with Variable Importance in Projection 
     or regression coefficients). The package can be accessed via a user interface on the Workflow4Metabolomics.org 
     online resource for computational metabolomics (built upon the Galaxy environment).
-Depends:
-    Biobase,
-    SummarizedExperiment
-Imports:
-    graphics,
-    grDevices,
-    methods,
-    MultiAssayExperiment,
-    MultiDataSet,
-    stats
-Suggests:
-    BiocGenerics,
-    BiocStyle,
-    knitr,
-    multtest,
-    omicade4,
-    rmarkdown,
-    testthat
+Depends: Biobase
+Imports: graphics, grDevices, methods, MultiDataSet, stats
+Suggests: BiocGenerics, BiocStyle, knitr, multtest, omicade4,
+        rmarkdown, testthat
 VignetteBuilder: knitr
 License: CeCILL
 Encoding: UTF-8
 LazyLoad: yes
 URL: http://dx.doi.org/10.1021/acs.jproteome.5b00354
 NeedsCompilation: no
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
+git_url: https://git.bioconductor.org/packages/ropls
+git_branch: master
+git_last_commit: 4d77cd4
+git_last_commit_date: 2022-04-26
+Date/Publication: 2022-04-26
+Packaged: 2022-04-26 21:40:11 UTC; biocbuild

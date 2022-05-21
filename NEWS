@@ -1,10 +1,9 @@
 CHANGES IN VERSION 1.29.2
 ------------------------------
 
-NEW FEATURE
+MINOR MODIFICATION
 
-    o ropls::view now handles SummarizedExperiment objects
-    o 'sacurine' dataset now contains the SummarizedExperiment ('se') as well as ExpressionSet ('eset') versions
+    o new bioc release
 
 CHANGES IN VERSION 1.27.8
 ------------------------------

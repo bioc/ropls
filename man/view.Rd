@@ -2,7 +2,6 @@
 % Please edit documentation in R/allGenerics.R, R/helpers.R
 \name{view}
 \alias{view}
-\alias{view,SummarizedExperiment-method}
 \alias{view,ExpressionSet-method}
 \alias{view,data.frame-method}
 \alias{view,matrix-method}
@@ -11,28 +10,6 @@
 \title{view}
 \usage{
 view(x, ...)
-
-\S4method{view}{SummarizedExperiment}(
-  x,
-  printL = TRUE,
-  plotL = TRUE,
-  mainC = "",
-  paletteC = c("heat", "revHeat", "grey", "revGrey", "palette", "ramp")[1],
-  rowAllL = FALSE,
-  rowCexN = 1,
-  rowMarN = 5.1,
-  rowLabC = "",
-  rowTruncI = 0,
-  colAllL = FALSE,
-  colCexN = 1,
-  colMarN = 3.1,
-  colLabC = "",
-  colTruncI = 0,
-  drawScaleL = TRUE,
-  delimitReplicatesL = FALSE,
-  standardizeL = FALSE,
-  fig.pdfC = "interactive"
-)
 
 \S4method{view}{ExpressionSet}(
   x,
@@ -187,14 +164,9 @@ this method has no output
 
 this method has no output
 
-this method has no output
-
 This function has no output.
 }
 \description{
-Numeric and graphical display of assay, colData and rowData slots
-from a SummarizedExperiment object
-
 Numeric and graphical display of exprs, pData and fData slots
 from an ExpressionSet object
 
@@ -210,12 +182,14 @@ Wrapper of the stats::image function used inside the 'view' method
 \examples{
 library(ropls)
 data(sacurine)
-sacurine.se <- sacurine[['se']]
-view(sacurine.se)
-library(ropls)
-data(sacurine)
-sacurine.eset <- sacurine[['eset']]
-view(sacurine.eset)
+sacSet <- Biobase::ExpressionSet(assayData = t(sacurine[["dataMatrix"]]), 
+                                 phenoData = new("AnnotatedDataFrame", 
+                                                 data = sacurine[["sampleMetadata"]]), 
+                                 featureData = new("AnnotatedDataFrame", 
+                                                   data = sacurine[["variableMetadata"]]),
+                                 experimentData = new("MIAME", 
+                                                      title = "sacurine"))
+view(sacSet)
 library(ropls)
 data(sacurine)
 view(sacurine[["sampleMetadata"]])

@@ -2,6 +2,7 @@
 % Please edit documentation in R/allGenerics.R, R/helpers.R
 \name{view}
 \alias{view}
+\alias{view,SummarizedExperiment-method}
 \alias{view,ExpressionSet-method}
 \alias{view,data.frame-method}
 \alias{view,matrix-method}
@@ -10,6 +11,28 @@
 \title{view}
 \usage{
 view(x, ...)
+
+\S4method{view}{SummarizedExperiment}(
+  x,
+  printL = TRUE,
+  plotL = TRUE,
+  mainC = "",
+  paletteC = c("heat", "revHeat", "grey", "revGrey", "palette", "ramp")[1],
+  rowAllL = FALSE,
+  rowCexN = 1,
+  rowMarN = 5.1,
+  rowLabC = "",
+  rowTruncI = 0,
+  colAllL = FALSE,
+  colCexN = 1,
+  colMarN = 3.1,
+  colLabC = "",
+  colTruncI = 0,
+  drawScaleL = TRUE,
+  delimitReplicatesL = FALSE,
+  standardizeL = FALSE,
+  fig.pdfC = "interactive"
+)
 
 \S4method{view}{ExpressionSet}(
   x,
@@ -103,7 +126,7 @@ imageF(
 )
 }
 \arguments{
-\item{x}{matrix to be viewed}
+\item{x}{object to be viewed}
 
 \item{...}{Currently not used.}
 
@@ -149,8 +172,6 @@ replicates in row or column names?}
 
 \item{fig.pdfC}{character: either 'interactive' [default] or the name of the pdf file to save the figure}
 
-\item{subC}{character: plot subtitle}
-
 \item{tableMF}{Input matrix, dataframe or vector}
 
 \item{borderI}{Number of border (first and last) rows and columns to display}
@@ -160,19 +181,10 @@ replicates in row or column names?}
 \value{
 this method has no output
 
-this method has no output
-
-this method has no output
-
 This function has no output.
 }
 \description{
-Numeric and graphical display of exprs, pData and fData slots
-from an ExpressionSet object
-
-Numeric and graphical display of a data frame
-
-Numeric and graphical display of a matrix
+Numeric and graphical display of a matrix, a dataframe, an ExpressionSet or a SummarizedExperiment
 
 Display of the class, mode, size and first...last values from the object; used
 inside the 'view' wrapper method
@@ -181,33 +193,19 @@ Wrapper of the stats::image function used inside the 'view' method
 }
 \examples{
 library(ropls)
+# Get the sacurine dataset
 data(sacurine)
-sacSet <- Biobase::ExpressionSet(assayData = t(sacurine[["dataMatrix"]]), 
-                                 phenoData = new("AnnotatedDataFrame", 
-                                                 data = sacurine[["sampleMetadata"]]), 
-                                 featureData = new("AnnotatedDataFrame", 
-                                                   data = sacurine[["variableMetadata"]]),
-                                 experimentData = new("MIAME", 
-                                                      title = "sacurine"))
-view(sacSet)
-library(ropls)
-data(sacurine)
-view(sacurine[["sampleMetadata"]])
-library(ropls)
-data(sacurine)
-dataMN <- sacurine[["dataMatrix"]]
-view(dataMN)
-view(dataMN[, 1:40], mainC = "'Sacurine' dataset", rowAllL = TRUE,
+# Display the data matrix
+view(sacurine[["dataMatrix"]])
+view(sacurine[["dataMatrix"]][, 1:40], mainC = "'Sacurine' dataset", rowAllL = TRUE,
 colAllL = TRUE, colTruncI = 13, colMarN = 7)
-view(dataMN[, 1:40], mainC = "'Sacurine' dataset", paletteC = "ramp")
-sacSet <- Biobase::ExpressionSet(assayData = t(sacurine[["dataMatrix"]]), 
-                                 phenoData = new("AnnotatedDataFrame", 
-                                                 data = sacurine[["sampleMetadata"]]), 
-                                 featureData = new("AnnotatedDataFrame", 
-                                                   data = sacurine[["variableMetadata"]]),
-                                 experimentData = new("MIAME", 
-                                                      title = "sacurine"))
-view(sacSet)
+view(sacurine[["dataMatrix"]][, 1:40], mainC = "'Sacurine' dataset", paletteC = "ramp")
+# Display the sample metadata (dataframe)
+view(sacurine[["sampleMetadata"]])
+# Display the ExpressionSet
+view(sacurine[["eset"]])
+# Display the SummarizedExperiment
+view(sacurine[["se"]])
 
 data(sacurine)
 strF(sacurine[['dataMatrix']])

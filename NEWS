@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.29.4
+------------------------------
+
+NEW FEATURE
+
+    o 'view' method now handles SummarizedExperiment
+    o 'sacurine' dataset includes the ExpressionSet and SummarizedExperiment formats
+
 CHANGES IN VERSION 1.29.2
 ------------------------------
 

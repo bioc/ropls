@@ -1,48 +1,104 @@
+#### view (SummarizedExperiment) ####
+
+#' @rdname view
+#' @export
+setMethod("view", signature(x = "SummarizedExperiment"),
+          function(x,
+                   printL = TRUE,
+                   plotL = TRUE,
+                   mainC = "",
+                   paletteC = c("heat",
+                                "revHeat",
+                                "grey",
+                                "revGrey",
+                                "palette",
+                                "ramp")[1],
+                   rowAllL = FALSE,
+                   rowCexN = 1,
+                   rowMarN = 5.1,
+                   rowLabC = "",
+                   rowTruncI = 0,
+                   colAllL = FALSE,
+                   colCexN = 1,
+                   colMarN = 3.1,
+                   colLabC = "",
+                   colTruncI = 0,
+                   drawScaleL = TRUE,
+                   delimitReplicatesL = FALSE,
+                   standardizeL = FALSE,
+                   fig.pdfC = "interactive") {
+            
+            if (is.na(mainC) || mainC == "")
+              mainC <- Biobase::experimentData(x)@title
+            
+            message("'assay(x)':")
+            ropls::view(SummarizedExperiment::assay(x),
+                        printL = printL,
+                        plotL = plotL,
+                        mainC = paste0(mainC, "[assay]"),
+                        subC = "",
+                        paletteC = paletteC,
+                        rowAllL = rowAllL,
+                        rowCexN = rowCexN,
+                        rowMarN = rowMarN,
+                        rowLabC = rowLabC,
+                        rowTruncI = rowTruncI,
+                        colAllL = colAllL,
+                        colCexN = colCexN,
+                        colMarN = colMarN,
+                        colLabC = colLabC,
+                        colTruncI = colTruncI,
+                        drawScaleL = drawScaleL,
+                        delimitReplicatesL = delimitReplicatesL,
+                        standardizeL = standardizeL,
+                        fig.pdfC = fig.pdfC)
+            message("'colData(x)':")
+            ropls::view(SummarizedExperiment::colData(x),
+                        printL = printL,
+                        plotL = plotL,
+                        mainC = paste0(mainC, "[colData]"),
+                        subC = "",
+                        paletteC = paletteC,
+                        rowAllL = rowAllL,
+                        rowCexN = rowCexN,
+                        rowMarN = rowMarN,
+                        rowLabC = rowLabC,
+                        rowTruncI = rowTruncI,
+                        colAllL = colAllL,
+                        colCexN = colCexN,
+                        colMarN = colMarN,
+                        colLabC = colLabC,
+                        colTruncI = colTruncI,
+                        drawScaleL = drawScaleL,
+                        delimitReplicatesL = delimitReplicatesL,
+                        standardizeL = standardizeL,
+                        fig.pdfC = fig.pdfC)
+            message("'rowData(x)':")
+            ropls::view(SummarizedExperiment::rowData(x),
+                        printL = printL,
+                        plotL = plotL,
+                        mainC = paste0(mainC, "[rowData]"),
+                        subC = "",
+                        paletteC = paletteC,
+                        rowAllL = rowAllL,
+                        rowCexN = rowCexN,
+                        rowMarN = rowMarN,
+                        rowLabC = rowLabC,
+                        rowTruncI = rowTruncI,
+                        colAllL = colAllL,
+                        colCexN = colCexN,
+                        colMarN = colMarN,
+                        colLabC = colLabC,
+                        colTruncI = colTruncI,
+                        drawScaleL = drawScaleL,
+                        delimitReplicatesL = delimitReplicatesL,
+                        standardizeL = standardizeL,
+                        fig.pdfC = fig.pdfC)
+            
+          })
+
 #### view (ExpressionSet) ####
 
-#' view
-#'
-#' Numeric and graphical display of exprs, pData and fData slots
-#' from an ExpressionSet object
-#'
-#' @param x data frame to be viewed
-#' @param printL should the numerical summary be printed?
-#' @param plotL should the graphical image be displayed?
-#' @param mainC character: plot main title
-#' @param paletteC character: color palette; either 'heat' [default], 'revHeat', 'grey', 'revGrey', 'palette', 'ramp'
-#' @param rowAllL logical: should all rownames be displayed or only the first and
-#' last ones?
-#' @param rowCexN numeric: size of row labels [default: 1]
-#' @param rowMarN numeric: row margin [default: 5.1]
-#' @param rowLabC character: label for the y (row) axis
-#' @param rowTruncI integer: number of character for truncation of rownames (default,
-#' 0, means no truncation)
-#' @param colAllL logical: should all column names be displayed or only the first and
-#' last ones?
-#' @param colCexN numeric: size of column labels [default: 1]
-#' @param colMarN numeric: column margin [default: 3.1]
-#' @param colLabC character: label for the x (column) axis
-#' @param colTruncI integer: number of character for truncation of colnames (default,
-#' 0, means no truncation)
-#' @param drawScaleL logical: should the color scale be drawn? [default: TRUE]
-#' @param delimitReplicatesL logical: should lines be added to the image to delimit
-#' replicates in row or column names?
-#' @param standardizeL Logical: should columns be standardized for display? 
-#' (i.e. subtracting the mean and dividing by the standard deviation) [default: FALSE]
-#' @param fig.pdfC character: either 'interactive' [default] or the name of the pdf file to save the figure
-#' @param ... Currently not used.
-#' @return this method has no output
-#' @examples
-#' library(ropls)
-#' data(sacurine)
-#' sacSet <- Biobase::ExpressionSet(assayData = t(sacurine[["dataMatrix"]]), 
-#'                                  phenoData = new("AnnotatedDataFrame", 
-#'                                                  data = sacurine[["sampleMetadata"]]), 
-#'                                  featureData = new("AnnotatedDataFrame", 
-#'                                                    data = sacurine[["variableMetadata"]]),
-#'                                  experimentData = new("MIAME", 
-#'                                                       title = "sacurine"))
-#' view(sacSet)
 #' @rdname view
 #' @export
 setMethod("view", signature(x = "ExpressionSet"),
@@ -78,8 +134,8 @@ setMethod("view", signature(x = "ExpressionSet"),
             ropls::view(Biobase::exprs(x),
                         printL = printL,
                         plotL = plotL,
-                        mainC = mainC,
-                        subC = "exprs",
+                        mainC = paste0(mainC, "[exprs]"),
+                        subC = "",
                         paletteC = paletteC,
                         rowAllL = rowAllL,
                         rowCexN = rowCexN,
@@ -99,8 +155,8 @@ setMethod("view", signature(x = "ExpressionSet"),
             ropls::view(Biobase::pData(x),
                         printL = printL,
                         plotL = plotL,
-                        mainC = mainC,
-                        subC = "pData",
+                        mainC = paste0(mainC, "[pData]"),
+                        subC = "",
                         paletteC = paletteC,
                         rowAllL = rowAllL,
                         rowCexN = rowCexN,
@@ -120,8 +176,8 @@ setMethod("view", signature(x = "ExpressionSet"),
             ropls::view(Biobase::fData(x),
                         printL = printL,
                         plotL = plotL,
-                        mainC = mainC,
-                        subC = "fData",
+                        mainC = paste0(mainC, "[fData]"),
+                        subC = "",
                         paletteC = paletteC,
                         rowAllL = rowAllL,
                         rowCexN = rowCexN,
@@ -142,42 +198,6 @@ setMethod("view", signature(x = "ExpressionSet"),
 
 #### view (data.frame) ####
 
-#' view
-#'
-#' Numeric and graphical display of a data frame
-#'
-#' @param x data frame to be viewed
-#' @param printL should the numerical summary be printed?
-#' @param plotL should the graphical image be displayed?
-#' @param mainC character: plot main title
-#' @param subC character: plot subtitle
-#' @param paletteC character: color palette; either 'heat' [default], 'revHeat', 'grey', 'revGrey', 'palette', 'ramp'
-#' @param rowAllL logical: should all rownames be displayed or only the first and
-#' last ones?
-#' @param rowCexN numeric: size of row labels [default: 1]
-#' @param rowMarN numeric: row margin [default: 5.1]
-#' @param rowLabC character: label for the y (row) axis
-#' @param rowTruncI integer: number of character for truncation of rownames (default,
-#' 0, means no truncation)
-#' @param colAllL logical: should all column names be displayed or only the first and
-#' last ones?
-#' @param colCexN numeric: size of column labels [default: 1]
-#' @param colMarN numeric: column margin [default: 3.1]
-#' @param colLabC character: label for the x (column) axis
-#' @param colTruncI integer: number of character for truncation of colnames (default,
-#' 0, means no truncation)
-#' @param drawScaleL logical: should the color scale be drawn? [default: TRUE]
-#' @param delimitReplicatesL logical: should lines be added to the image to delimit
-#' replicates in row or column names?
-#' @param standardizeL Logical: should columns be standardized for display? 
-#' (i.e. subtracting the mean and dividing by the standard deviation) [default: FALSE]
-#' @param fig.pdfC character: either 'interactive' [default] or the name of the pdf file to save the figure
-#' @param ... Currently not used.
-#' @return this method has no output
-#' @examples
-#' library(ropls)
-#' data(sacurine)
-#' view(sacurine[["sampleMetadata"]])
 #' @rdname view
 #' @export
 setMethod("view", signature(x = "data.frame"),
@@ -275,54 +295,7 @@ setMethod("view", signature(x = "data.frame"),
 
 #### view (matrix) ####
 
-#' view
-#'
-#' Numeric and graphical display of a matrix
-#'
-#' @param x matrix to be viewed
-#' @param printL should the numerical summary be printed?
-#' @param plotL should the graphical image be displayed?
-#' @param mainC character: plot main title
-#' @param subC character: plot subtitle
-#' @param paletteC character: color palette; either 'heat' [default], 'revHeat', 'grey', 'revGrey', 'palette', 'ramp'
-#' @param rowAllL logical: should all rownames be displayed or only the first and
-#' last ones?
-#' @param rowCexN numeric: size of row labels [default: 1]
-#' @param rowMarN numeric: row margin [default: 5.1]
-#' @param rowLabC character: label for the y (row) axis
-#' @param rowTruncI integer: number of character for truncation of rownames (default,
-#' 0, means no truncation)
-#' @param colAllL logical: should all column names be displayed or only the first and
-#' last ones?
-#' @param colCexN numeric: size of column labels [default: 1]
-#' @param colMarN numeric: column margin [default: 3.1]
-#' @param colLabC character: label for the x (column) axis
-#' @param colTruncI integer: number of character for truncation of colnames (default,
-#' 0, means no truncation)
-#' @param drawScaleL logical: should the color scale be drawn? [default: TRUE]
-#' @param delimitReplicatesL logical: should lines be added to the image to delimit
-#' replicates in row or column names?
-#' @param standardizeL Logical: should columns be standardized for display? 
-#' (i.e. subtracting the mean and dividing by the standard deviation) [default: FALSE]
-#' @param fig.pdfC character: either 'interactive' [default] or the name of the pdf file to save the figure
-#' @param ... Currently not used.
-#' @return this method has no output
-#' @examples
-#' library(ropls)
-#' data(sacurine)
-#' dataMN <- sacurine[["dataMatrix"]]
-#' view(dataMN)
-#' view(dataMN[, 1:40], mainC = "'Sacurine' dataset", rowAllL = TRUE,
-#' colAllL = TRUE, colTruncI = 13, colMarN = 7)
-#' view(dataMN[, 1:40], mainC = "'Sacurine' dataset", paletteC = "ramp")
-#' sacSet <- Biobase::ExpressionSet(assayData = t(sacurine[["dataMatrix"]]), 
-#'                                  phenoData = new("AnnotatedDataFrame", 
-#'                                                  data = sacurine[["sampleMetadata"]]), 
-#'                                  featureData = new("AnnotatedDataFrame", 
-#'                                                    data = sacurine[["variableMetadata"]]),
-#'                                  experimentData = new("MIAME", 
-#'                                                       title = "sacurine"))
-#' view(sacSet)
+
 #' @rdname view
 #' @export
 setMethod("view", signature(x = "matrix"),

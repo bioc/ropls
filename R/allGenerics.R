@@ -60,6 +60,7 @@ setGeneric("getMset",
 #' @param printL should the numerical summary be printed?
 #' @param plotL should the graphical image be displayed?
 #' @param mainC character: plot main title
+#' @param subC character(1): plot subtitle
 #' @param paletteC character: color palette; either 'heat' [default], 'revHeat', 'grey', 'revGrey', 'palette', 'ramp'
 #' @param rowAllL logical: should all rownames be displayed or only the first and
 #' last ones?

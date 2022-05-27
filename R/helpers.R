@@ -29,7 +29,7 @@ setMethod("view", signature(x = "SummarizedExperiment"),
                    fig.pdfC = "interactive") {
             
             if (is.na(mainC) || mainC == "")
-              mainC <- Biobase::experimentData(x)@title
+              mainC <- x@metadata$experimentData@title
             
             message("'assay(x)':")
             ropls::view(SummarizedExperiment::assay(x),
@@ -53,7 +53,7 @@ setMethod("view", signature(x = "SummarizedExperiment"),
                         standardizeL = standardizeL,
                         fig.pdfC = fig.pdfC)
             message("'colData(x)':")
-            ropls::view(SummarizedExperiment::colData(x),
+            ropls::view(as.data.frame(SummarizedExperiment::colData(x)),
                         printL = printL,
                         plotL = plotL,
                         mainC = paste0(mainC, "[colData]"),
@@ -74,7 +74,7 @@ setMethod("view", signature(x = "SummarizedExperiment"),
                         standardizeL = standardizeL,
                         fig.pdfC = fig.pdfC)
             message("'rowData(x)':")
-            ropls::view(SummarizedExperiment::rowData(x),
+            ropls::view(as.data.frame(SummarizedExperiment::rowData(x)),
                         printL = printL,
                         plotL = plotL,
                         mainC = paste0(mainC, "[rowData]"),

@@ -172,6 +172,8 @@ replicates in row or column names?}
 
 \item{fig.pdfC}{character: either 'interactive' [default] or the name of the pdf file to save the figure}
 
+\item{subC}{character(1): plot subtitle}
+
 \item{tableMF}{Input matrix, dataframe or vector}
 
 \item{borderI}{Number of border (first and last) rows and columns to display}

@@ -1324,23 +1324,33 @@
 .errorF <- function(x, y)
   sqrt(mean(drop((x - y)^2), na.rm = TRUE))
 
-.genVec <- function(ese,
+.genVec <- function(x,
                     dimC = c("sample", "feature")[1],
                     typC = c("character", "numeric")[1]) {
   
   switch(dimC,
          sample = {
            
-           vecVcn <- rep(NA, ncol(ese))
+           vecVcn <- rep(NA, ncol(x))
            mode(vecVcn) <- typC
-           names(vecVcn) <- sampleNames(ese)
+           if (is(x, "ExpressionSet")) {
+             names(vecVcn) <- sampleNames(x)
+           } else if (is(x, "SummarizedExperiment")) {
+             names(vecVcn) <- colnames(x)
+           } else
+             stop("Unknown class")           
            
          },
          feature = {
            
-           vecVcn <- rep(NA, nrow(ese))
+           vecVcn <- rep(NA, nrow(x))
            mode(vecVcn) <- typC
-           names(vecVcn) <- featureNames(ese)
+           if (is(x, "ExpressionSet")) {
+             names(vecVcn) <- featureNames(x)
+           } else if (is(x, "SummarizedExperiment")) {
+             names(vecVcn) <- rownames(x)
+           } else
+             stop("Unknown class")
            
          })
   

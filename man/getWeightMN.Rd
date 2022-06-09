@@ -13,10 +13,9 @@ getWeightMN(object, ...)
 \item{object}{An S4 object of class \code{opls}, created by \code{opls}
 function.}
 
-\item{...}{Currently not used.
-(default is FALSE and the predictive weight matrix is returned)}
+\item{...}{Currently not used.}
 
-\item{orthoL}{Logical: Should the orthogonal weight matrix be returned}
+\item{orthoL}{Logical: Should the orthogonal weight matrix be returned? (default is FALSE)}
 }
 \value{
 Numeric matrix with a number of rows equal to the number of

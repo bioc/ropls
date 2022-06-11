@@ -2,20 +2,18 @@
 % Please edit documentation in R/allGenerics.R, R/opls-methods.R
 \name{getEset}
 \alias{getEset}
-\alias{getEset,opls-method}
 \alias{getEset,}
 \alias{opls-method}
+\alias{getEset,opls-method}
 \title{getEset method}
 \usage{
-getEset(object, ...)
+getEset(object)
 
 \S4method{getEset}{opls}(object)
 }
 \arguments{
 \item{object}{An S4 object of class \code{opls}, created by \code{opls}
 function.}
-
-\item{...}{Currently not used}
 }
 \value{
 An S4 object of class \code{ExpressionSet} which contains the dataMatrix (t(exprs(eset))),

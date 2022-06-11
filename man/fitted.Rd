@@ -5,13 +5,11 @@
 \alias{fitted.opls}
 \title{Fitted method for 'opls' objects}
 \usage{
-\S4method{fitted}{opls}(object, ...)
+\S4method{fitted}{opls}(object)
 }
 \arguments{
 \item{object}{An S4 object of class \code{opls}, created by the \code{opls}
 function.}
-
-\item{...}{Currently not used.}
 }
 \value{
 Predictions (either a vector, factor, or matrix depending on the y

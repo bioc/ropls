@@ -5,15 +5,13 @@
 \alias{getSummaryDF,opls-method}
 \title{getSummaryDF method for PCA/(O)PLS models}
 \usage{
-getSummaryDF(object, ...)
+getSummaryDF(object)
 
 \S4method{getSummaryDF}{opls}(object)
 }
 \arguments{
 \item{object}{An S4 object of class \code{opls}, created by \code{opls}
 function.}
-
-\item{...}{Currently not used.}
 }
 \value{
 Data frame

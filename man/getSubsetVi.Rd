@@ -5,15 +5,13 @@
 \alias{getSubsetVi,opls-method}
 \title{getSubsetVi method for (O)PLS(-DA) models}
 \usage{
-getSubsetVi(object, ...)
+getSubsetVi(object)
 
 \S4method{getSubsetVi}{opls}(object)
 }
 \arguments{
 \item{object}{An S4 object of class \code{opls}, created by \code{opls}
 function.}
-
-\item{...}{Currently not used.}
 }
 \value{
 Integer vector with the indices of the samples used for training

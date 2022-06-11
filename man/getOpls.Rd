@@ -5,15 +5,13 @@
 \alias{getOpls,SummarizedExperiment-method}
 \title{Getting the models from the SummarizedExperiment object}
 \usage{
-getOpls(object, ...)
+getOpls(object)
 
 \S4method{getOpls}{SummarizedExperiment}(object)
 }
 \arguments{
 \item{object}{An S4 object of class \code{SummarizedExperiment}, once processed by the \code{opls}
 method}
-
-\item{...}{Currently not used.}
 }
 \value{
 List of opls models contained in the SummarizedExperiment object

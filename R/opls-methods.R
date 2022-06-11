@@ -1,29 +1,444 @@
+####    coef    ####
+
+#' Coefficients method for (O)PLS models
+#'
+#' Coefficients of the (O)PLS(-DA) regression model
+#'
+#' @aliases coef.opls coef,opls-method
+#' @param object An S4 object of class \code{opls}, created by \code{opls}
+#' function.
+#' @return Numeric matrix of coefficients (number of rows equals the number of
+#' variables, and the number of columns equals the number of responses)
+#' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
+#' @examples
+#'
+#' data(sacurine)
+#' attach(sacurine)
+#'
+#' sacurine.plsda <- opls(dataMatrix,
+#'                        sampleMetadata[, "gender"])
+#'
+#' head(coef(sacurine.plsda))
+#'
+#' detach(sacurine)
+#'
+#' @rdname coef
+#' @export
+setMethod("coef", "opls",
+          function(object) {
+            return(object@coefficientMN)
+          })
+
+
+####    fitted    ####
+
+#' Fitted method for 'opls' objects
+#'
+#' Returns predictions of the (O)PLS(-DA) model on the training dataset
+#'
+#' @aliases fitted.opls fitted,opls-method
+#' @param object An S4 object of class \code{opls}, created by the \code{opls}
+#' function.
+#' @return Predictions (either a vector, factor, or matrix depending on the y
+#' response used for training the model)
+#' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
+#' @examples
+#'
+#' data(sacurine)
+#' attach(sacurine)
+#' sacurine.plsda <- opls(dataMatrix, sampleMetadata[, "gender"])
+#'
+#' fitted(sacurine.plsda)
+#'
+#' detach(sacurine)
+#'
+#' @rdname fitted
+#' @export
+setMethod("fitted", "opls",
+          function(object) {
+            
+            if (!is.null(object@suppLs[["yPreMN"]])) {
+              
+              if (mode(object@suppLs[["yMCN"]]) == "character") {
+                
+                yPredMCN <- object@suppLs[[".char2numF"]](object@suppLs[["yPreMN"]],
+                                                          c2nL = FALSE)
+                
+                if (is.vector(object@suppLs[["y"]])) {
+                  fit <- c(yPredMCN)
+                  names(fit) <- rownames(yPredMCN)
+                } else if (is.factor(object@suppLs[["y"]])) {
+                  fit <- c(yPredMCN)
+                  names(fit) <- rownames(yPredMCN)
+                  fit <- factor(fit, levels = levels(object@suppLs[["y"]]))
+                } else if (is.matrix(object@suppLs[["y"]])) {
+                  fit <- yPredMCN
+                } else
+                  stop() ## this case should not happen
+                
+              } else {
+                
+                yPredMCN <- object@suppLs[["yPreMN"]]
+                
+                if (is.vector(object@suppLs[["y"]])) {
+                  fit <- c(yPredMCN)
+                  names(fit) <- rownames(yPredMCN)
+                } else if (is.matrix(object@suppLs[["y"]])) {
+                  fit <- yPredMCN
+                } else
+                  stop() ## this case should not happen
+                
+              }
+              
+              return(fit)
+              
+            } else
+              return(NULL)
+            
+          }) ## fitted
+
+
+####    getEset    ####
+
+#' @rdname getEset
+#' @export
+setMethod("getEset", "opls",
+          function(object) {
+            return(object@eset)
+          })
+
+
+####    getLoadingMN    ####
+
+#' @rdname getLoadingMN
+#' @export
+setMethod("getLoadingMN", "opls",
+          function(object, orthoL = FALSE) {
+            if(orthoL)
+              return(object@orthoLoadingMN)
+            else
+              return(object@loadingMN)
+          })
+
+
+####    getOpls    ####
+
+#' @rdname getOpls
+#' @export
+setMethod("getOpls", "SummarizedExperiment",
+          function(object) {
+            return(object@metadata[["opls"]])
+          })
+
+
+####    getPcaVarVn    ####
+
+#' @rdname getPcaVarVn
+#' @export
+setMethod("getPcaVarVn", "opls",
+          function(object) {
+            return(object@pcaVarVn)
+          })
+
+
+####    getScoreMN    ####
+
+#' @rdname getScoreMN
+#' @export
+setMethod("getScoreMN", "opls",
+          function(object, orthoL = FALSE) {
+            if (orthoL)
+              return(object@orthoScoreMN)
+            else
+              return(object@scoreMN)
+          })
+
+
+####    getSubsetVi    ####
+
+#' @rdname getSubsetVi
+#' @export
+setMethod("getSubsetVi", "opls",
+          function(object) {
+            return(object@subsetVi)
+          })
+
+
+####    getSummaryDF    ####
+#'
+#' @rdname getSummaryDF
+#' @export
+setMethod("getSummaryDF", "opls",
+          function(object) {
+            return(object@summaryDF)
+          })
+
+
+####    getVipVn    ####
+
+#' @rdname getVipVn
+#' @export
+setMethod("getVipVn", "opls",
+          function(object, orthoL = FALSE) {
+            if(orthoL)
+              return(object@orthoVipVn)
+            else
+              return(object@vipVn)
+          })
+
+
+####    getWeightMN    ####
+
+#' @rdname getWeightMN
+#' @export
+setMethod("getWeightMN", "opls",
+          function(object, orthoL = FALSE) {
+            if(orthoL)
+              return(object@orthoWeightMN)
+            else
+              return(object@weightMN)
+          })
+
+
+#### opls (MultiAssayExperiment) ####
+
+#' @rdname opls
+#' @export
+setMethod("opls", signature(x = "MultiAssayExperiment"),
+          function(x,
+                   y = NULL,
+                   predI = NA,
+                   orthoI = 0,
+                   
+                   algoC = c("default", "nipals", "svd")[1],
+                   crossvalI = 7,
+                   log10L = FALSE,
+                   permI = 20,
+                   scaleC = c("none", "center", "pareto", "standard")[4],
+                   subset = NULL,
+                   
+                   plotSubC = NA,                   
+                   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],                   
+                   info.txtC = c("none", "interactive", "myfile.txt")[2]) {
+            
+            if (!is.null(y) && !is.character(y))
+              stop("'y' must be a character when the 'opls' method is applied to an 'MultiAssayExperiment' instance")
+            
+            if (!(info.txtC %in% c("none", "interactive")))
+              sink(info.txtC, append = TRUE)
+            
+            infTxtC <- info.txtC
+            if (infTxtC != "none")
+              infTxtC <- "interactive"
+            
+            if (!(fig.pdfC %in% c("none", "interactive")))
+              grDevices::pdf(fig.pdfC)
+            
+            figPdfC <- fig.pdfC
+            if (figPdfC != "none")
+              figPdfC <- "none"
+            
+            if (is.null(y)) {
+              type.c <- "PCA"
+              y.fcvcn <- NULL
+            } else if (!(y %in% colnames(MultiAssayExperiment::colData(x)))) {
+              stop("'y' must be the name of a column for the colData of the MultiAssayExperiment instance")
+            } else {
+              colData.DF <- MultiAssayExperiment::colData(x)
+              y.fcvcn <- colData.DF[, y]
+              names(y.fcvcn) <- rownames(colData.DF)
+              if (is.numeric(y.fcvcn)) {
+                type.c <- "PLS"
+              } else
+                type.c <- "PLSDA"
+              if (is.na(orthoI) || orthoI > 0)
+                type.c <- paste0("O", type.c)
+              type.c <- paste0(make.names(y), "_", type.c)
+            }
+            
+            for (setC in names(x)) {
+              
+              if (info.txtC != "none")
+                cat("\n\nBuilding the model for the '", setC, "' dataset:\n", sep = "")
+              
+              plotL <- TRUE
+              
+              set.se <- x[[setC]]
+              
+              if (is.null(y)) {
+                y_set.fcvcn <- NULL
+              } else
+                y_set.fcvcn <- y.fcvcn[colnames(set.se)]
+              
+              if (is.null(y)) {
+                y_set.ls <- NULL
+              } else {
+                y_set.ls <- list(y_set.fcvcn)
+                names(y_set.ls) <- y
+              }
+              
+              set.se <- opls(set.se,
+                             y = y_set.ls,
+                             predI = predI,
+                             orthoI = orthoI,
+                             
+                             algoC = algoC,
+                             crossvalI = crossvalI,
+                             log10L = log10L,
+                             permI = permI,
+                             scaleC = scaleC,
+                             subset = subset,
+                             
+                             plotSubC = plotSubC,                   
+                             fig.pdfC = figPdfC,                   
+                             info.txtC = infTxtC)
+              
+              setOpls <- getOpls(set.se)[[type.c]]
+              
+              if (cumprod(dim(getSummaryDF(setOpls)))[2] < 1 ||
+                  (grepl("PLS", setOpls@typeC) &&
+                   getSummaryDF(setOpls)["Total", "pQ2"] > 0.05)) {
+                
+                plotL <- FALSE
+                
+              }
+              
+              if (fig.pdfC != "none" && plotL)
+                plot(setOpls,
+                     plotSubC = paste0("[", setC, "]"),
+                     fig.pdfC = fig.pdfC)
+              
+              x[[setC]] <- set.se
+              
+            }
+            
+            if (!(fig.pdfC %in% c("none", "interactive")))
+              grDevices::dev.off()
+            
+            if (!(info.txtC %in% c("none", "interactive")))
+              sink()
+            
+            return(invisible(x))
+            
+          })
+
+
 #### opls (SummarizedExperiment) ####
 
 #' @rdname opls
 #' @export
 setMethod("opls", signature(x = "SummarizedExperiment"),
-          function(x, y = NULL, ...) {
+          function(x,
+                   y = NULL,
+                   predI = NA,
+                   orthoI = 0,
+                   
+                   algoC = c("default", "nipals", "svd")[1],
+                   crossvalI = 7,
+                   log10L = FALSE,
+                   permI = 20,
+                   scaleC = c("none", "center", "pareto", "standard")[4],
+                   subset = NULL,
+                   
+                   plotSubC = NA,                   
+                   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],                   
+                   info.txtC = c("none", "interactive", "myfile.txt")[2]) {
+            
+            type.c <- NULL
+            
+            if (is.list(y)) {
+              
+              if (length(y) > 1)
+                stop("'y' as a list should contain a single vector")
+              
+              if (is.null(names(y)))
+                stop("the name of the response should be provided in 'names(y)'")
+              
+              type.c <- names(y)
+              y <- y[[1]]
+              
+            }
             
             if (is.null(y)) {
               
-              opl <- opls(t(SummarizedExperiment::assay(x)), ...)
+              opl <- opls(t(SummarizedExperiment::assay(x)),
+                          y = y,
+                          predI = predI,
+                          orthoI = orthoI,
+                          
+                          algoC = algoC,
+                          crossvalI = crossvalI,
+                          log10L = log10L,
+                          permI = permI,
+                          scaleC = scaleC,
+                          subset = subset,
+                          
+                          plotSubC = plotSubC,                   
+                          fig.pdfC = fig.pdfC,                   
+                          info.txtC = info.txtC)
+              
+            } else if (length(y) == 1 && is.character(y)) {
+              
+              if (!(y %in% colnames(SummarizedExperiment::colData(x)))) {
+                stop("'y' must be the name of a column of the sampleMetadata slot of the 'SummarizedExperiment' instance")
+              } else {
+                rspFcVcn <- SummarizedExperiment::colData(x)[, y]
+                opl <- opls(t(SummarizedExperiment::assay(x)),
+                            rspFcVcn,
+                            predI = predI,
+                            orthoI = orthoI,
+                            
+                            algoC = algoC,
+                            crossvalI = crossvalI,
+                            log10L = log10L,
+                            permI = permI,
+                            scaleC = scaleC,
+                            subset = subset,
+                            
+                            plotSubC = plotSubC,                   
+                            fig.pdfC = fig.pdfC,                   
+                            info.txtC = info.txtC)
+              }
               
             } else {
-              if (!is.character(y)) {
-                stop("'y' must be a character when the 'opls' method is applied to an 'SummarizedExperiment' instance")
-              } else {
-                if (!(y %in% colnames(SummarizedExperiment::colData(x)))) {
-                  stop("'y' must be the name of a column of the sampleMetadata slot of the 'SummarizedExperiment' instance")
-                } else {
-                  rspFcVcn <- SummarizedExperiment::colData(x)[, y]
-                  opl <- opls(t(SummarizedExperiment::assay(x)), rspFcVcn, ...)
-                }
-              }
+              
+              rspFcVcn <- y
+              opl <- opls(t(SummarizedExperiment::assay(x)),
+                          rspFcVcn,
+                          predI = predI,
+                          orthoI = orthoI,
+                          
+                          algoC = algoC,
+                          crossvalI = crossvalI,
+                          log10L = log10L,
+                          permI = permI,
+                          scaleC = scaleC,
+                          subset = subset,
+                          
+                          plotSubC = plotSubC,                   
+                          fig.pdfC = fig.pdfC,                   
+                          info.txtC = info.txtC)
+              
             }
             
             modC <- opl@typeC
+            
+            rspModC <- gsub("-", "", modC)
+            
+            if (rspModC != "PCA") {
+              if (is.null(type.c))
+                rspModC <- paste0(make.names(y), "_", rspModC)
+              else
+                rspModC <- paste0(make.names(type.c), "_", rspModC)
+            }
+            
+            x@metadata[["opls"]][[rspModC]] <- opl
+            
             sumDF <- getSummaryDF(opl)
+            
+            if (cumprod(dim(sumDF))[2] < 1) # i.e. no model was built
+              return(invisible(x))
+            
             scoreMN <- getScoreMN(opl)
             loadingMN <- getLoadingMN(opl)
             
@@ -41,10 +456,6 @@ setMethod("opls", signature(x = "SummarizedExperiment"),
               }
               
             }
-            
-            rspModC <- gsub("-", "", modC)
-            if (rspModC != "PCA")
-              rspModC <- paste0(make.names(y), "_", rspModC)
             
             pdaDF <- SummarizedExperiment::colData(x)
             fdaDF <- SummarizedExperiment::rowData(x)
@@ -152,15 +563,14 @@ setMethod("opls", signature(x = "SummarizedExperiment"),
                 
               }
             }
-
+            
             SummarizedExperiment::colData(x) <- pdaDF
             SummarizedExperiment::rowData(x) <- fdaDF
-
-            x@metadata[["opls"]][[rspModC]] <- opl
             
             return(invisible(x))
             
           })
+
 
 #### opls (MultiDataSet) ####
 
@@ -169,10 +579,20 @@ setMethod("opls", signature(x = "SummarizedExperiment"),
 setMethod("opls", signature(x = "MultiDataSet"),
           function(x,
                    y = NULL,
+                   predI = NA,
+                   orthoI = 0,
+                   
+                   algoC = c("default", "nipals", "svd")[1],
+                   crossvalI = 7,
+                   log10L = FALSE,
+                   permI = 20,
+                   scaleC = c("none", "center", "pareto", "standard")[4],
+                   subset = NULL,
+                   
+                   plotSubC = NA,                   
                    fig.pdfC = c("none", "interactive", "myfile.pdf")[2],                   
-                   info.txtC = c("none", "interactive", "myfile.txt")[2],
-                   ...) {
-
+                   info.txtC = c("none", "interactive", "myfile.txt")[2]) {
+            
             if (!(info.txtC %in% c("none", "interactive")))
               sink(info.txtC, append = TRUE)
             
@@ -195,50 +615,39 @@ setMethod("opls", signature(x = "MultiDataSet"),
               
               if (info.txtC != "none")
                 cat("\n\nBuilding the model for the '", setC, "' dataset:\n", sep = "")
-
-              plotL <- TRUE
-
-              setOpls <- tryCatch(ropls::opls(x[[setC]],
-                                              y = y,
-                                              info.txtC = infTxtC,
-                                              fig.pdfC = figPdfC,
-                                              ...),
-                                  error = function(e) NULL)
               
-              if (is.null(setOpls)) {
+              plotL <- TRUE
+              
+              setOpls <- opls(x[[setC]],
+                              y = y,
+                              predI = predI,
+                              orthoI = orthoI,
+                              
+                              algoC = algoC,
+                              crossvalI = crossvalI,
+                              log10L = log10L,
+                              permI = permI,
+                              scaleC = scaleC,
+                              subset = subset,
+                              
+                              plotSubC = plotSubC,                   
+                              fig.pdfC = figPdfC,                   
+                              info.txtC = infTxtC)
+              
+              if (cumprod(dim(getSummaryDF(setOpls)))[2] < 1 ||
+                  (grepl("PLS", setOpls@typeC) &&
+                   getSummaryDF(setOpls)["Total", "pQ2"] > 0.05)) {
                 
-                if (info.txtC != "none")
-                  cat("No model could be built for the '",
-                      setC,
-                      "' dataset.\n",
-                      sep = "")
-                
-                setOpls <- new("opls")
-                setOpls@eset <- x[[setC]]
-                plotL <- FALSE
-                
-              } else if (grepl("PLS", setOpls@typeC) &&
-                         ropls::getSummaryDF(setOpls)["Total", "pQ2"] > 0.05) {
-                
-                if (info.txtC != "none")                  
-                  cat("No model was included for the '",
-                      setC,
-                      "' dataset because pQ2 was above 5%.\n",
-                      sep = "")
-                
-                setOpls <- new("opls")
-                setOpls@eset <- x[[setC]]
                 plotL <- FALSE
                 
               }
               
               oplsMsetLs[[setC]] <- setOpls
-
+              
               if (fig.pdfC != "none" && plotL)
-                ropls::plot(oplsMsetLs[[setC]],
-                            parSetNameC = setC,
-                            plotSubC = paste0("[", setC, "]"),
-                            fig.pdfC = fig.pdfC)
+                plot(oplsMsetLs[[setC]],
+                     plotSubC = paste0("[", setC, "]"),
+                     fig.pdfC = fig.pdfC)
               
             }
             
@@ -255,17 +664,46 @@ setMethod("opls", signature(x = "MultiDataSet"),
             
           })
 
+
 #### opls (ExpressionSet) ####
 
 #' @rdname opls
 #' @export
 setMethod("opls", signature(x = "ExpressionSet"),
-          function(x, y = NULL, ...) {
+          function(x,
+                   y = NULL,
+                   predI = NA,
+                   orthoI = 0,
+                   
+                   algoC = c("default", "nipals", "svd")[1],
+                   crossvalI = 7,
+                   log10L = FALSE,
+                   permI = 20,
+                   scaleC = c("none", "center", "pareto", "standard")[4],
+                   subset = NULL,
+                   
+                   plotSubC = NA,                   
+                   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],                   
+                   info.txtC = c("none", "interactive", "myfile.txt")[2]) {
             
             if (is.null(y)) {
-
-              opl <- ropls::opls(t(exprs(x)), ...)
-
+              
+              opl <- opls(x = t(Biobase::exprs(x)),
+                          y = y,
+                          predI = predI,
+                          orthoI = orthoI,
+                          
+                          algoC = algoC,
+                          crossvalI = crossvalI,
+                          log10L = log10L,
+                          permI = permI,
+                          scaleC = scaleC,
+                          subset = subset,
+                          
+                          plotSubC = plotSubC,                   
+                          fig.pdfC = fig.pdfC,                   
+                          info.txtC = info.txtC)
+              
             } else {
               if (!is.character(y)) {
                 stop("'y' must be a character when the 'opls' method is applied to an 'ExpressionSet' instance")
@@ -274,13 +712,33 @@ setMethod("opls", signature(x = "ExpressionSet"),
                   stop("'y' must be the name of a column of the sampleMetadata slot of the 'ExpressionSet' instance")
                 } else {
                   rspFcVcn <- pData(x)[, y]
-                  opl <- ropls::opls(t(exprs(x)), rspFcVcn, ...)
+                  opl <- opls(t(exprs(x)),
+                              rspFcVcn,
+                              predI = predI,
+                              orthoI = orthoI,
+                              
+                              algoC = algoC,
+                              crossvalI = crossvalI,
+                              log10L = log10L,
+                              permI = permI,
+                              scaleC = scaleC,
+                              subset = subset,
+                              
+                              plotSubC = plotSubC,                   
+                              fig.pdfC = fig.pdfC,                   
+                              info.txtC = info.txtC)
                 }
               }
             }
             
+            opl@eset <- x
+            
             modC <- opl@typeC
             sumDF <- getSummaryDF(opl)
+            
+            if (cumprod(dim(sumDF))[2] < 1)
+              return(invisible(opl))
+            
             scoreMN <- getScoreMN(opl)
             loadingMN <- getLoadingMN(opl)
             
@@ -303,8 +761,8 @@ setMethod("opls", signature(x = "ExpressionSet"),
             if (rspModC != "PCA")
               rspModC <- paste0(make.names(y), "_", rspModC)
             
-            pdaDF <- pData(x)
-            fdaDF <- fData(x)
+            pdaDF <- Biobase::pData(x)
+            fdaDF <- Biobase::fData(x)
             
             ## x-scores
             
@@ -410,28 +868,63 @@ setMethod("opls", signature(x = "ExpressionSet"),
               }
             }
             
-            pData(x) <- pdaDF
-            fData(x) <- fdaDF
+            Biobase::pData(x) <- pdaDF
+            Biobase::fData(x) <- fdaDF
             
             opl@eset <- x
+            
             
             return(invisible(opl))
             
           })
+
 
 #### opls (data.frame) ####
 
 #' @rdname opls
 #' @export
 setMethod("opls", signature(x = "data.frame"),
-          function(x, ...) {
+          function(x,
+                   y = NULL,
+                   predI = NA,
+                   orthoI = 0,
+                   
+                   algoC = c("default", "nipals", "svd")[1],
+                   crossvalI = 7,
+                   log10L = FALSE,
+                   permI = 20,
+                   scaleC = c("none", "center", "pareto", "standard")[4],
+                   subset = NULL,
+                   
+                   plotSubC = NA,                   
+                   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],                   
+                   info.txtC = c("none", "interactive", "myfile.txt")[2]) {
+            
             if (!all(sapply(x, data.class) == "numeric")) {
               stop("'x' data frame must contain columns of 'numeric' vectors only", call. = FALSE)
             } else
               x <- as.matrix(x)
-            opl <- opls(x, ...)
+            
+            opl <- opls(x = x,
+                        y = y,
+                        predI = predI,
+                        orthoI = orthoI,
+                        
+                        algoC = algoC,
+                        crossvalI = crossvalI,
+                        log10L = log10L,
+                        permI = permI,
+                        scaleC = scaleC,
+                        subset = subset,
+                        
+                        plotSubC = plotSubC,                   
+                        fig.pdfC = fig.pdfC,                   
+                        info.txtC = info.txtC)
+            
             return(invisible(opl))
+            
           })
+
 
 ####    opls  (matrix)  ####
 
@@ -449,58 +942,10 @@ setMethod("opls", signature(x = "matrix"),
                    permI = 20,
                    scaleC = c("none", "center", "pareto", "standard")[4],
                    subset = NULL,
-
+                   
                    plotSubC = NA,                   
                    fig.pdfC = c("none", "interactive", "myfile.pdf")[2],                   
-                   info.txtC = c("none", "interactive", "myfile.txt")[2],
-                   
-                   printL = TRUE,
-                   plotL = TRUE,
-                   .sinkC = NULL,
-                   ...) {
-            
-            if (!printL) {
-              warning("'printL' argument is deprecated; use 'info.txtC' instead.",
-                      call. = FALSE)
-              info.txtC <- "none"
-            }
-            
-            if (!plotL) {
-              warning("'plotL' argument is deprecated; use 'fig.pdfC' instead.",
-                      call. = FALSE)
-              fig.pdfC <- "none"
-            }
-            
-            if (!is.null(.sinkC)) {
-              warning("'.sinkC' argument is deprecated; use 'info.txtC' instead.",
-                      call. = FALSE)
-              info.txtC <- .sinkC
-            }
-            
-            if (is.null(info.txtC)) {
-              warning("'info.txtC = NULL' argument value is deprecated; use 'info.txtC = 'none'' instead.",
-                      call. = FALSE)
-              info.txtC <- 'none'
-            }
-            
-            if (is.na(info.txtC)) {
-              warning("'info.txtC = NA' argument value is deprecated; use 'info.txtC = 'interactive'' instead.",
-                      call. = FALSE)
-              info.txtC <- 'interactive'
-            }
-            
-            if (is.null(fig.pdfC)) {
-              warning("'fig.pdfC = NULL' argument value is deprecated; use 'fig.pdfC = 'none'' instead.",
-                      call. = FALSE)
-              fig.pdfC <- 'none'
-            }
-            
-            if (is.na(fig.pdfC)) {
-              warning("'fig.pdfC = NA' argument value is deprecated; use 'fig.pdfC = 'interactive'' instead.",
-                      call. = FALSE)
-              fig.pdfC <- 'interactive'
-            }
-            
+                   info.txtC = c("none", "interactive", "myfile.txt")[2]) {
             
             if (!(info.txtC %in% c("none", "interactive")))
               sink(info.txtC, append = TRUE)
@@ -579,8 +1024,8 @@ setMethod("opls", signature(x = "matrix"),
             ## NA in Y only possible for multi-response regression (i.e., Y is a numeric matrix)
             
             if (!is.null(yMCN) &&
-               ncol(yMCN) == 1 &&
-               any(is.na(drop(yMCN))))
+                ncol(yMCN) == 1 &&
+                any(is.na(drop(yMCN))))
               stop("In case of single response modeling, 'y' must not contain missing values", call. = FALSE)
             
             if (!is.logical(log10L))
@@ -636,8 +1081,8 @@ setMethod("opls", signature(x = "matrix"),
               stop("train/test partition with 'subset' only available for (O)PLS(-DA) models of a single 'y' response", call. = FALSE)
             
             if (!is.null(subset) &&
-               !(mode(subset) == 'character' && subset == 'odd') &&
-               !all(subset %in% 1:nrow(xMN)))
+                !(mode(subset) == 'character' && subset == 'odd') &&
+                !all(subset %in% 1:nrow(xMN)))
               stop("'subset' must be either set to 'odd' or an integer vector of 'x' row numbers", call. = FALSE)
             
             if (crossvalI > nrow(xMN))
@@ -807,7 +1252,7 @@ setMethod("opls", signature(x = "matrix"),
                           subsetL = subsetL,
                           subsetVi = subsetVi,
                           .char2numF = .char2numF)
-  
+            
             if (is.null(y)) {          
               opl@suppLs["y"] <- list(NULL)
             } else
@@ -821,8 +1266,8 @@ setMethod("opls", signature(x = "matrix"),
               else
                 opl@typeC <- "PLS-DA"
             }
-            if (opl@summaryDF[, "ort"] > 0)
-              opl@typeC <- paste("O", opl@typeC, sep = "")
+            if (is.na(orthoI) || orthoI > 0)
+              opl@typeC <- paste0("O", opl@typeC)
             
             opl@xZeroVarVi <- xZeroVarVi
             ## opl@suppLs[["yLevelVc"]] <- yLevelVc
@@ -830,7 +1275,7 @@ setMethod("opls", signature(x = "matrix"),
             
             ## Permutation testing (Szymanska et al, 2012)
             
-            if (permI > 0) {
+            if (permI > 0 && cumprod(dim(opl@summaryDF))[2] > 0) {
               
               modSumVc <- colnames(opl@summaryDF)
               
@@ -959,12 +1404,12 @@ setMethod("opls", signature(x = "matrix"),
             if (info.txtC != "none") {
               show(opl)
             }
-
+            
             ## Plotting
-
-            if (fig.pdfC != "none")
+            
+            if (fig.pdfC != "none" && cumprod(dim(opl@summaryDF))[2] > 0)
               plot(opl, typeVc = "summary", plotSubC = plotSubC, fig.pdfC = fig.pdfC)
-          
+            
             ## Closing connection
             
             if (!(info.txtC %in% c("none", "interactive")))
@@ -975,433 +1420,6 @@ setMethod("opls", signature(x = "matrix"),
             return(invisible(opl))
             
           })
-
-
-####    show    ####
-
-#' Show method for 'opls' objects
-#'
-#' Displays information about the dataset and the model.
-#'
-#' @aliases show.opls show,opls-method
-#' @param object An S4 object of class \code{opls}, created by the \code{opls}
-#' function.
-#' @return Invisible.
-#' @author Philippe Rinaudo and Etienne Thevenot (CEA)
-#' @examples
-#'
-#' data(sacurine)
-#' attach(sacurine)
-#' sacurine.plsda <- opls(dataMatrix, sampleMetadata[, "gender"])
-#'
-#' show(sacurine.plsda)
-#'
-#' detach(sacurine)
-#'
-#' @rdname show
-#' @export
-setMethod("show", "opls",
-          function(object) {
-            
-            cat(object@typeC, "\n", sep = "")
-            
-            cat(object@descriptionMC["samples", ],
-                " samples x ",
-                object@descriptionMC["X_variables", ],
-                " variables",
-                ifelse(grepl("PLS", object@typeC),
-                       paste0(" and ", ncol(object@suppLs[["yMCN"]]), " response", ifelse(ncol(object@suppLs[["yMCN"]]) > 1, "s", "")),
-                       ""), "\n", sep = "")
-            
-            cat(object@suppLs[["scaleC"]], " scaling of predictors",
-                ifelse(object@typeC == "PCA",
-                       "",
-                       paste0(" and ",
-                              ifelse(mode(object@suppLs[["yMCN"]]) == "character" && object@suppLs[["scaleC"]] != "standard",
-                                     "standard scaling of ",
-                                     ""),
-                              "response(s)")), "\n", sep = "")
-            
-            if (substr(object@descriptionMC["missing_values", ], 1, 1) != "0")
-              cat(object@descriptionMC["missing_values", ], " NAs\n", sep = "")
-            
-            if (substr(object@descriptionMC["near_zero_excluded_X_variables", ], 1, 1) != "0")
-              cat(object@descriptionMC["near_zero_excluded_X_variables", ],
-                  " excluded variables (near zero variance)\n", sep = "")
-            
-            optDigN <- options()[["digits"]]
-            options(digits = 3)
-            print(object@summaryDF)
-            options(digits = optDigN)
-            
-          }) ## show
-
-
-####    print    ####
-
-#' Print method for 'opls' objects
-#'
-#' Displays information about the dataset and the model.
-#'
-#' @aliases print.opls print,opls-method
-#' @param x An S4 object of class \code{opls}, created by the \code{opls}
-#' function.
-#' @param ... Currently not used.
-#' @return Invisible.
-#' @examples
-#'
-#' data(sacurine)
-#' attach(sacurine)
-#' sacurine.plsda <- opls(dataMatrix, sampleMetadata[, "gender"])
-#'
-#' print(sacurine.plsda)
-#'
-#' detach(sacurine)
-#'
-#' @rdname print
-#' @export
-setMethod("print", "opls",
-          function(x, ...) {
-            
-            cat("\n1) Data set:\n", sep = "")
-            
-            cat(x@descriptionMC["samples", ],
-                " samples x ",
-                x@descriptionMC["X_variables", ],
-                " variables",
-                ifelse(grepl("PLS", x@typeC),
-                       paste0(" and ", ncol(x@suppLs[["yMCN"]]), " response", ifelse(ncol(x@suppLs[["yMCN"]]) > 1, "s", "")),
-                       ""),
-                "\n", sep = "")
-            
-            cat(x@descriptionMC["missing_values", ], " NAs\n", sep = "")
-            
-            cat(x@descriptionMC["near_zero_excluded_X_variables", ], " excluded variables (near zero variance)\n", sep = "")
-            
-            cat(x@suppLs[["scaleC"]], " x", ifelse(x@typeC != "PCA", " and y", ""), " scaling\n", sep = "")
-            
-            cat("Summary of the ", x@suppLs[["topLoadI"]], " increasing variance spaced raw variables:\n", sep = "")
-            print(summary(x@suppLs[["xSubIncVarMN"]]))
-            
-            if (!is.null(x@suppLs[["xCorMN"]])) {
-              cat("Correlations between the X-variables:\n")
-              print(signif(x@suppLs[["xCorMN"]], 2))
-              cat("\n", sep = "")
-            }
-            
-            cat("\n2) Model: ", x@typeC, "\n", sep = "")
-            
-            cat("Correlations between variables and first 2 components:\n", sep = "")
-            
-            if (x@summaryDF[, "pre"] + x@summaryDF[, "ort"] < 2) {
-              
-              warning("A single component model has been selected by cross-validation", call. = FALSE)
-              
-              tCompMN <- x@scoreMN
-              pCompMN <- x@loadingMN
-              
-            } else {
-              
-              if (x@summaryDF[, "ort"] > 0) {
-                tCompMN <- cbind(x@scoreMN[, 1], x@orthoScoreMN[, 1])
-                pCompMN <- cbind(x@loadingMN[, 1], x@orthoLoadingMN[, 1])
-                colnames(pCompMN) <- colnames(tCompMN) <- c("h1", "o1")
-              } else {
-                tCompMN <- x@scoreMN[, 1:2]
-                pCompMN <- x@loadingMN[, 1:2]
-              }
-              
-            }
-            
-            cxtCompMN <- cor(x@suppLs[["xModelMN"]], tCompMN,
-                             use = "pairwise.complete.obs")
-            
-            if (x@suppLs[["topLoadI"]] * 4 < ncol(x@suppLs[["xModelMN"]])) {
-              
-              pexVi <- integer(x@suppLs[["topLoadI"]] * ncol(pCompMN) * 2) ## 'ex'treme values
-              
-              for (k in 1:ncol(pCompMN)) {
-                
-                pkVn <-  pCompMN[, k]
-                
-                pexVi[1:(2 * x@suppLs[["topLoadI"]]) + 2 * x@suppLs[["topLoadI"]] * (k - 1)] <- c(order(pkVn)[1:x@suppLs[["topLoadI"]]],
-                                                                                                  rev(order(pkVn, decreasing = TRUE)[1:x@suppLs[["topLoadI"]]]))
-                
-              }
-              
-            } else
-              pexVi <- 1:ncol(x@suppLs[["xModelMN"]])
-            
-            pxtCompMN <- cbind(pCompMN,
-                               cxtCompMN)
-            
-            if (ncol(pCompMN) == 1) {
-              colnames(pxtCompMN)[2] <- paste0("cor_", colnames(pxtCompMN)[2])
-            } else
-              colnames(pxtCompMN)[3:4] <- paste0("cor_", colnames(pxtCompMN)[3:4])
-            
-            topLoadMN <- pxtCompMN
-            
-            topLoadMN <- topLoadMN[pexVi, , drop = FALSE]
-            
-            if (x@suppLs[["topLoadI"]] * 4 < ncol(x@suppLs[["xModelMN"]]) &&
-               ncol(pCompMN) > 1) {
-              
-              topLoadMN[(2 * x@suppLs[["topLoadI"]] + 1):(4 * x@suppLs[["topLoadI"]]), c(1, 3)] <- NA
-              topLoadMN[1:(2 * x@suppLs[["topLoadI"]]), c(2, 4)] <- NA
-              
-            }
-            print(signif(topLoadMN, 2))
-            
-            message("")
-            
-            optDigN <- options()[["digits"]]
-            options(digits = 3)
-            print(x@modelDF)
-            options(digits = optDigN)
-            
-          })
-
-
-
-
-
-####    fitted    ####
-
-#' Fitted method for 'opls' objects
-#'
-#' Returns predictions of the (O)PLS(-DA) model on the training dataset
-#'
-#' @aliases fitted.opls fitted,opls-method
-#' @param object An S4 object of class \code{opls}, created by the \code{opls}
-#' function.
-#' @param ... Currently not used.
-#' @return Predictions (either a vector, factor, or matrix depending on the y
-#' response used for training the model)
-#' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
-#' @examples
-#'
-#' data(sacurine)
-#' attach(sacurine)
-#' sacurine.plsda <- opls(dataMatrix, sampleMetadata[, "gender"])
-#'
-#' fitted(sacurine.plsda)
-#'
-#' detach(sacurine)
-#'
-#' @rdname fitted
-#' @export
-setMethod("fitted", "opls",
-          function(object, ...) {
-            
-            if (!is.null(object@suppLs[["yPreMN"]])) {
-              
-              if (mode(object@suppLs[["yMCN"]]) == "character") {
-                
-                yPredMCN <- object@suppLs[[".char2numF"]](object@suppLs[["yPreMN"]],
-                                                          c2nL = FALSE)
-                
-                if (is.vector(object@suppLs[["y"]])) {
-                  fit <- c(yPredMCN)
-                  names(fit) <- rownames(yPredMCN)
-                } else if (is.factor(object@suppLs[["y"]])) {
-                  fit <- c(yPredMCN)
-                  names(fit) <- rownames(yPredMCN)
-                  fit <- factor(fit, levels = levels(object@suppLs[["y"]]))
-                } else if (is.matrix(object@suppLs[["y"]])) {
-                  fit <- yPredMCN
-                } else
-                  stop() ## this case should not happen
-                
-              } else {
-                
-                yPredMCN <- object@suppLs[["yPreMN"]]
-                
-                if (is.vector(object@suppLs[["y"]])) {
-                  fit <- c(yPredMCN)
-                  names(fit) <- rownames(yPredMCN)
-                } else if (is.matrix(object@suppLs[["y"]])) {
-                  fit <- yPredMCN
-                } else
-                  stop() ## this case should not happen
-                
-              }
-              
-              return(fit)
-              
-            } else
-              return(NULL)
-            
-          }) ## fitted
-
-
-####    tested    ####
-
-#' Tested method for (O)PLS models
-#'
-#' Returns predictions of the (O)PLS(-DA) model on the out of the box samples
-#' (when a 'subset' of samples has been selected when training the model)
-#'
-#' @aliases tested tested,opls-method
-#' @param object An S4 object of class \code{opls}, created by \code{opls}
-#' function.
-#' @param ... Currently not used.
-#' @return Predictions (either a vector, factor, or matrix depending on the y
-#' response used for training the model)
-#' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
-#' @examples
-#'
-#' data(sacurine)
-#' attach(sacurine)
-#'
-#' testedorMN <- dataMatrix
-#' responseFc <- sampleMetadata[, "gender"]
-#'
-#' sacurine.plsda <- opls(testedorMN,
-#'                        responseFc,
-#'                        subset = "odd")
-#'
-#' trainVi <- getSubsetVi(sacurine.plsda)
-#'
-#' table(responseFc[trainVi], fitted(sacurine.plsda))
-#'
-#' detach(sacurine)
-#'
-#' @rdname tested
-#' @export
-setMethod("tested", "opls",
-          function(object) {
-            
-            if(!is.null(object@suppLs[["yTesMN"]])) {
-              
-              if(mode(object@suppLs[["yMCN"]]) == "character") {
-                
-                yTestMCN <- object@suppLs[[".char2numF"]](object@suppLs[["yTesMN"]],
-                                                          c2nL = FALSE)
-                if(is.vector(object@suppLs[["y"]])) {
-                  test <- c(yTestMCN)
-                  names(test) <- rownames(yTestMCN)
-                } else if(is.factor(object@suppLs[["y"]])) {
-                  test <- c(yTestMCN)
-                  names(test) <- rownames(yTestMCN)
-                  test <- factor(test, levels = levels(object@suppLs[["y"]]))
-                } else if(is.matrix(object@suppLs[["y"]])) {
-                  test <- yTestMCN
-                } else
-                  stop() ## this case should not happen
-                
-              } else {
-                
-                yTestMCN <- object@suppLs[["yTesMN"]]
-                
-                if(is.vector(object@suppLs[["y"]])) {
-                  test <- c(yTestMCN)
-                  names(test) <- rownames(yTestMCN)
-                } else if(is.matrix(object@suppLs[["y"]])) {
-                  test <- yTestMCN
-                } else
-                  stop() ## this case should not happen
-                
-              }
-              
-              return(test)
-              
-            } else
-              stop("Test results only available for (O)PLS(-DA) models", call. = FALSE)
-            
-            
-          })
-
-
-####    coef    ####
-
-#' Coefficients method for (O)PLS models
-#'
-#' Coefficients of the (O)PLS(-DA) regression model
-#'
-#' @aliases coef.opls coef,opls-method
-#' @param object An S4 object of class \code{opls}, created by \code{opls}
-#' function.
-#' @param ... Currently not used.
-#' @return Numeric matrix of coefficients (number of rows equals the number of
-#' variables, and the number of columns equals the number of responses)
-#' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
-#' @examples
-#'
-#' data(sacurine)
-#' attach(sacurine)
-#'
-#' sacurine.plsda <- opls(dataMatrix,
-#'                        sampleMetadata[, "gender"])
-#'
-#' head(coef(sacurine.plsda))
-#'
-#' detach(sacurine)
-#'
-#' @rdname coef
-#' @export
-setMethod("coef", "opls",
-          function(object, ...) {
-            return(object@coefficientMN)
-          })
-
-
-####    residuals    ####
-
-#' Residuals method for (O)PLS models
-#'
-#' Returns the residuals from the (O)PLS(-DA) regression models
-#'
-#' @aliases residuals.opls residuals,opls-method
-#' @param object An S4 object of class \code{opls}, created by \code{opls}
-#' function.
-#' @param ... Currently not used.
-#' @return Numeric matrix or vector (same dimensions as the modeled y
-#' response); if y is a character vector or a factor (in case of
-#' classification), the residuals equal 0 (predicted class identical to the
-#' true class) or 1 (prediction error)
-#' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
-#' @examples
-#'
-#' data(sacurine)
-#' attach(sacurine)
-#'
-#' sacurine.pls <- opls(dataMatrix,
-#'                      sampleMetadata[, "age"])
-#'
-#' head(residuals(sacurine.pls))
-#'
-#' detach(sacurine)
-#'
-#' @rdname residuals
-#' @export
-setGeneric("residuals", getGeneric("residuals", package = "stats"))
-setMethod("residuals", "opls",
-          function(object, ...) {
-            
-            if (grepl("PLS", object@typeC)) {
-              
-              fit <- fitted(object)
-              
-              if (length(object@subsetVi) == 0) {
-                trainVi <- 1:length(fit)
-              } else
-                trainVi <- object@subsetVi
-              
-              if (mode(object@suppLs[["yMCN"]]) == "numeric") {
-                y <- object@suppLs[["y"]]
-                if (is.matrix(y))
-                  y <- y[trainVi, , drop = FALSE]
-                else
-                  y <- y[trainVi]
-                return(y - fit)
-              } else
-                return(as.numeric(as.character(c(object@suppLs[["y"]])[trainVi]) != as.character(c(fit))))
-              
-            } else
-              stop("'residuals' defined for (O)PLS(-DA) regression models only", call. = FALSE)
-            
-          }) ## residuals
 
 
 ####    predict    ####
@@ -1577,439 +1595,301 @@ setMethod("predict", "opls",
           })
 
 
-####    getEset    ####
+####    print    ####
 
-#' getEset method
+#' Print method for 'opls' objects
 #'
-#' Extracts the complemented ExpressionSet when opls has been applied to an ExpressionSet
+#' Displays information about the dataset and the model.
 #'
-#' @aliases getEset getEset, opls-method
-#' @param object An S4 object of class \code{opls}, created by \code{opls}
+#' @aliases print.opls print,opls-method
+#' @param x An S4 object of class \code{opls}, created by the \code{opls}
 #' function.
-#' @param ... Currently not used
-#' @return An S4 object of class \code{ExpressionSet} which contains the dataMatrix (t(exprs(eset))),
-#' and the sampleMetadata (pData(eset)) and variableMetadata (fData(eset)) with the additional columns
-#' containing the scores, predictions, loadings, VIP, coefficients etc.
-#' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
+#' @param ... Currently not used.
+#' @return Invisible.
 #' @examples
 #'
 #' data(sacurine)
 #' attach(sacurine)
-#' 
-#' sacSet <- Biobase::ExpressionSet(assayData = t(dataMatrix), 
-#'                                  phenoData = new("AnnotatedDataFrame", 
-#'                                                  data = sampleMetadata), 
-#'                                  featureData = new("AnnotatedDataFrame", 
-#'                                                    data = variableMetadata),
-#'                                  experimentData = new("MIAME", 
-#'                                                       title = "sacurine"))
-#'                                                       
-#' sacPlsda <- opls(sacSet, "gender")
-#' sacSet <- getEset(sacPlsda)
-#' head(Biobase::pData(sacSet))
-#' head(Biobase::fData(sacSet))
-#' 
-#' detach(sacurine)
+#' sacurine.plsda <- opls(dataMatrix, sampleMetadata[, "gender"])
 #'
-#' @rdname getEset
-#' @export
-setMethod("getEset", "opls",
-          function(object) {
-            return(object@eset)
-          })
-
-
-####    getLoadingMN    ####
-
-#' getLoadingMN method for PCA/(O)PLS(-DA) models
-#'
-#' (Orthogonal) loadings of the PCA/(O)PLS(-DA) model
-#'
-#' @aliases getLoadingMN getLoadingMN,opls-method
-#' @param object An S4 object of class \code{opls}, created by \code{opls}
-#' function.
-#' @param orthoL Logical: Should the orthogonal loading matrix be returned
-#' @param ... Currently not used.
-#' (default is FALSE and the predictive loading matrix is returned)
-#' @return Numeric matrix with a number of rows equal to the number of
-#' variables and a number of columns equal to the number of components
-#' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
-#' @examples
-#'
-#' data(sacurine)
-#' attach(sacurine)
-#'
-#' sacurine.plsda <- opls(dataMatrix,
-#'                        sampleMetadata[, "gender"])
-#'
-#' getLoadingMN(sacurine.plsda)
+#' print(sacurine.plsda)
 #'
 #' detach(sacurine)
 #'
-#' @rdname getLoadingMN
+#' @rdname print
 #' @export
-setMethod("getLoadingMN", "opls",
-          function(object, orthoL = FALSE) {
-            if(orthoL)
-              return(object@orthoLoadingMN)
-            else
-              return(object@loadingMN)
-          })
-
-
-####    getPcaVarVn    ####
-
-#' getPcaVarVn method for PCA models
-#'
-#' Variance of the components (score vectors)
-#'
-#' @aliases getPcaVarVn getPcaVarVn,opls-method
-#' @param object An S4 object of class \code{opls}, created by \code{opls}
-#' function.
-#' @param ... Currently not used.
-#' @return Numeric vector with the same length as the number of components
-#' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
-#' @examples
-#'
-#' data(sacurine)
-#' attach(sacurine)
-#'
-#' sacurine.pca <- opls(dataMatrix)
-#'
-#' getPcaVarVn(sacurine.pca)
-#'
-#' detach(sacurine)
-#'
-#' @rdname getPcaVarVn
-#' @export
-setMethod("getPcaVarVn", "opls",
-          function(object) {
-            return(object@pcaVarVn)
-          })
-
-
-####    getScoreMN    ####
-
-#' getScoreMN method for PCA/(O)PLS(-DA) models
-#'
-#' (Orthogonal) scores of the (O)PLS(-DA) model
-#'
-#' @aliases getScoreMN getScoreMN,opls-method
-#' @param object An S4 object of class \code{opls}, created by \code{opls}
-#' function.
-#' @param orthoL Logical: Should the orthogonal score matrix be returned
-#' (default is FALSE and the predictive score matrix is returned)
-#' @param ... Currently not used.
-#' @return Numeric matrix with a number of rows equal to the number of samples
-#' and a number of columns equal to the number of components
-#' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
-#' @examples
-#'
-#' data(sacurine)
-#' attach(sacurine)
-#'
-#' sacurine.plsda <- opls(dataMatrix,
-#'                        sampleMetadata[, "gender"])
-#'
-#' getScoreMN(sacurine.plsda)
-#'
-#' detach(sacurine)
-#'
-#' @rdname getScoreMN
-#' @export
-setMethod("getScoreMN", "opls",
-          function(object, orthoL = FALSE) {
-            if (orthoL)
-              return(object@orthoScoreMN)
-            else
-              return(object@scoreMN)
-          })
-
-
-
-
-####    getSubsetVi    ####
-
-#' getSubsetVi method for (O)PLS(-DA) models
-#'
-#' Extracts the indices of the samples used for building the model (when a
-#' subset argument has been specified)
-#'
-#' @aliases getSubsetVi getSubsetVi,opls-method
-#' @param object An S4 object of class \code{opls}, created by \code{opls}
-#' function.
-#' @param ... Currently not used.
-#' @return Integer vector with the indices of the samples used for training
-#' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
-#' @examples
-#'
-#' data(sacurine)
-#' attach(sacurine)
-#'
-#' predictorMN <- dataMatrix
-#' responseFc <- sampleMetadata[, "gender"]
-#'
-#' sacurine.plsda <- opls(predictorMN,
-#'                        responseFc,
-#'                        subset = "odd")
-#'
-#' trainVi <- getSubsetVi(sacurine.plsda)
-#'
-#' table(responseFc[trainVi], fitted(sacurine.plsda))
-#'
-#' detach(sacurine)
-#'
-#' @rdname getSubsetVi
-#' @export
-setMethod("getSubsetVi", "opls",
-          function(object) {
-            return(object@subsetVi)
-          })
-
-
-####    getSummaryDF    ####
-
-#' getSummaryDF method for PCA/(O)PLS models
-#'
-#' Summary of model metrics
-#'
-#' @aliases getSummaryDF getSummaryDF,opls-method
-#' @param object An S4 object of class \code{opls}, created by \code{opls}
-#' function.
-#' @param ... Currently not used.
-#' @return Data frame
-#' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
-#' @examples
-#'
-#' data(sacurine)
-#' attach(sacurine)
-#'
-#' sacurine.plsda <- opls(dataMatrix,
-#'                        sampleMetadata[, "gender"])
-#'
-#' getSummaryDF(sacurine.plsda)
-#'
-#' detach(sacurine)
-#'
-#' @rdname getSummaryDF
-#' @export
-setMethod("getSummaryDF", "opls",
-          function(object) {
-            return(object@summaryDF)
-          })
-
-
-####    getVipVn    ####
-
-#' getVipVn method for (O)PLS(-DA) models
-#'
-#' (Orthogonal) VIP of the (O)PLS(-DA) model
-#'
-#'
-#' @aliases getVipVn getVipVn,opls-method
-#' @param object An S4 object of class \code{opls}, created by \code{opls}
-#' function.
-#' @param orthoL Logical: Should the orthogonal VIP be returned (default is
-#' FALSE and the predictive VIP is returned)
-#' @param ... Currently not used.
-#' @return Numeric vector with a length equal to the number of variables and a
-#' number of columns equal to the number of components
-#' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
-#' @references Galindo-Prieto B., Eriksson L. and Trygg J. (2014). Variable
-#' influence on projection (VIP) for orthogonal projections to latent
-#' structures (OPLS). Journal of Chemometrics 28, 623-632.
-#' @examples
-#'
-#' data(sacurine)
-#' attach(sacurine)
-#'
-#' sacurine.plsda <- opls(dataMatrix,
-#'                        sampleMetadata[, "gender"])
-#'
-#' getVipVn(sacurine.plsda)
-#'
-#' detach(sacurine)
-#'
-#' @rdname getVipVn
-#' @export
-setMethod("getVipVn", "opls",
-          function(object, orthoL = FALSE) {
-            if(orthoL)
-              return(object@orthoVipVn)
-            else
-              return(object@vipVn)
-          })
-
-
-####    getWeightMN    ####
-
-#' getWeightMN method for (O)PLS(-DA) models
-#'
-#' (Orthogonal) weights of the (O)PLS(-DA) model
-#'
-#'
-#' @aliases getWeightMN getWeightMN,opls-method
-#' @param object An S4 object of class \code{opls}, created by \code{opls}
-#' function.
-#' @param orthoL Logical: Should the orthogonal weight matrix be returned? (default is FALSE)
-#' @param ... Currently not used.
-#' @return Numeric matrix with a number of rows equal to the number of
-#' variables and a number of columns equal to the number of components
-#' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
-#' @examples
-#'
-#' data(sacurine)
-#' attach(sacurine)
-#'
-#' sacurine.plsda <- opls(dataMatrix,
-#'                        sampleMetadata[, "gender"])
-#'
-#' getWeightMN(sacurine.plsda)
-#'
-#' detach(sacurine)
-#'
-#' @rdname getWeightMN
-#' @export
-setMethod("getWeightMN", "opls",
-          function(object, orthoL = FALSE) {
-            if(orthoL)
-              return(object@orthoWeightMN)
-            else
-              return(object@weightMN)
-          })
-
-
-#' Checking the consistency of an ExpressionSet instance with W4M format
-#'
-#' @param eset An S4 object of class ExpressionSet.
-#' @param ... Currently not used.
-#' @return Invisible TRUE logical in case of success (otherwise generates an
-#' error)
-#' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
-#' @examples
-#' sacSet <- fromW4M(file.path(path.package("ropls"), "extdata"))
-#' print(checkW4M(sacSet))
-#' @rdname checkW4M
-setMethod("checkW4M", "ExpressionSet",
-          function(eset, ...) {
+setMethod("print", "opls",
+          function(x, ...) {
             
-            datMN <- t(exprs(eset))
-            samDF <- pData(eset)
-            varDF <- fData(eset)
+            cat("\n1) Data set:\n", sep = "")
             
-            chkL <- .checkW4mFormatF(datMN, samDF, varDF)
+            cat(x@descriptionMC["samples", ],
+                " samples x ",
+                x@descriptionMC["X_variables", ],
+                " variables",
+                ifelse(grepl("PLS", x@typeC),
+                       paste0(" and ", ncol(x@suppLs[["yMCN"]]), " response", ifelse(ncol(x@suppLs[["yMCN"]]) > 1, "s", "")),
+                       ""),
+                "\n", sep = "")
             
-            if(!chkL) {
-              stop("Problem with the sample or variable names in the tables to be imported from (exported to) W4M", call. = FALSE)
-            } else
-              return(TRUE)
-          })
-
-#' Exporting ExpressionSet instance into 3 tabulated files.
-#'
-#' The 3 .tsv files are written with the indicated \code{file} prefix, and
-#' '_dataMatrix.tsv', '_sampleMetadata.tsv', and '_variableMetadata.tsv'
-#' suffices, respectively. Note that the \code{dataMatrix} is transposed before
-#' export (e.g., the samples are written column wise in the 'dataMatrix.tsv'
-#' exported file).
-#'
-#' @param eset An S4 object of class \code{ExpressionSet}
-#' function.
-#' @param filePrefixC Character: common prefix (including repository full path)
-#' of the three file names: for example, the 'c:/mydata/setname' value will
-#' result in writting the 'c:/mydata/setname_dataMatrix.tsv',
-#' 'c:/mydata/setname_sampleMetadata.tsv', and
-#' 'c:/mydata/setname_variableMetadata.tsv' files.
-#' @param verboseL Logical: should comments be printed?
-#' @param ... Currently not used.
-#' @return No object returned.
-#' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
-#' @examples
-#'  sacSet <- fromW4M(file.path(path.package("ropls"), "extdata"))
-#'  toW4M(sacSet)
-#' @rdname toW4M
-setMethod("toW4M", "ExpressionSet",
-          function(eset, filePrefixC = paste0(getwd(), "/out_"), verboseL = TRUE, ...){
+            cat(x@descriptionMC["missing_values", ], " NAs\n", sep = "")
             
-            if(checkW4M(eset)) {
+            cat(x@descriptionMC["near_zero_excluded_X_variables", ], " excluded variables (near zero variance)\n", sep = "")
+            
+            cat(x@suppLs[["scaleC"]], " x", ifelse(x@typeC != "PCA", " and y", ""), " scaling\n", sep = "")
+            
+            cat("Summary of the ", x@suppLs[["topLoadI"]], " increasing variance spaced raw variables:\n", sep = "")
+            print(summary(x@suppLs[["xSubIncVarMN"]]))
+            
+            if (!is.null(x@suppLs[["xCorMN"]])) {
+              cat("Correlations between the X-variables:\n")
+              print(signif(x@suppLs[["xCorMN"]], 2))
+              cat("\n", sep = "")
+            }
+            
+            cat("\n2) Model: ", x@typeC, "\n", sep = "")
+            
+            cat("Correlations between variables and first 2 components:\n", sep = "")
+            
+            if (x@summaryDF[, "pre"] + x@summaryDF[, "ort"] < 2) {
               
-              datMN <- exprs(eset)
-              datDF <- cbind.data.frame(dataMatrix = rownames(datMN),
-                                        as.data.frame(datMN))
+              warning("A single component model has been selected by cross-validation", call. = FALSE)
               
-              filDatC <- paste0(filePrefixC, "dataMatrix.tsv")
-              filSamC <- paste0(filePrefixC, "sampleMetadata.tsv")
-              filVarC <- paste0(filePrefixC, "variableMetadata.tsv")
+              tCompMN <- x@scoreMN
+              pCompMN <- x@loadingMN
               
-              write.table(datDF,
-                          file = filDatC,
-                          quote = FALSE,
-                          row.names = FALSE,
-                          sep = "\t")
+            } else {
               
-              samDF <- pData(eset)
-              samDF <- cbind.data.frame(sampleMetadata = rownames(samDF),
-                                        samDF)
-              write.table(samDF,
-                          file = filSamC,
-                          quote = FALSE,
-                          row.names = FALSE,
-                          sep = "\t")
-              
-              varDF <- fData(eset)
-              varDF <- cbind.data.frame(variableMetadata = rownames(varDF),
-                                        varDF)
-              write.table(varDF,
-                          file = filVarC,
-                          quote = FALSE,
-                          row.names = FALSE,
-                          sep = "\t")
-              
-              if (verboseL) {
-                cat("The following 3 files:\n")
-                print(basename(filDatC))
-                print(basename(filSamC))
-                print(basename(filVarC))
-                cat("have been written in the following directory:\n")
-                print(dirname(filDatC))
+              if (x@summaryDF[, "ort"] > 0) {
+                tCompMN <- cbind(x@scoreMN[, 1], x@orthoScoreMN[, 1])
+                pCompMN <- cbind(x@loadingMN[, 1], x@orthoLoadingMN[, 1])
+                colnames(pCompMN) <- colnames(tCompMN) <- c("h1", "o1")
+              } else {
+                tCompMN <- x@scoreMN[, 1:2]
+                pCompMN <- x@loadingMN[, 1:2]
               }
               
             }
             
+            cxtCompMN <- cor(x@suppLs[["xModelMN"]], tCompMN,
+                             use = "pairwise.complete.obs")
+            
+            if (x@suppLs[["topLoadI"]] * 4 < ncol(x@suppLs[["xModelMN"]])) {
+              
+              pexVi <- integer(x@suppLs[["topLoadI"]] * ncol(pCompMN) * 2) ## 'ex'treme values
+              
+              for (k in 1:ncol(pCompMN)) {
+                
+                pkVn <-  pCompMN[, k]
+                
+                pexVi[1:(2 * x@suppLs[["topLoadI"]]) + 2 * x@suppLs[["topLoadI"]] * (k - 1)] <- c(order(pkVn)[1:x@suppLs[["topLoadI"]]],
+                                                                                                  rev(order(pkVn, decreasing = TRUE)[1:x@suppLs[["topLoadI"]]]))
+                
+              }
+              
+            } else
+              pexVi <- 1:ncol(x@suppLs[["xModelMN"]])
+            
+            pxtCompMN <- cbind(pCompMN,
+                               cxtCompMN)
+            
+            if (ncol(pCompMN) == 1) {
+              colnames(pxtCompMN)[2] <- paste0("cor_", colnames(pxtCompMN)[2])
+            } else
+              colnames(pxtCompMN)[3:4] <- paste0("cor_", colnames(pxtCompMN)[3:4])
+            
+            topLoadMN <- pxtCompMN
+            
+            topLoadMN <- topLoadMN[pexVi, , drop = FALSE]
+            
+            if (x@suppLs[["topLoadI"]] * 4 < ncol(x@suppLs[["xModelMN"]]) &&
+                ncol(pCompMN) > 1) {
+              
+              topLoadMN[(2 * x@suppLs[["topLoadI"]] + 1):(4 * x@suppLs[["topLoadI"]]), c(1, 3)] <- NA
+              topLoadMN[1:(2 * x@suppLs[["topLoadI"]]), c(2, 4)] <- NA
+              
+            }
+            print(signif(topLoadMN, 2))
+            
+            message("")
+            
+            optDigN <- options()[["digits"]]
+            options(digits = 3)
+            print(x@modelDF)
+            options(digits = optDigN)
+            
           })
 
 
-####    getOpls    ####
+####    residuals    ####
 
-#' Getting the models from the SummarizedExperiment object
+#' Residuals method for (O)PLS models
 #'
-#' The models are extracted as a list
+#' Returns the residuals from the (O)PLS(-DA) regression models
 #'
-#' @param object An S4 object of class \code{SummarizedExperiment}, once processed by the \code{opls}
-#' method
+#' @aliases residuals.opls residuals,opls-method
+#' @param object An S4 object of class \code{opls}, created by \code{opls}
+#' function.
 #' @param ... Currently not used.
-#' @return List of opls models contained in the SummarizedExperiment object
+#' @return Numeric matrix or vector (same dimensions as the modeled y
+#' response); if y is a character vector or a factor (in case of
+#' classification), the residuals equal 0 (predicted class identical to the
+#' true class) or 1 (prediction error)
 #' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
 #' @examples
 #'
-#' 
-#' # Getting the sacurine data set as a SummarizedExperiment
 #' data(sacurine)
-#' sac.se <- sacurine[["se"]]
+#' attach(sacurine)
 #'
-#' # Building the PLS-DA model
-#' sac.se <- opls(sac.se, "gender")
+#' sacurine.pls <- opls(dataMatrix,
+#'                      sampleMetadata[, "age"])
 #'
-#' # Getting the models
-#' sac_opls.ls <- getOpls(sac.se)
-#' names(sac_opls.ls)
-#' 
-#' # Plotting the score plot from the PLS-DA model of the gender response
-#' plot(sac_opls.ls[["gender_PLSDA"]], typeVc = "x-score")
+#' head(residuals(sacurine.pls))
 #'
-#' @rdname getOpls
+#' detach(sacurine)
+#'
+#' @rdname residuals
 #' @export
-setMethod("getOpls", "SummarizedExperiment",
+setGeneric("residuals", getGeneric("residuals", package = "stats"))
+setMethod("residuals", "opls",
+          function(object, ...) {
+            
+            if (grepl("PLS", object@typeC)) {
+              
+              fit <- fitted(object)
+              
+              if (length(object@subsetVi) == 0) {
+                trainVi <- 1:length(fit)
+              } else
+                trainVi <- object@subsetVi
+              
+              if (mode(object@suppLs[["yMCN"]]) == "numeric") {
+                y <- object@suppLs[["y"]]
+                if (is.matrix(y))
+                  y <- y[trainVi, , drop = FALSE]
+                else
+                  y <- y[trainVi]
+                return(y - fit)
+              } else
+                return(as.numeric(as.character(c(object@suppLs[["y"]])[trainVi]) != as.character(c(fit))))
+              
+            } else
+              stop("'residuals' defined for (O)PLS(-DA) regression models only", call. = FALSE)
+            
+          }) ## residuals
+
+
+####    show    ####
+
+#' Show method for 'opls' objects
+#'
+#' Displays information about the dataset and the model.
+#'
+#' @aliases show.opls show,opls-method
+#' @param object An S4 object of class \code{opls}, created by the \code{opls}
+#' function.
+#' @return Invisible.
+#' @author Philippe Rinaudo and Etienne Thevenot (CEA)
+#' @examples
+#'
+#' data(sacurine)
+#' attach(sacurine)
+#' sacurine.plsda <- opls(dataMatrix, sampleMetadata[, "gender"])
+#'
+#' show(sacurine.plsda)
+#'
+#' detach(sacurine)
+#'
+#' @rdname show
+#' @export
+setMethod("show", "opls",
           function(object) {
-              return(object@metadata[["opls"]])
+            
+            cat(object@typeC, "\n", sep = "")
+            
+            cat(object@descriptionMC["samples", ],
+                " samples x ",
+                object@descriptionMC["X_variables", ],
+                " variables",
+                ifelse(grepl("PLS", object@typeC),
+                       paste0(" and ", ncol(object@suppLs[["yMCN"]]), " response", ifelse(ncol(object@suppLs[["yMCN"]]) > 1, "s", "")),
+                       ""), "\n", sep = "")
+            
+            cat(object@suppLs[["scaleC"]], " scaling of predictors",
+                ifelse(object@typeC == "PCA",
+                       "",
+                       paste0(" and ",
+                              ifelse(mode(object@suppLs[["yMCN"]]) == "character" && object@suppLs[["scaleC"]] != "standard",
+                                     "standard scaling of ",
+                                     ""),
+                              "response(s)")), "\n", sep = "")
+            
+            if (substr(object@descriptionMC["missing_values", ], 1, 1) != "0")
+              cat(object@descriptionMC["missing_values", ], " NAs\n", sep = "")
+            
+            if (substr(object@descriptionMC["near_zero_excluded_X_variables", ], 1, 1) != "0")
+              cat(object@descriptionMC["near_zero_excluded_X_variables", ],
+                  " excluded variables (near zero variance)\n", sep = "")
+            
+            if (cumprod(dim(object@summaryDF))[2] > 0) {
+              
+              optDigN <- options()[["digits"]]
+              options(digits = 3)
+              print(object@summaryDF)
+              options(digits = optDigN)
+              
+            } else {
+              
+              cat("Empty 'opls' object\n")
+              
+            }
+            
+          }) ## show
+
+
+####    tested    ####
+#'
+#' @rdname tested
+#' @export
+setMethod("tested", "opls",
+          function(object) {
+            
+            if(!is.null(object@suppLs[["yTesMN"]])) {
+              
+              if(mode(object@suppLs[["yMCN"]]) == "character") {
+                
+                yTestMCN <- object@suppLs[[".char2numF"]](object@suppLs[["yTesMN"]],
+                                                          c2nL = FALSE)
+                if(is.vector(object@suppLs[["y"]])) {
+                  test <- c(yTestMCN)
+                  names(test) <- rownames(yTestMCN)
+                } else if(is.factor(object@suppLs[["y"]])) {
+                  test <- c(yTestMCN)
+                  names(test) <- rownames(yTestMCN)
+                  test <- factor(test, levels = levels(object@suppLs[["y"]]))
+                } else if(is.matrix(object@suppLs[["y"]])) {
+                  test <- yTestMCN
+                } else
+                  stop() ## this case should not happen
+                
+              } else {
+                
+                yTestMCN <- object@suppLs[["yTesMN"]]
+                
+                if(is.vector(object@suppLs[["y"]])) {
+                  test <- c(yTestMCN)
+                  names(test) <- rownames(yTestMCN)
+                } else if(is.matrix(object@suppLs[["y"]])) {
+                  test <- yTestMCN
+                } else
+                  stop() ## this case should not happen
+                
+              }
+              
+              return(test)
+              
+            } else
+              stop("Test results only available for (O)PLS(-DA) models", call. = FALSE)
+            
+            
           })

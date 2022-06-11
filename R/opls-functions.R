@@ -595,8 +595,28 @@
         
         hN <- hN - 1
         
-        if(hN == 0)
-          stop("No model was built because the first predictive component was already not significant;\nSelect a number of predictive components of 1 if you want the algorithm to compute a model despite this.", call. = FALSE)
+        if(hN == 0) {
+          cat("No model was built because the first predictive component was already not significant;\nSelect a number of predictive components of 1 if you want the algorithm to compute a model despite this.\n", sep = "")
+          opl <- new("opls")
+          opl@suppLs <- list(.char2numF = .char2numF,
+                             ## yLevelVc = NULL,
+                             algoC = algoC,
+                             naxL = naxL,
+                             nayL = nayL,
+                             nayVi = nayVi,
+                             permMN = NULL,
+                             scaleC = scaleC,
+                             topLoadI = NULL,
+                             yMCN = yMCN,
+                             xSubIncVarMN = NULL,
+                             xCorMN = NULL,
+                             y = NULL,
+                             xModelMN = xMN,
+                             yModelMN = yMN,
+                             yPreMN = NULL,
+                             yTesMN = NULL)
+          return(opl)
+        }
         
         if(hN == autMaxN)
           warning("The maximum number of components in the automated mode (", autMaxN, ") has been reached whereas R2Y (", round(modelDF[hN, 'R2Y'] * 100), "%) is still above 1% and Q2Y (", round(modelDF[hN, 'Q2'] * 100), "%) is still above ", round(ru1ThrN * 100), "%.", call. = FALSE)
@@ -1064,12 +1084,50 @@
       if (autNcoL) {
         
         if (modelDF["p1", "Signif."] != "R1") {
-          
-          stop("No model was built because the predictive component was not significant", call. = FALSE)
+
+          cat("No model was built because the first predictive component was already not significant\n", sep = "")
+          opl <- new("opls")
+          opl@suppLs <- list(.char2numF = .char2numF,
+                             ## yLevelVc = NULL,
+                             algoC = algoC,
+                             naxL = naxL,
+                             nayL = nayL,
+                             nayVi = nayVi,
+                             permMN = NULL,
+                             scaleC = scaleC,
+                             topLoadI = NULL,
+                             yMCN = yMCN,
+                             xSubIncVarMN = NULL,
+                             xCorMN = NULL,
+                             y = NULL,
+                             xModelMN = xMN,
+                             yModelMN = yMN,
+                             yPreMN = NULL,
+                             yTesMN = NULL)
+          return(opl)
           
         } else if (modelDF["o1", "Signif."] != "R1") {
           
-          stop("No model was built because the first orthogonal component was already not significant;\nSelect a number of orthogonal components of 1 if you want the algorithm to compute a model despite this.", call. = FALSE)
+          cat("No model was built because the first predictive component was already not significant\n", sep = "")
+          opl <- new("opls")
+          opl@suppLs <- list(.char2numF = .char2numF,
+                             ## yLevelVc = NULL,
+                             algoC = algoC,
+                             naxL = naxL,
+                             nayL = nayL,
+                             nayVi = nayVi,
+                             permMN = NULL,
+                             scaleC = scaleC,
+                             topLoadI = NULL,
+                             yMCN = yMCN,
+                             xSubIncVarMN = NULL,
+                             xCorMN = NULL,
+                             y = NULL,
+                             xModelMN = xMN,
+                             yModelMN = yMN,
+                             yPreMN = NULL,
+                             yTesMN = NULL)
+          return(opl)
           
         } else if (all(modelDF[, "Signif."] == "R1", na.rm = TRUE)) {
           
@@ -1334,7 +1392,7 @@
            vecVcn <- rep(NA, ncol(x))
            mode(vecVcn) <- typC
            if (is(x, "ExpressionSet")) {
-             names(vecVcn) <- sampleNames(x)
+             names(vecVcn) <- Biobase::sampleNames(x)
            } else if (is(x, "SummarizedExperiment")) {
              names(vecVcn) <- colnames(x)
            } else
@@ -1346,7 +1404,7 @@
            vecVcn <- rep(NA, nrow(x))
            mode(vecVcn) <- typC
            if (is(x, "ExpressionSet")) {
-             names(vecVcn) <- featureNames(x)
+             names(vecVcn) <- Biobase::featureNames(x)
            } else if (is(x, "SummarizedExperiment")) {
              names(vecVcn) <- rownames(x)
            } else

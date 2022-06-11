@@ -10,7 +10,28 @@
 \alias{imageF}
 \title{view}
 \usage{
-view(x, ...)
+view(
+  x,
+  printL = TRUE,
+  plotL = TRUE,
+  mainC = "",
+  subC = "",
+  paletteC = c("heat", "revHeat", "grey", "revGrey", "palette", "ramp")[1],
+  rowAllL = FALSE,
+  rowCexN = 1,
+  rowMarN = 5.1,
+  rowLabC = "",
+  rowTruncI = 0,
+  colAllL = FALSE,
+  colCexN = 1,
+  colMarN = 3.1,
+  colLabC = "",
+  colTruncI = 0,
+  drawScaleL = TRUE,
+  delimitReplicatesL = FALSE,
+  standardizeL = FALSE,
+  fig.pdfC = "interactive"
+)
 
 \S4method{view}{SummarizedExperiment}(
   x,
@@ -128,13 +149,13 @@ imageF(
 \arguments{
 \item{x}{object to be viewed}
 
-\item{...}{Currently not used.}
-
 \item{printL}{should the numerical summary be printed?}
 
 \item{plotL}{should the graphical image be displayed?}
 
 \item{mainC}{character: plot main title}
+
+\item{subC}{character(1): plot subtitle}
 
 \item{paletteC}{character: color palette; either 'heat' [default], 'revHeat', 'grey', 'revGrey', 'palette', 'ramp'}
 
@@ -171,8 +192,6 @@ replicates in row or column names?}
 (i.e. subtracting the mean and dividing by the standard deviation) [default: FALSE]}
 
 \item{fig.pdfC}{character: either 'interactive' [default] or the name of the pdf file to save the figure}
-
-\item{subC}{character(1): plot subtitle}
 
 \item{tableMF}{Input matrix, dataframe or vector}
 

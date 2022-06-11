@@ -5,15 +5,13 @@
 \alias{getWeightMN,opls-method}
 \title{getWeightMN method for (O)PLS(-DA) models}
 \usage{
-getWeightMN(object, ...)
+getWeightMN(object, orthoL = FALSE)
 
 \S4method{getWeightMN}{opls}(object, orthoL = FALSE)
 }
 \arguments{
 \item{object}{An S4 object of class \code{opls}, created by \code{opls}
 function.}
-
-\item{...}{Currently not used.}
 
 \item{orthoL}{Logical: Should the orthogonal weight matrix be returned? (default is FALSE)}
 }

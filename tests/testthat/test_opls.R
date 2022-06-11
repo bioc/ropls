@@ -2,79 +2,11 @@ library(ropls)
 
 context("Testing 'ropls'")
 
-test_that("strF", {
-  
-  data(foods)
-  
-  strF(foods)
-  strF(foods, border = 3)
-  
-  fatML <- matrix(TRUE, nrow = 1, ncol = 1000)
-  strF(fatML, bigMarkC = "'")
-  
-  testMC <- matrix("a", nrow = 10, ncol = 10)
-  strF(testMC)
-  
-  data(sacurine)
-  
-  strF(sacurine[["dataMatrix"]])
-  
-  strF(sacurine[["sampleMetadata"]])
-  
-})
 
-test_that("plot", {
-  
-  data(sacurine)
-  
-  for (typeC in c("correlation", "outlier", "overview",
-                  "permutation", "predict-train","predict-test",
-                  "summary", "x-loading", "x-score", "x-variance",
-                  "xy-score", "xy-weight")) {
-    
-    if (grepl("predict", typeC))
-      subset <- "odd"
-    else
-      subset <- NULL
-    
-    opLs <- opls(sacurine[["dataMatrix"]],
-                 sacurine[["sampleMetadata"]][, "gender"],
-                 predI = ifelse(typeC != "xy-weight", 1, 2),
-                 orthoI = ifelse(typeC != "xy-weight", 1, 0),
-                 permI = ifelse(typeC == "permutation", 10, 0),
-                 subset = subset,
-                 fig.pdfC = "none", info.txtC = "none")
-    
-    plot(opLs, typeVc = typeC,
-         fig.pdfC = "test.pdf")
-    
-  }
-  
-  ## (O)PLS-DA: Turning display of ellipses off in case parAsColFcVn is numeric
-  plot(opLs,
-       parAsColFcVn = sacurine[["sampleMetadata"]][, "age"],
-       fig.pdfC = "test.pdf")
-  
-  ## Converting 'parAsColFcVn' character into a factor (with warning)
-  plot(opLs,
-       parAsColFcVn = as.character(sacurine[["sampleMetadata"]][, "gender"]),
-       fig.pdfC = "test.pdf")
-  
-})
 
-test_that("print", {
-  
-  data(sacurine)
-  pcaLs <- opls(sacurine[["dataMatrix"]], predI = 2,
-                fig.pdfC = "none", info.txtC = "none")
-  print(pcaLs)
-  plsLs <- opls(sacurine[["dataMatrix"]],
-                sacurine[["sampleMetadata"]][, "gender"],
-                predI = 2, fig.pdfC = "none", info.txtC = "none")
-  print(plsLs)
-  
-  
-})
+
+
+#### PCA ####
 
 test_that("PCA", {
   
@@ -92,6 +24,8 @@ test_that("PCA", {
                               tolerance = 1e-5)
   
 })
+
+#### PCA_sacurine ####
 
 test_that("PCA_sacurine",  {
   
@@ -135,6 +69,8 @@ test_that("PCA_sacurine",  {
   
 })
 
+#### PLS_single ####
+
 test_that("PLS_single", {
   
   data(cornell) ## see Tenenhaus, 1998
@@ -154,7 +90,11 @@ test_that("PLS_single", {
   
 })
 
+#### PLS_multiple ####
+
 test_that("PLS_multiple", {
+  
+  ## lowarp
   
   data(lowarp) ## see Eriksson et al. (2001); presence of NAs
   
@@ -169,8 +109,21 @@ test_that("PLS_multiple", {
                               0.596598855,
                               tolerance = 1e-8)
   
+  ## sacurine
+  
+  data(sacurine)
+  
+  agebmiPls <- opls(sacurine[["dataMatrix"]],
+                    as.matrix(sacurine[["sampleMetadata"]][, c("age","bmi")]))
+  agebmiPreMN <- predict(agebmiPls)
+  testthat::expect_identical(colnames(agebmiPreMN),
+                             c("age", "bmi"))
+  testthat::expect_equivalent(agebmiPreMN[1, 2], 20.5831139196, tol = 1e-10)
+  
 })
 
+
+#### PLS_predict_sacurine ####
 
 test_that("PLS_predict_sacurine", {
   
@@ -216,6 +169,7 @@ test_that("PLS_predict_sacurine", {
   
 })
 
+#### PLSDA_sacurine ####
 
 test_that("PLSDA_sacurine", {
   
@@ -249,102 +203,9 @@ test_that("PLSDA_sacurine", {
   
 })
 
-####    SummarizedExperiment    ####
-
-test_that("SummarizedExperiment", {
-  
-  data(sacurine)
- 
-  sac.se <- sacurine[["se"]]
-  
-  ## PCA
-  
-  sac.se <- opls(sac.se)
-  sac.pca <- sac.se@metadata[["opls"]][["PCA"]]
-  
-  testthat::expect_equivalent(getSummaryDF(sac.pca)["Total", "R2X(cum)"],
-                              0.501,
-                              tolerance = 1e-3)
-  
-  ## PLS-DA
-  
-  sac.se <- opls(sac.se, "gender")
-  sac_gender.plsda <- sac.se@metadata[["opls"]][["gender_PLSDA"]]
-  
-  testthat::expect_equivalent(getSummaryDF(sac_gender.plsda)["Total", "Q2(cum)"],
-                              0.584,
-                              tolerance = 1e-3)
-  
-  testthat::expect_equivalent(SummarizedExperiment::colData(sac.se)["HU_011", "gender_PLSDA_xscor-p2"],
-                              3.396,
-                              tolerance = 1e-3)
-  testthat::expect_equivalent(SummarizedExperiment::rowData(sac.se)["1-Methyluric acid", "gender_PLSDA_VIP"],
-                              0.994,
-                              tolerance = 1e-3)
-  
-  ## OPLS-DA
-  
-  sac.se <- opls(sac.se, "gender", predI = 1, orthoI = NA)
-  sac_gender.oplsda <- getOpls(sac.se)[["gender_OPLSDA"]]
-  
-  testthat::expect_equivalent(getSummaryDF(sac_gender.oplsda)["Total", "Q2(cum)"],
-                              0.602,
-                              tolerance = 1e-3)
-  
-})
 
 
-
-####    ExpressionSet    ####
-
-test_that("ExpressionSet", {
-  
-  data(sacurine)
-  
-  sacSet <- Biobase::ExpressionSet(assayData = t(sacurine[["dataMatrix"]]),
-                                   phenoData = new("AnnotatedDataFrame",
-                                                   data = sacurine[["sampleMetadata"]]),
-                                   featureData = new("AnnotatedDataFrame",
-                                                     data = sacurine[["variableMetadata"]]),
-                                   experimentData = new("MIAME",
-                                                        title = "sacurine"))
-  
-  ## PCA
-  
-  sacPca <- opls(sacSet)
-  
-  testthat::expect_equivalent(getSummaryDF(sacPca)["Total", "R2X(cum)"],
-                              0.501,
-                              tolerance = 1e-3)
-  
-  ## PLS-DA
-  
-  sacPlsda <- opls(sacSet, "gender")
-  
-  testthat::expect_equivalent(getSummaryDF(sacPlsda)["Total", "Q2(cum)"],
-                              0.584,
-                              tolerance = 1e-3)
-  
-  sacSet <- getEset(sacPlsda)
-
-  testthat::expect_equivalent(Biobase::pData(sacSet)["HU_011", "gender_PLSDA_xscor-p2"],
-                              3.396,
-                              tolerance = 1e-3)
-  testthat::expect_equivalent(Biobase::fData(sacSet)["1-Methyluric acid", "gender_PLSDA_VIP"],
-                              0.994,
-                              tolerance = 1e-3)
-  
-  ## OPLS-DA
-  
-  sacOplsda <- opls(sacSet, "gender", predI = 1, orthoI = NA)
-  
-  testthat::expect_equivalent(getSummaryDF(sacOplsda)["Total", "Q2(cum)"],
-                              0.602,
-                              tolerance = 1e-3)
-  
-})
-
-
+#### PLSDA_sacurine_pareto ####
 
 test_that("PLSDA_sacurine_pareto", {
   
@@ -367,6 +228,7 @@ test_that("PLSDA_sacurine_pareto", {
   
 })
 
+#### PLSDA_multiclass ####
 
 test_that("PLSDA_multiclass", {
   
@@ -470,6 +332,7 @@ test_that("OPLSDA_sacurine", {
   
 })
 
+#### OPLSDA_subset ####
 
 test_that("OPLSDA_subset", {
   ## bug fixed following T. Souza remark
@@ -487,6 +350,7 @@ test_that("OPLSDA_subset", {
   
 })
 
+#### OPLSDA_ns ####
 
 test_that("OPLSDA_ns", {
   
@@ -496,89 +360,152 @@ test_that("OPLSDA_ns", {
   
   ageVn <- c(41, 41, 52, 24, 55, 46, 61, 53, 23, 50, 33, 48, 42, 35, 26, 35, 60, 42, 31, 27)
   
-  testthat::expect_error(opls(datMN,
-                              ageVn,
-                              predI = 1,
-                              orthoI = NA,
-                              permI = 0,
-                              fig.pdfC = "none", info.txtC = "none"),
-                         silent = TRUE)
+  data_age.oplsda <- opls(datMN,
+                          ageVn,
+                          predI = 1,
+                          orthoI = NA,
+                          permI = 0,
+                          fig.pdfC = "none", info.txtC = "none")
   
-  testthat::expect_error(opls(datMN,
-                              ageVn,
-                              predI = 1,
-                              orthoI = NA,
-                              permI = 0,
-                              scaleC = "pareto",
-                              fig.pdfC = "none", info.txtC = "none"),
-                         silent = TRUE)
+  testthat::expect_equivalent(cumprod(dim(getSummaryDF(data_age.oplsda)))[2],
+                              0,
+                              tolerance = 1e-15)
   
-})
-
-test_that("fromW4M",{
+  data_age_pareto.oplsda <- opls(datMN,
+                                 ageVn,
+                                 predI = 1,
+                                 orthoI = NA,
+                                 permI = 0,
+                                 scaleC = "pareto",
+                                 fig.pdfC = "none", info.txtC = "none")
   
-  sacSet <- fromW4M(system.file("extdata/", package="ropls"))
-  
-})
-
-test_that("dataMatrix_get", {
-  
-  sacSet <- fromW4M(system.file("extdata/", package="ropls"))
-  testthat::expect_equivalent(Biobase::exprs(sacSet)["Tryptophan", "HU_020"], 4.594285, tol = 1e-6)
+  testthat::expect_equivalent(cumprod(dim(getSummaryDF(data_age_pareto.oplsda)))[2],
+                              0,
+                              tolerance = 1e-15)
   
 })
 
-test_that("sampleMetadata_get", {
+####    MultiAssayExperiment    ####
+
+test_that("MultiAssayExperiment", {
   
-  sacSet <- fromW4M(system.file("extdata/", package="ropls"))
-  testthat::expect_equivalent(Biobase::pData(sacSet)["HU_017", "bmi"], 23.03, tol = 1e-2)
+  # Loading the 'NCI60_4arrays' from the 'omicade4' package
+  data("NCI60_4arrays", package = "omicade4")
+  # Selecting two of the four datasets
+  set_names.vc <- c("agilent", "hgu95")
+  # Creating the MultiAssayExperiemnt
+  nci.mae <- MultiAssayExperiment::MultiAssayExperiment()
+  # Adding the two datasets as SummarizedExperiment instances
+  experiment.ls <- list()
+  sampleMap.ls <- list()
+  for (set.c in set_names.vc) {
+    # Getting the data
+    assay.mn <- as.matrix(NCI60_4arrays[[set.c]])
+    assay.mn <- assay.mn[seq(1, nrow(assay.mn), by = 10), ]
+    coldata.df <- data.frame(row.names = colnames(assay.mn),
+                             .id = colnames(assay.mn),
+                             stringsAsFactors = FALSE)
+    rowdata.df <- data.frame(row.names = rownames(assay.mn),
+                             name = rownames(assay.mn),
+                             stringsAsFactors = FALSE)
+    # Building the SummarizedExperiment
+    assay.ls <- list(se = assay.mn)
+    names(assay.ls) <- set.c
+    se <- SummarizedExperiment::SummarizedExperiment(assays = assay.ls,
+                                                     colData = coldata.df,
+                                                     rowData = rowdata.df)
+    experiment.ls[[set.c]] <- se
+    sampleMap.ls[[set.c]] <- data.frame(primary = colnames(se),
+                                        colname = colnames(se))
+  }
+  sampleMap <- MultiAssayExperiment::listToMap(sampleMap.ls)
+  
+  stopifnot(identical(colnames(NCI60_4arrays[[1]]), colnames(NCI60_4arrays[[2]])))
+  sample_names.vc <- colnames(NCI60_4arrays[[1]])
+  colData.df <- data.frame(row.names = sample_names.vc,
+                           cancer = substr(sample_names.vc, 1, 2))
+  
+  nci.mae <- MultiAssayExperiment::MultiAssayExperiment(experiments = experiment.ls,
+                                                        colData = colData.df,
+                                                        sampleMap = sampleMap)
+  
+  ## PCA
+  
+  nci.mae <- opls(nci.mae)
+  
+  testthat::expect_equivalent(getSummaryDF(getOpls(nci.mae[["agilent"]])[["PCA"]])["Total", "R2X(cum)"],
+                              0.554,
+                              tolerance = 1e-3)
+  
+  testthat::expect_equivalent(SummarizedExperiment::colData(nci.mae[["agilent"]])["BR.MCF7", "PCA_xscor-p1"],
+                              -1.47285,
+                              tolerance = 1e-5)
+  
+  ## PLS-DA
+  
+  nci.mae <- opls(nci.mae, "cancer")
+  
+  testthat::expect_equivalent(getSummaryDF(getOpls(nci.mae[["agilent"]])[["cancer_PLSDA"]])["Total", "Q2(cum)"],
+                              0.347,
+                              tolerance = 1e-3)
+  
+  testthat::expect_equivalent(SummarizedExperiment::rowData(nci.mae[["agilent"]])["ST8SIA1", "cancer_PLSDA_VIP"],
+                              1.394171,
+                              tolerance = 1e-5)
   
 })
 
-test_that("variableMetadata_get", {
-  
-  sacSet <- fromW4M(system.file("extdata/", package="ropls"))
-  testthat::expect_identical(Biobase::fData(sacSet)["Taurine", "hmdb"], "HMDB00251")
-  
-})
 
-test_that("sampleNames_get", {
-  
-  sacSet <- fromW4M(system.file("extdata/", package="ropls"))
-  testthat::expect_identical(Biobase::sampleNames(sacSet)[3], "HU_015")
-  
-})
+####    SummarizedExperiment    ####
 
-test_that("variableNames_get", {
-  
-  sacSet <- fromW4M(system.file("extdata/", package = "ropls"))
-  testthat::expect_identical(Biobase::featureNames(sacSet)[5], "X1.3.Dimethyluric.acid")
-  
-})
-
-test_that("multiresponse", {
+test_that("SummarizedExperiment", {
   
   data(sacurine)
   
-  agebmiPls <- opls(sacurine[["dataMatrix"]],
-                    as.matrix(sacurine[["sampleMetadata"]][, c("age","bmi")]))
-  agebmiPreMN <- predict(agebmiPls)
-  testthat::expect_identical(colnames(agebmiPreMN),
-                             c("age", "bmi"))
-  testthat::expect_equivalent(agebmiPreMN[1, 2], 20.5831139196, tol = 1e-10)
+  sac.se <- sacurine[["se"]]
+  
+  ## PCA
+  
+  sac.se <- opls(sac.se)
+  sac.pca <- getOpls(sac.se)[["PCA"]]
+  
+  testthat::expect_equivalent(getSummaryDF(sac.pca)["Total", "R2X(cum)"],
+                              0.501,
+                              tolerance = 1e-3)
+  
+  ## PLS-DA
+  
+  sac.se <- opls(sac.se, "gender")
+  sac_gender.plsda <- getOpls(sac.se)[["gender_PLSDA"]]
+  
+  testthat::expect_equivalent(getSummaryDF(sac_gender.plsda)["Total", "Q2(cum)"],
+                              0.584,
+                              tolerance = 1e-3)
+  
+  testthat::expect_equivalent(SummarizedExperiment::colData(sac.se)["HU_011", "gender_PLSDA_xscor-p2"],
+                              3.396,
+                              tolerance = 1e-3)
+  testthat::expect_equivalent(SummarizedExperiment::rowData(sac.se)["1-Methyluric acid", "gender_PLSDA_VIP"],
+                              0.994,
+                              tolerance = 1e-3)
+  
+  ## OPLS-DA
+  
+  sac.se <- opls(sac.se, "gender", predI = 1, orthoI = NA)
+  sac_gender.oplsda <- getOpls(sac.se)[["gender_OPLSDA"]]
+  
+  testthat::expect_equivalent(getSummaryDF(sac_gender.oplsda)["Total", "Q2(cum)"],
+                              0.602,
+                              tolerance = 1e-3)
   
 })
 
-test_that("imageF", {
-  data(sacurine)
-  imageF(sacurine[['dataMatrix']],
-         fig.pdfC = "test.pdf")
-})
+####    MultiDataSet    ####
 
 test_that("MultiDataSet", {
   
   ## Application to a MultiDataSet
-
+  
   # Loading the 'NCI60_4arrays' from the 'omicade4' package
   data("NCI60_4arrays", package = "omicade4")
   # Selecting two of the four datasets
@@ -629,8 +556,166 @@ test_that("MultiDataSet", {
   testthat::expect_equivalent(ropls::getSummaryDF(nciPlsda@oplsLs[["hgu95"]])["Total", "Q2(cum)"],
                               0.908,
                               tol = 1e-3)  
-
+  
 })
 
+
+####    ExpressionSet    ####
+
+test_that("ExpressionSet", {
+  
+  data(sacurine)
+  
+  sacSet <- Biobase::ExpressionSet(assayData = t(sacurine[["dataMatrix"]]),
+                                   phenoData = new("AnnotatedDataFrame",
+                                                   data = sacurine[["sampleMetadata"]]),
+                                   featureData = new("AnnotatedDataFrame",
+                                                     data = sacurine[["variableMetadata"]]),
+                                   experimentData = new("MIAME",
+                                                        title = "sacurine"))
+  
+  ## PCA
+  
+  sacPca <- opls(sacSet)
+  
+  testthat::expect_equivalent(getSummaryDF(sacPca)["Total", "R2X(cum)"],
+                              0.501,
+                              tolerance = 1e-3)
+  
+  ## PLS-DA
+  
+  sacPlsda <- opls(sacSet, "gender")
+  
+  testthat::expect_equivalent(getSummaryDF(sacPlsda)["Total", "Q2(cum)"],
+                              0.584,
+                              tolerance = 1e-3)
+  
+  sacSet <- getEset(sacPlsda)
+  
+  testthat::expect_equivalent(Biobase::pData(sacSet)["HU_011", "gender_PLSDA_xscor-p2"],
+                              3.396,
+                              tolerance = 1e-3)
+  testthat::expect_equivalent(Biobase::fData(sacSet)["1-Methyluric acid", "gender_PLSDA_VIP"],
+                              0.994,
+                              tolerance = 1e-3)
+  
+  ## OPLS-DA
+  
+  sacOplsda <- opls(sacSet, "gender", predI = 1, orthoI = NA)
+  
+  testthat::expect_equivalent(getSummaryDF(sacOplsda)["Total", "Q2(cum)"],
+                              0.602,
+                              tolerance = 1e-3)
+  
+})
+
+#### plot ####
+
+test_that("plot", {
+  
+  data(sacurine)
+  
+  for (typeC in c("correlation", "outlier", "overview",
+                  "permutation", "predict-train","predict-test",
+                  "summary", "x-loading", "x-score", "x-variance",
+                  "xy-score", "xy-weight")) {
+    
+    if (grepl("predict", typeC)) {
+      subset <- "odd"
+    } else
+      subset <- NULL
+    
+    opLs <- opls(sacurine[["dataMatrix"]],
+                 sacurine[["sampleMetadata"]][, "gender"],
+                 predI = ifelse(typeC != "xy-weight", 1, 2),
+                 orthoI = ifelse(typeC != "xy-weight", 1, 0),
+                 permI = ifelse(typeC == "permutation", 10, 0),
+                 subset = subset,
+                 fig.pdfC = "none", info.txtC = "none")
+    
+    plot(opLs, typeVc = typeC,
+         fig.pdfC = "test.pdf")
+    
+  }
+  
+  ## (O)PLS-DA: Turning display of ellipses off in case parAsColFcVn is numeric
+  plot(opLs,
+       parAsColFcVn = sacurine[["sampleMetadata"]][, "age"],
+       fig.pdfC = "test.pdf")
+  
+  ## Converting 'parAsColFcVn' character into a factor (with warning)
+  plot(opLs,
+       parAsColFcVn = as.character(sacurine[["sampleMetadata"]][, "gender"]),
+       fig.pdfC = "test.pdf")
+  
+})
+
+#### print ####
+
+test_that("print", {
+  
+  data(sacurine)
+  pcaLs <- opls(sacurine[["dataMatrix"]], predI = 2,
+                fig.pdfC = "none", info.txtC = "none")
+  print(pcaLs)
+  plsLs <- opls(sacurine[["dataMatrix"]],
+                sacurine[["sampleMetadata"]][, "gender"],
+                predI = 2, fig.pdfC = "none", info.txtC = "none")
+  print(plsLs)
+  
+  
+})
+
+#### fromW4M ####
+
+test_that("fromW4M",{
+  
+  sacSet <- fromW4M(system.file("extdata/", package="ropls"))
+  
+  testthat::expect_equivalent(Biobase::exprs(sacSet)["Tryptophan", "HU_020"], 4.594285, tol = 1e-6)
+  
+  testthat::expect_equivalent(Biobase::pData(sacSet)["HU_017", "bmi"], 23.03, tol = 1e-2)
+  
+  testthat::expect_identical(Biobase::fData(sacSet)["Taurine", "hmdb"], "HMDB00251")
+  
+  testthat::expect_identical(Biobase::sampleNames(sacSet)[3], "HU_015")
+  
+  testthat::expect_identical(Biobase::featureNames(sacSet)[5], "X1.3.Dimethyluric.acid")
+  
+})
+
+
+
+
+#### imageF ####
+
+test_that("imageF", {
+  data(sacurine)
+  imageF(sacurine[['dataMatrix']],
+         fig.pdfC = "test.pdf")
+})
+
+#### strF ####
+
+test_that("strF", {
+  
+  data(foods)
+  
+  strF(foods)
+  strF(foods, border = 3)
+  
+  fatML <- matrix(TRUE, nrow = 1, ncol = 1000)
+  strF(fatML, bigMarkC = "'")
+  
+  testMC <- matrix("a", nrow = 10, ncol = 10)
+  strF(testMC)
+  
+  data(sacurine)
+  
+  strF(sacurine[["dataMatrix"]])
+  
+  strF(sacurine[["sampleMetadata"]])
+  
+})
 
 

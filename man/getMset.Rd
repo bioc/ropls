@@ -2,20 +2,18 @@
 % Please edit documentation in R/allGenerics.R, R/oplsMultiDataSet-methods.R
 \name{getMset}
 \alias{getMset}
-\alias{getMset,oplsMultiDataSet-method}
 \alias{getMset,}
 \alias{oplsMultiDataSet-method}
+\alias{getMset,oplsMultiDataSet-method}
 \title{getMset method}
 \usage{
-getMset(object, ...)
+getMset(object)
 
 \S4method{getMset}{oplsMultiDataSet}(object)
 }
 \arguments{
 \item{object}{An S4 object of class \code{oplsMultiDataSet}, created by \code{opls}
 function applied to a MultiDataSet}
-
-\item{...}{Currently not used}
 }
 \value{
 An S4 object of class \code{MultiDataSet}.

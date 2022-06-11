@@ -5,15 +5,13 @@
 \alias{getScoreMN,opls-method}
 \title{getScoreMN method for PCA/(O)PLS(-DA) models}
 \usage{
-getScoreMN(object, ...)
+getScoreMN(object, orthoL = FALSE)
 
 \S4method{getScoreMN}{opls}(object, orthoL = FALSE)
 }
 \arguments{
 \item{object}{An S4 object of class \code{opls}, created by \code{opls}
 function.}
-
-\item{...}{Currently not used.}
 
 \item{orthoL}{Logical: Should the orthogonal score matrix be returned
 (default is FALSE and the predictive score matrix is returned)}

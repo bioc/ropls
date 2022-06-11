@@ -76,7 +76,7 @@ OPLS is available in the **SIMCA-P** commercial software (Umetrics,
 Umea, Sweden; @Eriksson2001). In addition, the kernel-based version of
 OPLS [@Bylesjo2008a] is available in the open-source R statistical
 environment [@RCoreTeam2016], and a single implementation of the linear
-algorithm in R has been described recently [@Gaude2013].
+algorithm in R has been described [@Gaude2013].
 
 # The *sacurine* metabolomics dataset
 
@@ -547,55 +547,38 @@ procedure where each column of the matrix is modeled separately (as
 described above) and the resulting probabilities are aggregated (see for
 instance @Bylesjo2006).
 
-## Working on *SummarizedExperiment* or *ExpressionSet* omics objects from bioconductor
+## Working on *SummarizedExperiment* omics objects from bioconductor
 
-### ExpressionSet
-
-The **`ExpressionSet`** class from the
-[Biobase](https://bioconductor.org/packages/Biobase/) bioconductor
-package has been developed to conveniently handle preprocessed omics
-objects, including the variables x samples matrix of intensities, and
-data frames containing the sample and variable metadata [@Huber2015].
-The matrix and the two data frames can be accessed by the `exprs`,
-`pData` and `fData` methods respectively (note that the data matrix is
-stored in the object with samples in columns).
-
-The `opls` method can be applied to an **`ExpressionSet`** or a
-**`SummarizedExperiment`** object, by using the object as the `x`
-argument, and, for (O)PLS(-DA), by indicating as the `y` argument the
-name of the sample metadata to be used as the response.
-
-In the example below, we will first build a minimal **`ExpressionSet`**
-object from the *sacurine* data set and view the data, and we
-subsequently perform an OPLS-DA.
-
-```{r expressionset_code, message = FALSE, warning=FALSE}
-library(Biobase)
-sacSet <- ExpressionSet(assayData = t(dataMatrix),
-                        phenoData = new("AnnotatedDataFrame",
-                                        data = sampleMetadata))
-# Note that the sacurine ExpressionSet is also directly available with 'data(sacurine)' and 'sacurine$eset'
-view(sacSet)
-opls(sacSet, "gender", orthoI = NA)
-```
-
-### SummarizedExperiment
-
-In the **`SummarizedExperiment`** class from the
+The **`SummarizedExperiment`** class from the
 [SummarizedExperiment](https://www.bioconductor.org/packages/SummarizedExperiment/)
-package, the matrix and the two DataFrame can be accessed by the
-`assay`, `colData` and `rowData` methods, respectively. Furthermore, the
-`metadata` slot will be used to store the PCA/(O)PLS(-DA) models.
+bioconductor package has been developed to conveniently handle
+preprocessed omics objects, including the variable x sample matrix of
+intensities, and two DataFrame containing the sample and variable
+metadata, which can be accessed by the `assay`, `colData` and `rowData`
+methods respectively (note that the data matrix is stored in the object
+with samples in columns).
+
+The `opls` method can be applied to a **`SummarizedExperiment`** object,
+by using the object as the `x` argument, and, for (O)PLS(-DA), by
+indicating as the `y` argument the name of the sample metadata to be
+used as the response. It returns the updated **`SummarizedExperiment`**
+object with the loading, score, VIP, etc. data as new columns in the
+`colData` and `rowData`, and with the PCA/(O)PLS(-DA) models in the
+`metadata` slot.
+
+In the example below, we will first build a minimal
+**`SummarizedExperiment`** object from the *sacurine* data set, and we
+subsequently perform a PLS-DA.
 
 We first build the `SummarizedExperiment` object:
 
-```{r}
+```{r se_building, message = FALSE, warning=FALSE}
 library(SummarizedExperiment)
 
 sac.se <- SummarizedExperiment(assays = list(se = t(dataMatrix)),
                                colData = sampleMetadata,
                                rowData = variableMetadata)
-sac.se
+view(sac.se)
 
 # Notes:
 # 1) A pre-existing ExpressionSet object can be converted to a SummarizedExperiment
@@ -609,7 +592,7 @@ sac.se
 We then build the PLS-DA model of the gender response (note that this
 time the `opls` method returns a `SummarizedExperiment`):
 
-```{r}
+```{r se_plsda}
 sac.se <- opls(sac.se, "gender")
 colData(sac.se)
 rowData(sac.se)
@@ -618,11 +601,85 @@ rowData(sac.se)
 We use the `getOpls` method to get the list of `opls` models included
 the `SummarizedExperiment`:
 
-```{r}
+```{r se_model}
 sac_opls.ls <- getOpls(sac.se)
 names(sac_opls.ls)
 plot(sac_opls.ls[["gender_PLSDA"]], typeVc = "x-score")
 ```
+
+Note: Application of `opls` to `ExpressionSet` objects is deprecated.
+
+## Working with multi-omics datasets: the MultiAssayExperiment format
+
+The `MultiAssayExperiment` format is useful to handle multi-omics
+datasets [@Ramos_SoftwareIntegrationMultiomics_2017]. (O)PLS(-DA) models
+can be built in parallel for each dataset by applying `opls` to such
+formats. We provide an example based on the **NCI60_4arrays** cancer
+dataset available in the `omicade4` package.
+
+Loading the *NCI60_4arrays* from the `omicade4` package and selecting
+two of the four datasets:
+
+```{r NCI60}
+data("NCI60_4arrays", package = "omicade4")
+set_names.vc <- c("agilent", "hgu95")
+```
+
+Creating the `MultiAssayExperiment`:
+
+```{r mae_building, message = FALSE, warning=FALSE}
+library(MultiAssayExperiment)
+# Building the SummarizedExperiment instances
+experiment.ls <- list()
+sampleMap.ls <- list()
+for (set.c in set_names.vc) {
+  # Getting the data
+  assay.mn <- as.matrix(NCI60_4arrays[[set.c]])
+  assay.mn <- assay.mn[seq(1, nrow(assay.mn), by = 10), ]
+  coldata.df <- data.frame(row.names = colnames(assay.mn),
+                           .id = colnames(assay.mn),
+                           stringsAsFactors = FALSE)
+  rowdata.df <- data.frame(row.names = rownames(assay.mn),
+                           name = rownames(assay.mn),
+                           stringsAsFactors = FALSE)
+  # Building the SummarizedExperiment
+  assay.ls <- list(se = assay.mn)
+  names(assay.ls) <- set.c
+  se <- SummarizedExperiment(assays = assay.ls,
+                             colData = coldata.df,
+                             rowData = rowdata.df)
+  experiment.ls[[set.c]] <- se
+  sampleMap.ls[[set.c]] <- data.frame(primary = colnames(se),
+                                      colname = colnames(se))
+}
+sampleMap <- listToMap(sampleMap.ls)
+
+# The sample metadata are stored in the colData data frame
+stopifnot(identical(colnames(NCI60_4arrays[[1]]), colnames(NCI60_4arrays[[2]])))
+sample_names.vc <- colnames(NCI60_4arrays[[1]])
+colData.df <- data.frame(row.names = sample_names.vc,
+                         cancer = substr(sample_names.vc, 1, 2))
+
+nci.mae <- MultiAssayExperiment(experiments = experiment.ls,
+                                colData = colData.df,
+                                sampleMap = sampleMap)
+
+nci.mae
+```
+
+Building a **PCA** model on each dataset:
+
+```{r mae_pca}
+nci.mae <- opls(nci.mae)
+```
+
+Building the **PLS-DA** model of the *cancer* response for each dataset
+
+```{r mae_plsda}
+nci.mae <- opls(nci.mae, "cancer")
+```
+
+Note: Application of `opls` to `MultiDataSet` objects is deprecated.
 
 ## Importing/exporting data from/to the Workflow4metabolomics infrastructure
 

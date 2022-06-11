@@ -7,24 +7,105 @@
 \alias{opls,ExpressionSet-method}
 \alias{opls,data.frame-method}
 \alias{opls,matrix-method}
+\alias{opls,MultiAssayExperiment-method}
 \alias{opls,MultiDataSet-method}
 \title{PCA, PLS(-DA), and OPLS(-DA)}
 \usage{
-opls(x, ...)
+opls(
+  x,
+  y = NULL,
+  predI = NA,
+  orthoI = 0,
+  algoC = c("default", "nipals", "svd")[1],
+  crossvalI = 7,
+  log10L = FALSE,
+  permI = 20,
+  scaleC = c("none", "center", "pareto", "standard")[4],
+  subset = NULL,
+  plotSubC = NA,
+  fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
+  info.txtC = c("none", "interactive", "myfile.txt")[2]
+)
 
-\S4method{opls}{SummarizedExperiment}(x, y = NULL, ...)
+\S4method{opls}{MultiAssayExperiment}(
+  x,
+  y = NULL,
+  predI = NA,
+  orthoI = 0,
+  algoC = c("default", "nipals", "svd")[1],
+  crossvalI = 7,
+  log10L = FALSE,
+  permI = 20,
+  scaleC = c("none", "center", "pareto", "standard")[4],
+  subset = NULL,
+  plotSubC = NA,
+  fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
+  info.txtC = c("none", "interactive", "myfile.txt")[2]
+)
+
+\S4method{opls}{SummarizedExperiment}(
+  x,
+  y = NULL,
+  predI = NA,
+  orthoI = 0,
+  algoC = c("default", "nipals", "svd")[1],
+  crossvalI = 7,
+  log10L = FALSE,
+  permI = 20,
+  scaleC = c("none", "center", "pareto", "standard")[4],
+  subset = NULL,
+  plotSubC = NA,
+  fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
+  info.txtC = c("none", "interactive", "myfile.txt")[2]
+)
 
 \S4method{opls}{MultiDataSet}(
   x,
   y = NULL,
+  predI = NA,
+  orthoI = 0,
+  algoC = c("default", "nipals", "svd")[1],
+  crossvalI = 7,
+  log10L = FALSE,
+  permI = 20,
+  scaleC = c("none", "center", "pareto", "standard")[4],
+  subset = NULL,
+  plotSubC = NA,
   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
-  info.txtC = c("none", "interactive", "myfile.txt")[2],
-  ...
+  info.txtC = c("none", "interactive", "myfile.txt")[2]
 )
 
-\S4method{opls}{ExpressionSet}(x, y = NULL, ...)
+\S4method{opls}{ExpressionSet}(
+  x,
+  y = NULL,
+  predI = NA,
+  orthoI = 0,
+  algoC = c("default", "nipals", "svd")[1],
+  crossvalI = 7,
+  log10L = FALSE,
+  permI = 20,
+  scaleC = c("none", "center", "pareto", "standard")[4],
+  subset = NULL,
+  plotSubC = NA,
+  fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
+  info.txtC = c("none", "interactive", "myfile.txt")[2]
+)
 
-\S4method{opls}{data.frame}(x, ...)
+\S4method{opls}{data.frame}(
+  x,
+  y = NULL,
+  predI = NA,
+  orthoI = 0,
+  algoC = c("default", "nipals", "svd")[1],
+  crossvalI = 7,
+  log10L = FALSE,
+  permI = 20,
+  scaleC = c("none", "center", "pareto", "standard")[4],
+  subset = NULL,
+  plotSubC = NA,
+  fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
+  info.txtC = c("none", "interactive", "myfile.txt")[2]
+)
 
 \S4method{opls}{matrix}(
   x,
@@ -39,18 +120,12 @@ opls(x, ...)
   subset = NULL,
   plotSubC = NA,
   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
-  info.txtC = c("none", "interactive", "myfile.txt")[2],
-  printL = TRUE,
-  plotL = TRUE,
-  .sinkC = NULL,
-  ...
+  info.txtC = c("none", "interactive", "myfile.txt")[2]
 )
 }
 \arguments{
 \item{x}{Numerical matrix, (observations x variables; NAs are
 allowed), data.frame, SummarizedExperiment or ExpressionSet object}
-
-\item{...}{Currently not used.}
 
 \item{y}{Response to be modelled: Either 1) 'NULL' for PCA (default) or 2) a
 numerical vector (same length as 'x' row number) for single response (O)PLS,
@@ -61,14 +136,6 @@ is a SummarizedExperiment or an ExpressionSet object. Note that, for convenience
 are also accepted for (O)PLS-DA as well as single column numerical (resp.
 character) matrix for (O)PLS (respectively (O)PLS-DA). NAs are allowed in
 numeric responses.}
-
-\item{fig.pdfC}{Character: File name with '.pdf' extension for the figure;
-if 'interactive' (default), figures will be displayed interactively; if 'none',
-no figure will be generated}
-
-\item{info.txtC}{Character: File name with '.txt' extension for the printed
-results (call to sink()'); if 'interactive' (default), messages will be
-printed on the screen; if 'none', no verbose will be generated}
 
 \item{predI}{Integer: number of components (predictive componenents in case
 of PLS and OPLS) to extract; for OPLS, predI is (automatically) set to 1; if
@@ -112,11 +179,13 @@ of the dataset; use 'odd' for a partition of the dataset in two equal sizes
 
 \item{plotSubC}{Character: Graphic subtitle}
 
-\item{printL}{Logical: deprecated: use the 'info.txtC' argument instead}
+\item{fig.pdfC}{Character: File name with '.pdf' extension for the figure;
+if 'interactive' (default), figures will be displayed interactively; if 'none',
+no figure will be generated}
 
-\item{plotL}{Logical: deprecated: use the 'fig.pdfC' argument instead}
-
-\item{.sinkC}{Character: deprecated: use the 'info.txtC' argument instead}
+\item{info.txtC}{Character: File name with '.txt' extension for the printed
+results (call to sink()'); if 'interactive' (default), messages will be
+printed on the screen; if 'none', no verbose will be generated}
 }
 \value{
 An S4 object of class 'opls' containing the slots described below; in case x is a SummarizedExperiment, a SummarizedExperiment is returned, with the 'opls' object included in the metadata:

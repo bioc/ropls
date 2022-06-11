@@ -1,3 +1,395 @@
+####   checkW4M (SummarizedExperiment)   ####
+
+#' @rdname checkW4M
+setMethod("checkW4M", "SummarizedExperiment",
+          function(x) {
+            
+            datMN <- t(SummarizedExperiment::assay(x))
+            samDF <- as.data.frame(SummarizedExperiment::colData(x))
+            varDF <- as.data.frame(SummarizedExperiment::rowData(x))
+            
+            chkL <- .checkW4mFormatF(datMN, samDF, varDF)
+            
+            if(!chkL) {
+              stop("Problem with the sample or variable names in the tables to be imported from (exported to) W4M", call. = FALSE)
+            } else
+              return(TRUE)
+          })
+
+
+####   checkW4M (ExpressionSet)   ####
+
+#' @rdname checkW4M
+setMethod("checkW4M", "ExpressionSet",
+          function(x) {
+            
+            datMN <- t(exprs(x))
+            samDF <- pData(x)
+            varDF <- fData(x)
+            
+            chkL <- .checkW4mFormatF(datMN, samDF, varDF)
+            
+            if(!chkL) {
+              stop("Problem with the sample or variable names in the tables to be imported from (exported to) W4M", call. = FALSE)
+            } else
+              return(TRUE)
+          })
+
+
+.checkW4mFormatF <- function(datMN, samDF, varDF) {
+  
+  chkL <- TRUE
+  
+  if(!identical(rownames(datMN), rownames(samDF))) {
+    ## checking sample names
+    
+    chkL <- FALSE
+    
+    datSamDifVc <- setdiff(rownames(datMN), rownames(samDF))
+    
+    if(length(datSamDifVc)) {
+      cat("\nThe following samples were found in the dataMatrix column names but not in the sampleMetadata row names:\n", sep="")
+      print(cbind.data.frame(col = as.numeric(sapply(datSamDifVc, function(samC) which(rownames(datMN) == samC))),
+                             name = datSamDifVc))
+    }
+    
+    samDatDifVc <- setdiff(rownames(samDF), rownames(datMN))
+    
+    if(length(samDatDifVc)) {
+      cat("\n\nThe following samples were found in the sampleMetadata row names but not in the dataMatrix column names:\n", sep="")
+      print(cbind.data.frame(row = as.numeric(sapply(samDatDifVc, function(samC) which(rownames(samDF) == samC))),
+                             name = samDatDifVc))
+    }
+    
+    if(nrow(datMN) != nrow(samDF)) {
+      cat("\n\nThe dataMatrix has ", nrow(datMN), " columns (ie samples) whereas the sampleMetadata has ", nrow(samDF), " rows\n", sep="")
+    } else if(identical(gsub("^X", "", rownames(datMN)), rownames(samDF))) {
+      cat("\n\nThe dataMatrix column names start with an 'X' but not the sampleMetadata row names\n", sep="")
+    } else if(identical(gsub("^X", "", rownames(samDF)), rownames(datMN))) {
+      cat("\n\nThe sampleMetadata row names start with an 'X' but not the dataMatrix column names\n", sep="")
+    } else if(identical(sort(rownames(datMN)), sort(rownames(samDF)))) {
+      cat("\n\nThe dataMatrix column names and the sampleMetadata row names are not in the same order:\n", sep="")
+      print(cbind.data.frame(indice = 1:nrow(datMN),
+                             dataMatrix_columnnames=rownames(datMN),
+                             sampleMetadata_rownames=rownames(samDF))[rownames(datMN) != rownames(samDF), , drop = FALSE])
+    } else {
+      cat("\n\nThe dataMatrix column names and the sampleMetadata row names are not identical:\n", sep="")
+      print(cbind.data.frame(indice = 1:nrow(datMN),
+                             dataMatrix_columnnames=rownames(datMN),
+                             sampleMetadata_rownames=rownames(samDF))[rownames(datMN) != rownames(samDF), , drop = FALSE])
+    }
+    
+  }
+  
+  if(!identical(colnames(datMN), rownames(varDF))) {
+    ## checking variable names
+    
+    chkL <- FALSE
+    
+    datVarDifVc <- setdiff(colnames(datMN), rownames(varDF))
+    
+    if(length(datVarDifVc)) {
+      cat("\nThe following variables were found in the dataMatrix row names but not in the variableMetadata row names:\n", sep="")
+      print(cbind.data.frame(row = as.numeric(sapply(datVarDifVc, function(varC) which(colnames(datMN) == varC))),
+                             name = datVarDifVc))
+      
+    }
+    
+    varDatDifVc <- setdiff(rownames(varDF), colnames(datMN))
+    
+    if(length(varDatDifVc)) {
+      cat("\n\nThe following variables were found in the variableMetadata row names but not in the dataMatrix row names:\n", sep="")
+      print(cbind.data.frame(row = as.numeric(sapply(varDatDifVc, function(varC) which(rownames(varDF) == varC))),
+                             name = varDatDifVc))
+    }
+    
+    if(ncol(datMN) != nrow(varDF)) {
+      cat("\n\nThe dataMatrix has ", nrow(datMN), " rows (ie variables) whereas the variableMetadata has ", nrow(varDF), " rows\n", sep="")
+    } else if(identical(sort(colnames(datMN)), sort(rownames(varDF)))) {
+      cat("\n\nThe dataMatrix row names and the variableMetadata row names are not in the same order:\n", sep="")
+      print(cbind.data.frame(row = 1:ncol(datMN),
+                             dataMatrix_rownames=colnames(datMN),
+                             variableMetadata_rownames=rownames(varDF))[colnames(datMN) != rownames(varDF), , drop = FALSE])
+    } else {
+      cat("\n\nThe dataMatrix row names and the variableMetadata row names are not identical:\n", sep="")
+      print(cbind.data.frame(row = 1:ncol(datMN),
+                             dataMatrix_rownames=colnames(datMN),
+                             variableMetadata_rownames=rownames(varDF))[colnames(datMN) != rownames(varDF), , drop = FALSE])
+    }
+  }
+  
+  return(chkL)
+  
+}
+
+####   fromW4M   ####
+
+#' fromW4M
+#'
+#' Creating a ExpressionSet object from the 3 'dataMatrix.tsv',
+#' 'sampleMetadata.tsv' and 'variableMetadata.tsv' tabulated files
+#'
+#' @param dirC Character: directory containing the 3 .tsv files
+#' @param namePatternC Character: optional file name pattern common to all three
+#' file names (e.g., when you want to distinguish between two sets of files
+#' within the same directory)
+#' @param fileTableNamesVc Vector of characters: if your file names do not
+#' contain the standard 'dataMatrix', 'sampleMetadata', and 'variableMetadata'
+#' patterns (e.g. if you use 'profile', 'observation', and 'feature' instead),
+#' please indicate them here
+#' @param outputC character(1): either 'exp' for SummarizedExperiment (default) or 'set' for ExpressionSet output format
+#' @param verboseL Logical: should comments be printed?
+#' @return ExpressionSet instance
+#' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
+#' @examples sacSet <- fromW4M(file.path(path.package("ropls"), "extdata"))
+#' @rdname fromW4M
+#' @export
+fromW4M <- function(dirC,
+                    namePatternC = "",
+                    fileTableNamesVc = c("dataMatrix",
+                                         "sampleMetadata",
+                                         "variableMetadata"),
+                    outputC = c("exp", "set")[2],
+                    verboseL = TRUE) {
+  
+  tabVc <- c("dataMatrix",
+             "sampleMetadata",
+             "variableMetadata")
+  
+  if (!file.exists(dirC))
+    stop("Directory '", dirC, "' was not found.",
+         call. = FALSE)
+  
+  filVc <- character(length(tabVc))
+  names(filVc) <- tabVc
+  
+  filAllVc <- list.files(dirC,
+                         pattern = "^.*\\.tsv$")
+  
+  ## restricting to files with pattern
+  if (namePatternC != "")
+    filAllVc <- grep(namePatternC, filAllVc, value = TRUE)
+  
+  ## restricting to one file for each table
+  for (tabC in tabVc) {
+    namC <- fileTableNamesVc[tabVc == tabC]
+    filC <- grep(namC, filAllVc, value = TRUE)
+    if (length(filC) == 0) {
+      stop("No file found for the ", tabC, " with ",
+           ifelse(namePatternC != "",
+                  paste0("'", namC, "' pattern and "), ""),
+           "a name including '", namC, "' in the '", dirC,
+           "' directory.", call. = FALSE)
+    } else if (length(filC) > 1) {
+      stop("Several files found for the ", tabC, " with ",
+           ifelse(namePatternC != "", paste0("'", namC, "' pattern and "),
+                  ""), "a name including '", namC, "' in the '",
+           dirC, "' directory.", call. = FALSE)
+    } else {
+      filVc[tabC] <- filC
+      ## R standards for row and column names in matrices and data frames
+      .checkRformatF(dirC, filC, verboseL)
+    }
+  }
+  
+  ## Loading data
+  
+  for(tabC in tabVc) {
+    
+    tabDF <- read.table(file.path(dirC, filVc[tabC]),
+                        check.names = FALSE,
+                        header = TRUE,
+                        row.names = 1,
+                        sep = "\t",
+                        stringsAsFactors = FALSE)
+    switch(tabC,
+           dataMatrix = {
+             datMN <- as.matrix(tabDF)
+           },
+           sampleMetadata = {
+             samDF <- tabDF
+           },
+           variableMetadata = {
+             varDF <- tabDF
+           })
+    
+  }
+  
+  chkL <- .checkW4mFormatF(t(datMN), samDF, varDF)
+  
+  if(chkL) {
+    TRUE
+  } else
+    "Problem with the sample or variable names in the tables (see above)"
+  
+  if (outputC == "exp") {
+    
+    x <- SummarizedExperiment::SummarizedExperiment(assays = list(se = datMN),
+                                                    colData = samDF,
+                                                    rowData = varDF)
+    
+    x@metadata$experimentData@title <- namePatternC
+    
+  } else if (outputC == "set") {
+    
+    x <- ExpressionSet(assayData = datMN,
+                       phenoData = new("AnnotatedDataFrame",
+                                       data = samDF),
+                       featureData = new("AnnotatedDataFrame",
+                                         data = varDF),
+                       experimentData = new("MIAME",
+                                            title = namePatternC))
+    
+  }
+  
+  validObject(x)
+  
+  return(x)
+  
+}
+
+
+.checkRformatF <- function(dirCa, filCa, vrbLa) {
+  
+  rowVc <- read.table(file.path(dirCa, filCa),
+                      check.names = FALSE,
+                      header = TRUE,
+                      sep = "\t",
+                      stringsAsFactors = FALSE)[, 1]
+  
+  colVc <- unlist(read.table(file.path(dirCa, filCa),
+                             check.names = FALSE,
+                             nrows = 1,
+                             sep = "\t",
+                             stringsAsFactors = FALSE))[-1]
+  
+  if (any(duplicated(rowVc)))
+    stop("The following ",
+         ifelse(names(filCa) == 'sampleMetadata', 'sample', 'variable'),
+         " name(s) is/are duplicated in the ",
+         names(filCa),
+         ": '",
+         paste(rowVc[duplicated(rowVc)], collapse = "', '"), "'",
+         call. = FALSE)
+  
+  if (any(duplicated(colVc)))
+    stop("The following ", ifelse(names(filCa) == 'sampleMetadata', 'variable', 'sample'), " name(s) is/are duplicated in the ",
+         names(filCa),
+         ": '",
+         paste(colVc[duplicated(colVc)], collapse = "', '"), "'",
+         call. = FALSE)
+  
+  rowMakVc <- make.names(rowVc, unique = TRUE)
+  
+  rowDifVl <- rowVc != rowMakVc
+  
+  if (any(rowDifVl)) {
+    rowDifDF <- data.frame(row = 1:length(rowVc),
+                           actual = rowVc,
+                           preferred = rowMakVc)
+    rowDifDF <- rowDifDF[rowDifVl, , drop = FALSE]
+    if (vrbLa) {
+      warning("The following ",
+              ifelse(names(filCa) == 'sampleMetadata', 'sample', 'variable'),
+              " name(s) of the ",
+              names(filCa),
+              " is/are not in the standard R format, which may result in errors when loading the data:")
+      print(rowDifDF)
+    }
+  }
+  
+  colMakVc <- make.names(colVc, unique = TRUE)
+  
+  colDifVl <- colVc != colMakVc
+  
+  if (any(colDifVl)) {
+    colDifDF <- data.frame(col = 1:length(colVc),
+                           actual = colVc,
+                           preferred = colMakVc)
+    colDifDF <- colDifDF[colDifVl, , drop = FALSE]
+    if (vrbLa) {
+      warning("The following ",
+              ifelse(names(filCa) == 'sampleMetadata', 'variable', 'sample'),
+              " name(s) of the ",
+              names(filCa),
+              " is/are not in the standard R format, which may result in errors when loading the data:")
+      print(colDifDF)
+    }
+  }
+}
+
+####   toW4M (ExpressionSet)  ####
+
+#' @rdname toW4M
+setMethod("toW4M", "ExpressionSet",
+          function(x,
+                   filePrefixC = paste0(getwd(), "/out_"),
+                   verboseL = TRUE){
+            
+            if(checkW4M(x)) {
+              
+              datMN <- exprs(x)
+              datDF <- cbind.data.frame(dataMatrix = rownames(datMN),
+                                        as.data.frame(datMN))
+
+              samDF <- pData(x)
+              samDF <- cbind.data.frame(sampleMetadata = rownames(samDF),
+                                        samDF)
+
+              
+              varDF <- fData(x)
+              varDF <- cbind.data.frame(variableMetadata = rownames(varDF),
+                                        varDF)
+ 
+              .writeW4M(datDF = datDF,
+                        samDF = samDF,
+                        varDF = varDF,
+                        filePrefixC = filePrefixC,
+                        verboseL = verboseL)
+            }
+            
+          })
+
+.writeW4M <- function(datDF,
+                      samDF,
+                      varDF,
+                      filePrefixC,
+                      verboseL) {
+  
+  filDatC <- paste0(filePrefixC, "dataMatrix.tsv")
+  filSamC <- paste0(filePrefixC, "sampleMetadata.tsv")
+  filVarC <- paste0(filePrefixC, "variableMetadata.tsv")
+  
+  write.table(datDF,
+              file = filDatC,
+              quote = FALSE,
+              row.names = FALSE,
+              sep = "\t")
+  
+  write.table(samDF,
+              file = filSamC,
+              quote = FALSE,
+              row.names = FALSE,
+              sep = "\t")
+  
+  write.table(varDF,
+              file = filVarC,
+              quote = FALSE,
+              row.names = FALSE,
+              sep = "\t")
+  
+  if (verboseL) {
+    cat("The following 3 files:\n")
+    print(basename(filDatC))
+    print(basename(filSamC))
+    print(basename(filVarC))
+    cat("have been written in the following directory:\n")
+    print(dirname(filDatC))
+  }
+  
+}
+
+
 #### view (SummarizedExperiment) ####
 
 #' @rdname view
@@ -27,9 +419,6 @@ setMethod("view", signature(x = "SummarizedExperiment"),
                    delimitReplicatesL = FALSE,
                    standardizeL = FALSE,
                    fig.pdfC = "interactive") {
-            
-            if (is.na(mainC) || mainC == "")
-              mainC <- x@metadata$experimentData@title
             
             message("'assay(x)':")
             ropls::view(SummarizedExperiment::assay(x),
@@ -294,7 +683,6 @@ setMethod("view", signature(x = "data.frame"),
 
 
 #### view (matrix) ####
-
 
 #' @rdname view
 #' @export
@@ -1277,272 +1665,3 @@ imageF <- function(x,
   truncatedVc
   
 }
-
-
-#' fromW4M (deprecated)
-#'
-#' Creating a ExpressionSet object from the 3 'dataMatrix.tsv',
-#' 'sampleMetadata.tsv' and 'variableMetadata.tsv' tabulated files
-#'
-#' @param dirC Character: directory containing the 3 .tsv files
-#' @param namePatternC Character: optional file name pattern common to all three
-#' file names (e.g., when you want to distinguish between two sets of files
-#' within the same directory)
-#' @param fileTableNamesVc Vector of characters: if your file names do not
-#' contain the standard 'dataMatrix', 'sampleMetadata', and 'variableMetadata'
-#' patterns (e.g. if you use 'profile', 'observation', and 'feature' instead),
-#' please indicate them here
-#' @param verboseL Logical: should comments be printed?
-#' @return ExpressionSet instance
-#' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
-#' @examples sacSet <- fromW4M(file.path(path.package("ropls"), "extdata"))
-#' @rdname fromW4M
-#' @export
-fromW4M <- function(dirC,
-                    namePatternC = "",
-                    fileTableNamesVc = c("dataMatrix",
-                                         "sampleMetadata",
-                                         "variableMetadata"),
-                    verboseL = TRUE) {
-  
-  tabVc <- c("dataMatrix",
-             "sampleMetadata",
-             "variableMetadata")
-  
-  if (!file.exists(dirC))
-    stop("Directory '", dirC, "' was not found.",
-         call. = FALSE)
-  
-  filVc <- character(length(tabVc))
-  names(filVc) <- tabVc
-  
-  filAllVc <- list.files(dirC,
-                         pattern = "^.*\\.tsv$")
-  
-  ## restricting to files with pattern
-  if (namePatternC != "")
-    filAllVc <- grep(namePatternC, filAllVc, value = TRUE)
-  
-  ## restricting to one file for each table
-  for (tabC in tabVc) {
-    namC <- fileTableNamesVc[tabVc == tabC]
-    filC <- grep(namC, filAllVc, value = TRUE)
-    if (length(filC) == 0) {
-      stop("No file found for the ", tabC, " with ",
-           ifelse(namePatternC != "",
-                  paste0("'", namC, "' pattern and "), ""),
-           "a name including '", namC, "' in the '", dirC,
-           "' directory.", call. = FALSE)
-    } else if (length(filC) > 1) {
-      stop("Several files found for the ", tabC, " with ",
-           ifelse(namePatternC != "", paste0("'", namC, "' pattern and "),
-                  ""), "a name including '", namC, "' in the '",
-           dirC, "' directory.", call. = FALSE)
-    } else {
-      filVc[tabC] <- filC
-      ## R standards for row and column names in matrices and data frames
-      .checkRformatF(dirC, filC, verboseL)
-    }
-  }
-  
-  ## Loading data
-  
-  for(tabC in tabVc) {
-    
-    tabDF <- read.table(file.path(dirC, filVc[tabC]),
-                        check.names = FALSE,
-                        header = TRUE,
-                        row.names = 1,
-                        sep = "\t",
-                        stringsAsFactors = FALSE)
-    switch(tabC,
-           dataMatrix = {
-             datMN <- as.matrix(tabDF)
-           },
-           sampleMetadata = {
-             samDF <- tabDF
-           },
-           variableMetadata = {
-             varDF <- tabDF
-           })
-    
-  }
-  
-  chkL <- .checkW4mFormatF(t(datMN), samDF, varDF)
-  
-  if(chkL) {
-    TRUE
-  } else
-    "Problem with the sample or variable names in the tables (see above)"
-  
-  eset <- ExpressionSet(assayData = datMN,
-                        phenoData = new("AnnotatedDataFrame",
-                                        data = samDF),
-                        featureData = new("AnnotatedDataFrame",
-                                          data = varDF),
-                        experimentData = new("MIAME",
-                                             title = namePatternC))
-  
-  validObject(eset)
-  
-  return(eset)
-  
-}
-
-# deprecated
-.checkRformatF <- function(dirCa, filCa, vrbLa) {
-  
-  rowVc <- read.table(file.path(dirCa, filCa),
-                      check.names = FALSE,
-                      header = TRUE,
-                      sep = "\t",
-                      stringsAsFactors = FALSE)[, 1]
-  
-  colVc <- unlist(read.table(file.path(dirCa, filCa),
-                             check.names = FALSE,
-                             nrows = 1,
-                             sep = "\t",
-                             stringsAsFactors = FALSE))[-1]
-  
-  if (any(duplicated(rowVc)))
-    stop("The following ",
-         ifelse(names(filCa) == 'sampleMetadata', 'sample', 'variable'),
-         " name(s) is/are duplicated in the ",
-         names(filCa),
-         ": '",
-         paste(rowVc[duplicated(rowVc)], collapse = "', '"), "'",
-         call. = FALSE)
-  
-  if (any(duplicated(colVc)))
-    stop("The following ", ifelse(names(filCa) == 'sampleMetadata', 'variable', 'sample'), " name(s) is/are duplicated in the ",
-         names(filCa),
-         ": '",
-         paste(colVc[duplicated(colVc)], collapse = "', '"), "'",
-         call. = FALSE)
-  
-  rowMakVc <- make.names(rowVc, unique = TRUE)
-  
-  rowDifVl <- rowVc != rowMakVc
-  
-  if (any(rowDifVl)) {
-    rowDifDF <- data.frame(row = 1:length(rowVc),
-                           actual = rowVc,
-                           preferred = rowMakVc)
-    rowDifDF <- rowDifDF[rowDifVl, , drop = FALSE]
-    if (vrbLa) {
-      warning("The following ",
-              ifelse(names(filCa) == 'sampleMetadata', 'sample', 'variable'),
-              " name(s) of the ",
-              names(filCa),
-              " is/are not in the standard R format, which may result in errors when loading the data:")
-      print(rowDifDF)
-    }
-  }
-  
-  colMakVc <- make.names(colVc, unique = TRUE)
-  
-  colDifVl <- colVc != colMakVc
-  
-  if (any(colDifVl)) {
-    colDifDF <- data.frame(col = 1:length(colVc),
-                           actual = colVc,
-                           preferred = colMakVc)
-    colDifDF <- colDifDF[colDifVl, , drop = FALSE]
-    if (vrbLa) {
-      warning("The following ",
-              ifelse(names(filCa) == 'sampleMetadata', 'variable', 'sample'),
-              " name(s) of the ",
-              names(filCa),
-              " is/are not in the standard R format, which may result in errors when loading the data:")
-      print(colDifDF)
-    }
-  }
-}
-
-# deprecated
-.checkW4mFormatF <- function(datMN, samDF, varDF) {
-  
-  chkL <- TRUE
-  
-  if(!identical(rownames(datMN), rownames(samDF))) {
-    ## checking sample names
-    
-    chkL <- FALSE
-    
-    datSamDifVc <- setdiff(rownames(datMN), rownames(samDF))
-    
-    if(length(datSamDifVc)) {
-      cat("\nThe following samples were found in the dataMatrix column names but not in the sampleMetadata row names:\n", sep="")
-      print(cbind.data.frame(col = as.numeric(sapply(datSamDifVc, function(samC) which(rownames(datMN) == samC))),
-                             name = datSamDifVc))
-    }
-    
-    samDatDifVc <- setdiff(rownames(samDF), rownames(datMN))
-    
-    if(length(samDatDifVc)) {
-      cat("\n\nThe following samples were found in the sampleMetadata row names but not in the dataMatrix column names:\n", sep="")
-      print(cbind.data.frame(row = as.numeric(sapply(samDatDifVc, function(samC) which(rownames(samDF) == samC))),
-                             name = samDatDifVc))
-    }
-    
-    if(nrow(datMN) != nrow(samDF)) {
-      cat("\n\nThe dataMatrix has ", nrow(datMN), " columns (ie samples) whereas the sampleMetadata has ", nrow(samDF), " rows\n", sep="")
-    } else if(identical(gsub("^X", "", rownames(datMN)), rownames(samDF))) {
-      cat("\n\nThe dataMatrix column names start with an 'X' but not the sampleMetadata row names\n", sep="")
-    } else if(identical(gsub("^X", "", rownames(samDF)), rownames(datMN))) {
-      cat("\n\nThe sampleMetadata row names start with an 'X' but not the dataMatrix column names\n", sep="")
-    } else if(identical(sort(rownames(datMN)), sort(rownames(samDF)))) {
-      cat("\n\nThe dataMatrix column names and the sampleMetadata row names are not in the same order:\n", sep="")
-      print(cbind.data.frame(indice = 1:nrow(datMN),
-                             dataMatrix_columnnames=rownames(datMN),
-                             sampleMetadata_rownames=rownames(samDF))[rownames(datMN) != rownames(samDF), , drop = FALSE])
-    } else {
-      cat("\n\nThe dataMatrix column names and the sampleMetadata row names are not identical:\n", sep="")
-      print(cbind.data.frame(indice = 1:nrow(datMN),
-                             dataMatrix_columnnames=rownames(datMN),
-                             sampleMetadata_rownames=rownames(samDF))[rownames(datMN) != rownames(samDF), , drop = FALSE])
-    }
-    
-  }
-  
-  if(!identical(colnames(datMN), rownames(varDF))) {
-    ## checking variable names
-    
-    chkL <- FALSE
-    
-    datVarDifVc <- setdiff(colnames(datMN), rownames(varDF))
-    
-    if(length(datVarDifVc)) {
-      cat("\nThe following variables were found in the dataMatrix row names but not in the variableMetadata row names:\n", sep="")
-      print(cbind.data.frame(row = as.numeric(sapply(datVarDifVc, function(varC) which(colnames(datMN) == varC))),
-                             name = datVarDifVc))
-      
-    }
-    
-    varDatDifVc <- setdiff(rownames(varDF), colnames(datMN))
-    
-    if(length(varDatDifVc)) {
-      cat("\n\nThe following variables were found in the variableMetadata row names but not in the dataMatrix row names:\n", sep="")
-      print(cbind.data.frame(row = as.numeric(sapply(varDatDifVc, function(varC) which(rownames(varDF) == varC))),
-                             name = varDatDifVc))
-    }
-    
-    if(ncol(datMN) != nrow(varDF)) {
-      cat("\n\nThe dataMatrix has ", nrow(datMN), " rows (ie variables) whereas the variableMetadata has ", nrow(varDF), " rows\n", sep="")
-    } else if(identical(sort(colnames(datMN)), sort(rownames(varDF)))) {
-      cat("\n\nThe dataMatrix row names and the variableMetadata row names are not in the same order:\n", sep="")
-      print(cbind.data.frame(row = 1:ncol(datMN),
-                             dataMatrix_rownames=colnames(datMN),
-                             variableMetadata_rownames=rownames(varDF))[colnames(datMN) != rownames(varDF), , drop = FALSE])
-    } else {
-      cat("\n\nThe dataMatrix row names and the variableMetadata row names are not identical:\n", sep="")
-      print(cbind.data.frame(row = 1:ncol(datMN),
-                             dataMatrix_rownames=colnames(datMN),
-                             variableMetadata_rownames=rownames(varDF))[colnames(datMN) != rownames(varDF), , drop = FALSE])
-    }
-  }
-  
-  return(chkL)
-  
-}
-

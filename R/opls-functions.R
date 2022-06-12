@@ -8,7 +8,8 @@
                    crossvalI,
                    subsetL,
                    subsetVi,
-                   .char2numF = .char2numF){
+                   .char2numF = .char2numF,
+                   info.txtC){
   
   epsN <- .Machine[["double.eps"]] ## [1] 2.22e-16
   
@@ -45,7 +46,8 @@
   if(algoC == "svd" && length(which(is.na(c(xMN)))) > 0) {
     minN <- min(c(xMN[!is.na(xMN)])) / 2
     xMN[is.na(xMN)] <- minN
-    warning("Missing values set to ", round(minN, 1), " (half minimum value) for 'svd' algorithm to be used", call. = FALSE)
+    if (info.txtC != "none")
+      warning("Missing values set to ", round(minN, 1), " (half minimum value) for 'svd' algorithm to be used", call. = FALSE)
   }
   
   if(!is.null(yMCN)) {
@@ -94,7 +96,8 @@
     if(autMaxN == 1) {
       orthoI <- 0
       predI <- 1
-      warning("The data contain a single variable (or sample): A PLS model with a single component will be built", call. = FALSE)
+      if (info.txtC != "none")
+        warning("The data contain a single variable (or sample): A PLS model with a single component will be built", call. = FALSE)
     } else {
       orthoI <- autMaxN - 1
       predI <- 1
@@ -105,9 +108,12 @@
     if(orthoI > 0) {
       if(autMaxN == 1) {
         orthoI <- 0
-        warning("The data contain a single variable (or sample): A PLS model with a single component will be built", call. = FALSE)
-      } else
-        warning("OPLS(-DA): The number of predictive component is set to 1 for a single response model", call. = FALSE)
+        if (info.txtC != "none")
+          warning("The data contain a single variable (or sample): A PLS model with a single component will be built", call. = FALSE)
+      } else {
+        if (info.txtC != "none")
+          warning("OPLS(-DA): The number of predictive component is set to 1 for a single response model", call. = FALSE)
+      }
       predI <- 1
       if((predI + orthoI) > min(dim(xMN)))
         stop("The sum of 'predI' (", predI, ") and 'orthoI' (", orthoI, ") exceeds the minimum dimension of the 'x' data matrix (", min(dim(xMN)), ")" , call. = FALSE)
@@ -287,7 +293,8 @@
       vSelVi <- which(vSelVl)
       
       if(length(vSelVi) == 0) {
-        warning("The maximum number of components for the automated mode (", autMaxN, ") has been reached whereas the cumulative variance ", round(tail(modelDF[, "R2X(cum)"], 1) * 100), "% is still less than 50%.", call. = FALSE)
+        if (info.txtC != "none")
+          warning("The maximum number of components for the automated mode (", autMaxN, ") has been reached whereas the cumulative variance ", round(tail(modelDF[, "R2X(cum)"], 1) * 100), "% is still less than 50%.", call. = FALSE)
       } else
         predI <- vSelVi[1]
       
@@ -596,7 +603,8 @@
         hN <- hN - 1
         
         if(hN == 0) {
-          cat("No model was built because the first predictive component was already not significant;\nSelect a number of predictive components of 1 if you want the algorithm to compute a model despite this.\n", sep = "")
+          if (info.txtC != "none")
+            cat("No model was built because the first predictive component was already not significant.\n", sep = "")
           opl <- new("opls")
           opl@suppLs <- list(.char2numF = .char2numF,
                              ## yLevelVc = NULL,
@@ -618,8 +626,10 @@
           return(opl)
         }
         
-        if(hN == autMaxN)
-          warning("The maximum number of components in the automated mode (", autMaxN, ") has been reached whereas R2Y (", round(modelDF[hN, 'R2Y'] * 100), "%) is still above 1% and Q2Y (", round(modelDF[hN, 'Q2'] * 100), "%) is still above ", round(ru1ThrN * 100), "%.", call. = FALSE)
+        if(hN == autMaxN) {
+          if (info.txtC != "none")
+            warning("The maximum number of components in the automated mode (", autMaxN, ") has been reached whereas R2Y (", round(modelDF[hN, 'R2Y'] * 100), "%) is still above 1% and Q2Y (", round(modelDF[hN, 'Q2'] * 100), "%) is still above ", round(ru1ThrN * 100), "%.", call. = FALSE)
+        }
         
         wMN <- wMN[, 1:hN, drop = FALSE]
         tMN <- tMN[, 1:hN, drop = FALSE]
@@ -1084,8 +1094,8 @@
       if (autNcoL) {
         
         if (modelDF["p1", "Signif."] != "R1") {
-
-          cat("No model was built because the first predictive component was already not significant\n", sep = "")
+          if (info.txtC != "none")
+            cat("No model was built because the first predictive component was already not significant\n", sep = "")
           opl <- new("opls")
           opl@suppLs <- list(.char2numF = .char2numF,
                              ## yLevelVc = NULL,
@@ -1107,8 +1117,8 @@
           return(opl)
           
         } else if (modelDF["o1", "Signif."] != "R1") {
-          
-          cat("No model was built because the first predictive component was already not significant\n", sep = "")
+          if (info.txtC != "none")
+            cat("No model was built because the first predictive component was already not significant\n", sep = "")
           opl <- new("opls")
           opl@suppLs <- list(.char2numF = .char2numF,
                              ## yLevelVc = NULL,
@@ -1133,7 +1143,8 @@
           
           orthoI <- noN - 1
           
-          warning("The maximum number of orthogonal components in the automated mode (", autMaxN - 1, ") has been reached whereas R2Y (", round(modelDF[autMaxN, 'R2Y'] * 100), "%) is above 1% and Q2Y (", round(modelDF[autMaxN, 'Q2'] * 100), "%) is still above ", round(ru1ThrN * 100), "%.", call. = FALSE)
+          if (info.txtC != "none")
+            warning("The maximum number of orthogonal components in the automated mode (", autMaxN - 1, ") has been reached whereas R2Y (", round(modelDF[autMaxN, 'R2Y'] * 100), "%) is above 1% and Q2Y (", round(modelDF[autMaxN, 'Q2'] * 100), "%) is still above ", round(ru1ThrN * 100), "%.", call. = FALSE)
           
         } else {
           

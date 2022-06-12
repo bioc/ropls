@@ -371,8 +371,9 @@ setGeneric("getWeightMN",
 #' NIPALS algorithm
 #'
 #' @name opls
-#' @aliases opls opls,SummarizedExperiment-method opls,ExpressionSet-method opls,data.frame-method
-#' opls,matrix-method
+#' @aliases opls opls,matrix-method opls,data.frame-method
+#' opls,SummarizedExperiment-method opls,ExpressionSet-method
+#' opls,MultiAssayExperiment-method opls,MultiDataSet-method
 #' @docType methods
 #' @param x Numerical matrix, (observations x variables; NAs are
 #' allowed), data.frame, SummarizedExperiment or ExpressionSet object

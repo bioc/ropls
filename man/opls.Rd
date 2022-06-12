@@ -3,10 +3,10 @@
 \docType{methods}
 \name{opls}
 \alias{opls}
+\alias{opls,matrix-method}
+\alias{opls,data.frame-method}
 \alias{opls,SummarizedExperiment-method}
 \alias{opls,ExpressionSet-method}
-\alias{opls,data.frame-method}
-\alias{opls,matrix-method}
 \alias{opls,MultiAssayExperiment-method}
 \alias{opls,MultiDataSet-method}
 \title{PCA, PLS(-DA), and OPLS(-DA)}

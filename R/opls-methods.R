@@ -121,7 +121,7 @@ setMethod("getLoadingMN", "opls",
           })
 
 
-####    getOpls    ####
+#### getOpls (SummarizedExperiment) ####
 
 #' @rdname getOpls
 #' @export
@@ -525,7 +525,8 @@ setMethod("opls", signature(x = "matrix"),
                           crossvalI = crossvalI,
                           subsetL = subsetL,
                           subsetVi = subsetVi,
-                          .char2numF = .char2numF)
+                          .char2numF = .char2numF,
+                          info.txtC = info.txtC)
             
             if (is.null(y)) {          
               opl@suppLs["y"] <- list(NULL)
@@ -587,7 +588,8 @@ setMethod("opls", signature(x = "matrix"),
                                  crossvalI = crossvalI,
                                  subsetL = subsetL,
                                  subsetVi = opl@subsetVi,
-                                 .char2numF = .char2numF)
+                                 .char2numF = .char2numF,
+                                 info.txtC = info.txtC)
                 
                 permMN[1 + k, ] <- as.matrix(perOpl@summaryDF)
                 
@@ -764,21 +766,6 @@ setMethod("opls", signature(x = "SummarizedExperiment"),
                    fig.pdfC = c("none", "interactive", "myfile.pdf")[2],                   
                    info.txtC = c("none", "interactive", "myfile.txt")[2]) {
             
-            type.c <- NULL
-            
-            if (is.list(y)) {
-              
-              if (length(y) > 1)
-                stop("'y' as a list should contain a single vector")
-              
-              if (is.null(names(y)))
-                stop("the name of the response should be provided in 'names(y)'")
-              
-              type.c <- names(y)
-              y <- y[[1]]
-              
-            }
-            
             if (is.null(y)) {
               
               opl <- opls(t(SummarizedExperiment::assay(x)),
@@ -797,14 +784,16 @@ setMethod("opls", signature(x = "SummarizedExperiment"),
                           fig.pdfC = fig.pdfC,                   
                           info.txtC = info.txtC)
               
+              y_name.c <- NULL
+              
             } else if (length(y) == 1 && is.character(y)) {
               
               if (!(y %in% colnames(SummarizedExperiment::colData(x)))) {
                 stop("'y' must be the name of a column of the sampleMetadata slot of the 'SummarizedExperiment' instance")
               } else {
-                rspFcVcn <- SummarizedExperiment::colData(x)[, y]
+                
                 opl <- opls(t(SummarizedExperiment::assay(x)),
-                            rspFcVcn,
+                            SummarizedExperiment::colData(x)[, y],
                             predI = predI,
                             orthoI = orthoI,
                             
@@ -818,13 +807,18 @@ setMethod("opls", signature(x = "SummarizedExperiment"),
                             plotSubC = plotSubC,                   
                             fig.pdfC = fig.pdfC,                   
                             info.txtC = info.txtC)
+                
+                y_name.c <- y
+                
               }
               
-            } else {
+            } else if (is.list(y)) {  # this mode is only used internally for MultiAssayExperiment
               
-              rspFcVcn <- y
-              opl <- opls(t(SummarizedExperiment::assay(x)),
-                          rspFcVcn,
+              stopifnot(length(y) == 1)
+              stopifnot(!is.null(names(y)))
+              
+              opl <- opls(x = t(SummarizedExperiment::assay(x)),
+                          y = y[[1]],
                           predI = predI,
                           orthoI = orthoI,
                           
@@ -839,18 +833,18 @@ setMethod("opls", signature(x = "SummarizedExperiment"),
                           fig.pdfC = fig.pdfC,                   
                           info.txtC = info.txtC)
               
-            }
+              y_name.c <- names(y)
+              
+            } else
+              stop("'y' must be the name of a column of the colData slot of the 'SummarizedExperiment' object")
+            
             
             modC <- opl@typeC
             
             rspModC <- gsub("-", "", modC)
             
-            if (rspModC != "PCA") {
-              if (is.null(type.c))
-                rspModC <- paste0(make.names(y), "_", rspModC)
-              else
-                rspModC <- paste0(make.names(type.c), "_", rspModC)
-            }
+            if (!is.null(y_name.c))
+              rspModC <- paste0(make.names(y_name.c), "_", rspModC)
             
             x@metadata[["opls"]][[rspModC]] <- opl
             

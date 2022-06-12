@@ -385,6 +385,52 @@ test_that("OPLSDA_ns", {
   
 })
 
+
+####    SummarizedExperiment    ####
+
+test_that("SummarizedExperiment", {
+  
+  data(sacurine)
+  
+  sac.se <- sacurine[["se"]]
+  
+  ## PCA
+  
+  sac.se <- opls(sac.se)
+  sac.pca <- getOpls(sac.se)[["PCA"]]
+  
+  testthat::expect_equivalent(getSummaryDF(sac.pca)["Total", "R2X(cum)"],
+                              0.501,
+                              tolerance = 1e-3)
+  
+  ## PLS-DA
+  
+  sac.se <- opls(sac.se, "gender")
+  sac_gender.plsda <- getOpls(sac.se)[["gender_PLSDA"]]
+  
+  testthat::expect_equivalent(getSummaryDF(sac_gender.plsda)["Total", "Q2(cum)"],
+                              0.584,
+                              tolerance = 1e-3)
+  
+  testthat::expect_equivalent(SummarizedExperiment::colData(sac.se)["HU_011", "gender_PLSDA_xscor-p2"],
+                              3.396,
+                              tolerance = 1e-3)
+  testthat::expect_equivalent(SummarizedExperiment::rowData(sac.se)["1-Methyluric acid", "gender_PLSDA_VIP"],
+                              0.994,
+                              tolerance = 1e-3)
+  
+  ## OPLS-DA
+  
+  sac.se <- opls(sac.se, "gender", predI = 1, orthoI = NA)
+  sac_gender.oplsda <- getOpls(sac.se)[["gender_OPLSDA"]]
+  
+  testthat::expect_equivalent(getSummaryDF(sac_gender.oplsda)["Total", "Q2(cum)"],
+                              0.602,
+                              tolerance = 1e-3)
+  
+})
+
+
 ####    MultiAssayExperiment    ####
 
 test_that("MultiAssayExperiment", {
@@ -401,6 +447,7 @@ test_that("MultiAssayExperiment", {
   for (set.c in set_names.vc) {
     # Getting the data
     assay.mn <- as.matrix(NCI60_4arrays[[set.c]])
+    # Reducing the number of features by 10 fold
     assay.mn <- assay.mn[seq(1, nrow(assay.mn), by = 10), ]
     coldata.df <- data.frame(row.names = colnames(assay.mn),
                              .id = colnames(assay.mn),
@@ -456,49 +503,55 @@ test_that("MultiAssayExperiment", {
 })
 
 
-####    SummarizedExperiment    ####
+####    ExpressionSet    ####
 
-test_that("SummarizedExperiment", {
+test_that("ExpressionSet", {
   
   data(sacurine)
   
-  sac.se <- sacurine[["se"]]
+  sacSet <- Biobase::ExpressionSet(assayData = t(sacurine[["dataMatrix"]]),
+                                   phenoData = new("AnnotatedDataFrame",
+                                                   data = sacurine[["sampleMetadata"]]),
+                                   featureData = new("AnnotatedDataFrame",
+                                                     data = sacurine[["variableMetadata"]]),
+                                   experimentData = new("MIAME",
+                                                        title = "sacurine"))
   
   ## PCA
   
-  sac.se <- opls(sac.se)
-  sac.pca <- getOpls(sac.se)[["PCA"]]
+  sacPca <- opls(sacSet)
   
-  testthat::expect_equivalent(getSummaryDF(sac.pca)["Total", "R2X(cum)"],
+  testthat::expect_equivalent(getSummaryDF(sacPca)["Total", "R2X(cum)"],
                               0.501,
                               tolerance = 1e-3)
   
   ## PLS-DA
   
-  sac.se <- opls(sac.se, "gender")
-  sac_gender.plsda <- getOpls(sac.se)[["gender_PLSDA"]]
+  sacPlsda <- opls(sacSet, "gender")
   
-  testthat::expect_equivalent(getSummaryDF(sac_gender.plsda)["Total", "Q2(cum)"],
+  testthat::expect_equivalent(getSummaryDF(sacPlsda)["Total", "Q2(cum)"],
                               0.584,
                               tolerance = 1e-3)
   
-  testthat::expect_equivalent(SummarizedExperiment::colData(sac.se)["HU_011", "gender_PLSDA_xscor-p2"],
+  sacSet <- getEset(sacPlsda)
+  
+  testthat::expect_equivalent(Biobase::pData(sacSet)["HU_011", "gender_PLSDA_xscor-p2"],
                               3.396,
                               tolerance = 1e-3)
-  testthat::expect_equivalent(SummarizedExperiment::rowData(sac.se)["1-Methyluric acid", "gender_PLSDA_VIP"],
+  testthat::expect_equivalent(Biobase::fData(sacSet)["1-Methyluric acid", "gender_PLSDA_VIP"],
                               0.994,
                               tolerance = 1e-3)
   
   ## OPLS-DA
   
-  sac.se <- opls(sac.se, "gender", predI = 1, orthoI = NA)
-  sac_gender.oplsda <- getOpls(sac.se)[["gender_OPLSDA"]]
+  sacOplsda <- opls(sacSet, "gender", predI = 1, orthoI = NA)
   
-  testthat::expect_equivalent(getSummaryDF(sac_gender.oplsda)["Total", "Q2(cum)"],
+  testthat::expect_equivalent(getSummaryDF(sacOplsda)["Total", "Q2(cum)"],
                               0.602,
                               tolerance = 1e-3)
   
 })
+
 
 ####    MultiDataSet    ####
 
@@ -559,55 +612,6 @@ test_that("MultiDataSet", {
   
 })
 
-
-####    ExpressionSet    ####
-
-test_that("ExpressionSet", {
-  
-  data(sacurine)
-  
-  sacSet <- Biobase::ExpressionSet(assayData = t(sacurine[["dataMatrix"]]),
-                                   phenoData = new("AnnotatedDataFrame",
-                                                   data = sacurine[["sampleMetadata"]]),
-                                   featureData = new("AnnotatedDataFrame",
-                                                     data = sacurine[["variableMetadata"]]),
-                                   experimentData = new("MIAME",
-                                                        title = "sacurine"))
-  
-  ## PCA
-  
-  sacPca <- opls(sacSet)
-  
-  testthat::expect_equivalent(getSummaryDF(sacPca)["Total", "R2X(cum)"],
-                              0.501,
-                              tolerance = 1e-3)
-  
-  ## PLS-DA
-  
-  sacPlsda <- opls(sacSet, "gender")
-  
-  testthat::expect_equivalent(getSummaryDF(sacPlsda)["Total", "Q2(cum)"],
-                              0.584,
-                              tolerance = 1e-3)
-  
-  sacSet <- getEset(sacPlsda)
-  
-  testthat::expect_equivalent(Biobase::pData(sacSet)["HU_011", "gender_PLSDA_xscor-p2"],
-                              3.396,
-                              tolerance = 1e-3)
-  testthat::expect_equivalent(Biobase::fData(sacSet)["1-Methyluric acid", "gender_PLSDA_VIP"],
-                              0.994,
-                              tolerance = 1e-3)
-  
-  ## OPLS-DA
-  
-  sacOplsda <- opls(sacSet, "gender", predI = 1, orthoI = NA)
-  
-  testthat::expect_equivalent(getSummaryDF(sacOplsda)["Total", "Q2(cum)"],
-                              0.602,
-                              tolerance = 1e-3)
-  
-})
 
 #### plot ####
 

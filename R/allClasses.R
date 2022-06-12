@@ -11,7 +11,7 @@
 #' @rdname oplsMultiDataSet-class
 #' @docType class
 #' @section Objects from the Class: Objects can be created by calls of the form
-#' \code{new("oplsMultiDataSet", ...)} or by applying the \code{opls} function to
+#' \code{new("oplsMultiDataSet")} or by applying the \code{opls} function to
 #' a MultiDataSet instance
 #' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
 #' @seealso \code{\link{opls}}
@@ -26,7 +26,7 @@ setClass(Class = "oplsMultiDataSet",
 #' Class "opls"
 #'
 #' An S4 class to store PCA and (O)PLS(-DA) models: Objects can be created by calls of the form
-#' \code{new("opls", ...)} or by calling the \code{opls} function
+#' \code{new("opls")} or by calling the \code{opls} function
 #' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
 #'
 #' @slot typeC character: model type (PCA, PLS, PLS-DA, OPLS, or OPLS-DA)
@@ -61,7 +61,7 @@ setClass(Class = "oplsMultiDataSet",
 #' @rdname opls-class
 #' @docType class
 #' @section Objects from the Class: Objects can be created by calls of the form
-#' \code{new("opls", ...)} or by calling the \code{opls} function
+#' \code{new("opls")} or by calling the \code{opls} function
 #' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
 #' @seealso \code{\link{opls}}
 #' @examples

@@ -27,55 +27,7 @@ opls(
   info.txtC = c("none", "interactive", "myfile.txt")[2]
 )
 
-\S4method{opls}{MultiAssayExperiment}(
-  x,
-  y = NULL,
-  predI = NA,
-  orthoI = 0,
-  algoC = c("default", "nipals", "svd")[1],
-  crossvalI = 7,
-  log10L = FALSE,
-  permI = 20,
-  scaleC = c("none", "center", "pareto", "standard")[4],
-  subset = NULL,
-  plotSubC = NA,
-  fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
-  info.txtC = c("none", "interactive", "myfile.txt")[2]
-)
-
-\S4method{opls}{SummarizedExperiment}(
-  x,
-  y = NULL,
-  predI = NA,
-  orthoI = 0,
-  algoC = c("default", "nipals", "svd")[1],
-  crossvalI = 7,
-  log10L = FALSE,
-  permI = 20,
-  scaleC = c("none", "center", "pareto", "standard")[4],
-  subset = NULL,
-  plotSubC = NA,
-  fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
-  info.txtC = c("none", "interactive", "myfile.txt")[2]
-)
-
-\S4method{opls}{MultiDataSet}(
-  x,
-  y = NULL,
-  predI = NA,
-  orthoI = 0,
-  algoC = c("default", "nipals", "svd")[1],
-  crossvalI = 7,
-  log10L = FALSE,
-  permI = 20,
-  scaleC = c("none", "center", "pareto", "standard")[4],
-  subset = NULL,
-  plotSubC = NA,
-  fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
-  info.txtC = c("none", "interactive", "myfile.txt")[2]
-)
-
-\S4method{opls}{ExpressionSet}(
+\S4method{opls}{matrix}(
   x,
   y = NULL,
   predI = NA,
@@ -107,7 +59,55 @@ opls(
   info.txtC = c("none", "interactive", "myfile.txt")[2]
 )
 
-\S4method{opls}{matrix}(
+\S4method{opls}{SummarizedExperiment}(
+  x,
+  y = NULL,
+  predI = NA,
+  orthoI = 0,
+  algoC = c("default", "nipals", "svd")[1],
+  crossvalI = 7,
+  log10L = FALSE,
+  permI = 20,
+  scaleC = c("none", "center", "pareto", "standard")[4],
+  subset = NULL,
+  plotSubC = NA,
+  fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
+  info.txtC = c("none", "interactive", "myfile.txt")[2]
+)
+
+\S4method{opls}{MultiAssayExperiment}(
+  x,
+  y = NULL,
+  predI = NA,
+  orthoI = 0,
+  algoC = c("default", "nipals", "svd")[1],
+  crossvalI = 7,
+  log10L = FALSE,
+  permI = 20,
+  scaleC = c("none", "center", "pareto", "standard")[4],
+  subset = NULL,
+  plotSubC = NA,
+  fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
+  info.txtC = c("none", "interactive", "myfile.txt")[2]
+)
+
+\S4method{opls}{ExpressionSet}(
+  x,
+  y = NULL,
+  predI = NA,
+  orthoI = 0,
+  algoC = c("default", "nipals", "svd")[1],
+  crossvalI = 7,
+  log10L = FALSE,
+  permI = 20,
+  scaleC = c("none", "center", "pareto", "standard")[4],
+  subset = NULL,
+  plotSubC = NA,
+  fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
+  info.txtC = c("none", "interactive", "myfile.txt")[2]
+)
+
+\S4method{opls}{MultiDataSet}(
   x,
   y = NULL,
   predI = NA,

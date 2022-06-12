@@ -5,7 +5,7 @@
 \alias{predict.opls}
 \title{Predict method for (O)PLS models}
 \usage{
-\S4method{predict}{opls}(object, newdata, ...)
+\S4method{predict}{opls}(object, newdata)
 }
 \arguments{
 \item{object}{An S4 object of class \code{opls}, created by \code{opls}
@@ -14,8 +14,6 @@ function.}
 \item{newdata}{Either a data frame or a matrix, containing numeric columns
 only, with the same number of columns (variables) as the 'x' used for model
 training with 'opls'.}
-
-\item{...}{Currently not used.}
 }
 \value{
 Predictions (either a vector, factor, or matrix depending on the y

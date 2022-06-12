@@ -17,7 +17,7 @@ the models built on each ExpresssionSet}
 
 \section{Objects from the Class}{
  Objects can be created by calls of the form
-\code{new("oplsMultiDataSet", ...)} or by applying the \code{opls} function to
+\code{new("oplsMultiDataSet")} or by applying the \code{opls} function to
 a MultiDataSet instance
 }
 

@@ -200,732 +200,6 @@ setMethod("getWeightMN", "opls",
           })
 
 
-#### opls (MultiAssayExperiment) ####
-
-#' @rdname opls
-#' @export
-setMethod("opls", signature(x = "MultiAssayExperiment"),
-          function(x,
-                   y = NULL,
-                   predI = NA,
-                   orthoI = 0,
-                   
-                   algoC = c("default", "nipals", "svd")[1],
-                   crossvalI = 7,
-                   log10L = FALSE,
-                   permI = 20,
-                   scaleC = c("none", "center", "pareto", "standard")[4],
-                   subset = NULL,
-                   
-                   plotSubC = NA,                   
-                   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],                   
-                   info.txtC = c("none", "interactive", "myfile.txt")[2]) {
-            
-            if (!is.null(y) && !is.character(y))
-              stop("'y' must be a character when the 'opls' method is applied to an 'MultiAssayExperiment' instance")
-            
-            if (!(info.txtC %in% c("none", "interactive")))
-              sink(info.txtC, append = TRUE)
-            
-            infTxtC <- info.txtC
-            if (infTxtC != "none")
-              infTxtC <- "interactive"
-            
-            if (!(fig.pdfC %in% c("none", "interactive")))
-              grDevices::pdf(fig.pdfC)
-            
-            figPdfC <- fig.pdfC
-            if (figPdfC != "none")
-              figPdfC <- "none"
-            
-            if (is.null(y)) {
-              type.c <- "PCA"
-              y.fcvcn <- NULL
-            } else if (!(y %in% colnames(MultiAssayExperiment::colData(x)))) {
-              stop("'y' must be the name of a column for the colData of the MultiAssayExperiment instance")
-            } else {
-              colData.DF <- MultiAssayExperiment::colData(x)
-              y.fcvcn <- colData.DF[, y]
-              names(y.fcvcn) <- rownames(colData.DF)
-              if (is.numeric(y.fcvcn)) {
-                type.c <- "PLS"
-              } else
-                type.c <- "PLSDA"
-              if (is.na(orthoI) || orthoI > 0)
-                type.c <- paste0("O", type.c)
-              type.c <- paste0(make.names(y), "_", type.c)
-            }
-            
-            for (setC in names(x)) {
-              
-              if (info.txtC != "none")
-                cat("\n\nBuilding the model for the '", setC, "' dataset:\n", sep = "")
-              
-              plotL <- TRUE
-              
-              set.se <- x[[setC]]
-              
-              if (is.null(y)) {
-                y_set.fcvcn <- NULL
-              } else
-                y_set.fcvcn <- y.fcvcn[colnames(set.se)]
-              
-              if (is.null(y)) {
-                y_set.ls <- NULL
-              } else {
-                y_set.ls <- list(y_set.fcvcn)
-                names(y_set.ls) <- y
-              }
-              
-              set.se <- opls(set.se,
-                             y = y_set.ls,
-                             predI = predI,
-                             orthoI = orthoI,
-                             
-                             algoC = algoC,
-                             crossvalI = crossvalI,
-                             log10L = log10L,
-                             permI = permI,
-                             scaleC = scaleC,
-                             subset = subset,
-                             
-                             plotSubC = plotSubC,                   
-                             fig.pdfC = figPdfC,                   
-                             info.txtC = infTxtC)
-              
-              setOpls <- getOpls(set.se)[[type.c]]
-              
-              if (cumprod(dim(getSummaryDF(setOpls)))[2] < 1 ||
-                  (grepl("PLS", setOpls@typeC) &&
-                   getSummaryDF(setOpls)["Total", "pQ2"] > 0.05)) {
-                
-                plotL <- FALSE
-                
-              }
-              
-              if (fig.pdfC != "none" && plotL)
-                plot(setOpls,
-                     plotSubC = paste0("[", setC, "]"),
-                     fig.pdfC = fig.pdfC)
-              
-              x[[setC]] <- set.se
-              
-            }
-            
-            if (!(fig.pdfC %in% c("none", "interactive")))
-              grDevices::dev.off()
-            
-            if (!(info.txtC %in% c("none", "interactive")))
-              sink()
-            
-            return(invisible(x))
-            
-          })
-
-
-#### opls (SummarizedExperiment) ####
-
-#' @rdname opls
-#' @export
-setMethod("opls", signature(x = "SummarizedExperiment"),
-          function(x,
-                   y = NULL,
-                   predI = NA,
-                   orthoI = 0,
-                   
-                   algoC = c("default", "nipals", "svd")[1],
-                   crossvalI = 7,
-                   log10L = FALSE,
-                   permI = 20,
-                   scaleC = c("none", "center", "pareto", "standard")[4],
-                   subset = NULL,
-                   
-                   plotSubC = NA,                   
-                   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],                   
-                   info.txtC = c("none", "interactive", "myfile.txt")[2]) {
-            
-            type.c <- NULL
-            
-            if (is.list(y)) {
-              
-              if (length(y) > 1)
-                stop("'y' as a list should contain a single vector")
-              
-              if (is.null(names(y)))
-                stop("the name of the response should be provided in 'names(y)'")
-              
-              type.c <- names(y)
-              y <- y[[1]]
-              
-            }
-            
-            if (is.null(y)) {
-              
-              opl <- opls(t(SummarizedExperiment::assay(x)),
-                          y = y,
-                          predI = predI,
-                          orthoI = orthoI,
-                          
-                          algoC = algoC,
-                          crossvalI = crossvalI,
-                          log10L = log10L,
-                          permI = permI,
-                          scaleC = scaleC,
-                          subset = subset,
-                          
-                          plotSubC = plotSubC,                   
-                          fig.pdfC = fig.pdfC,                   
-                          info.txtC = info.txtC)
-              
-            } else if (length(y) == 1 && is.character(y)) {
-              
-              if (!(y %in% colnames(SummarizedExperiment::colData(x)))) {
-                stop("'y' must be the name of a column of the sampleMetadata slot of the 'SummarizedExperiment' instance")
-              } else {
-                rspFcVcn <- SummarizedExperiment::colData(x)[, y]
-                opl <- opls(t(SummarizedExperiment::assay(x)),
-                            rspFcVcn,
-                            predI = predI,
-                            orthoI = orthoI,
-                            
-                            algoC = algoC,
-                            crossvalI = crossvalI,
-                            log10L = log10L,
-                            permI = permI,
-                            scaleC = scaleC,
-                            subset = subset,
-                            
-                            plotSubC = plotSubC,                   
-                            fig.pdfC = fig.pdfC,                   
-                            info.txtC = info.txtC)
-              }
-              
-            } else {
-              
-              rspFcVcn <- y
-              opl <- opls(t(SummarizedExperiment::assay(x)),
-                          rspFcVcn,
-                          predI = predI,
-                          orthoI = orthoI,
-                          
-                          algoC = algoC,
-                          crossvalI = crossvalI,
-                          log10L = log10L,
-                          permI = permI,
-                          scaleC = scaleC,
-                          subset = subset,
-                          
-                          plotSubC = plotSubC,                   
-                          fig.pdfC = fig.pdfC,                   
-                          info.txtC = info.txtC)
-              
-            }
-            
-            modC <- opl@typeC
-            
-            rspModC <- gsub("-", "", modC)
-            
-            if (rspModC != "PCA") {
-              if (is.null(type.c))
-                rspModC <- paste0(make.names(y), "_", rspModC)
-              else
-                rspModC <- paste0(make.names(type.c), "_", rspModC)
-            }
-            
-            x@metadata[["opls"]][[rspModC]] <- opl
-            
-            sumDF <- getSummaryDF(opl)
-            
-            if (cumprod(dim(sumDF))[2] < 1) # i.e. no model was built
-              return(invisible(x))
-            
-            scoreMN <- getScoreMN(opl)
-            loadingMN <- getLoadingMN(opl)
-            
-            vipVn <- coeMN <- orthoScoreMN <- orthoLoadingMN <- orthoVipVn <- NULL
-            
-            if (grepl("PLS", modC)) {
-              
-              vipVn <- getVipVn(opl)
-              coeMN <- coef(opl)
-              
-              if (grepl("OPLS", modC)) {
-                orthoScoreMN <- getScoreMN(opl, orthoL = TRUE)
-                orthoLoadingMN <- getLoadingMN(opl, orthoL = TRUE)
-                orthoVipVn <- getVipVn(opl, orthoL = TRUE)
-              }
-              
-            }
-            
-            pdaDF <- SummarizedExperiment::colData(x)
-            fdaDF <- SummarizedExperiment::rowData(x)
-            
-            ## x-scores
-            
-            if (sumDF[, "pre"] > 0) {
-              
-              scx1Vn <- .genVec(x, "sample", "numeric")
-              scx1Vn[rownames(scoreMN)] <- scoreMN[, 1]
-              pdaDF[, paste0(rspModC, "_xscor-p1")] <- scx1Vn
-              
-            }
-            
-            if (grepl("OPLS", modC) && sumDF[, "ort"] > 0) {
-              
-              scx2Vn <- .genVec(x, "sample", "numeric")
-              scx2Vn[rownames(orthoScoreMN)] <- orthoScoreMN[, 1]
-              pdaDF[, paste0(rspModC, "_xscor-o1")] <- scx2Vn
-              
-            } else if (sumDF[, "pre"] > 1) {
-              
-              scx2Vn <- .genVec(x, "sample", "numeric")
-              scx2Vn[rownames(scoreMN)] <- scoreMN[, 2]
-              pdaDF[, paste0(rspModC, "_xscor-p2")] <- scx2Vn
-              
-            }
-            
-            ## prediction
-            
-            if (modC != "PCA") {
-              
-              fitMCN <- as.matrix(fitted(opl))
-              
-              for (colI in 1:ncol(fitMCN)) {
-                
-                fitVcn <- .genVec(x, "sample", mode(fitMCN))
-                fitVcn[rownames(fitMCN)] <- fitMCN[, colI]
-                
-                pdaDF[, paste0(rspModC,
-                               ifelse(!is.null(colnames(fitMCN)[colI]),
-                                      paste0(colnames(fitMCN)[colI], "_"),
-                                      ""),
-                               "_fitted")] <- fitVcn
-                
-              }
-            }
-            
-            ## x-loadings
-            
-            if (sumDF[, "pre"] > 0) {
-              
-              loa1Vn <- .genVec(x, "feature", "numeric")
-              loa1Vn[rownames(loadingMN)] <- loadingMN[, 1]
-              fdaDF[, paste0(rspModC, "_xload-p1")] <- loa1Vn
-              
-            }
-            
-            if (grepl("OPLS", modC) && sumDF[, "ort"] > 0) {
-              
-              loa2Vn <- .genVec(x, "feature", "numeric")
-              loa2Vn[rownames(orthoLoadingMN)] <- orthoLoadingMN[, 1]
-              fdaDF[, paste0(rspModC, "_xload-o1")] <- loa2Vn
-              
-            } else if (sumDF[, "pre"] > 1) {
-              
-              loa2Vn <- .genVec(x, "feature", "numeric")
-              loa2Vn[rownames(loadingMN)] <- loadingMN[, 2]
-              fdaDF[, paste0(rspModC, "_xload-p2")] <- loa2Vn
-              
-            }
-            
-            ## VIP
-            
-            if (!is.null(vipVn)) {
-              
-              pvipVn <- .genVec(x, "feature", "numeric")
-              pvipVn[names(vipVn)] <- vipVn
-              fdaDF[, paste0(rspModC,
-                             "_VIP",
-                             ifelse(!is.null(orthoVipVn),
-                                    "-pred",
-                                    ""))] <- pvipVn
-              if (!is.null(orthoVipVn)) {
-                ovipVn <- .genVec(x, "feature", "numeric")
-                ovipVn[names(orthoVipVn)] <- orthoVipVn
-                fdaDF[, paste0(rspModC,
-                               "_VIP-ortho")] <- ovipVn
-              }
-            }
-            
-            ## coefficients
-            
-            if (!is.null(coeMN)) {
-              
-              for (colI in 1:ncol(coeMN)) {
-                
-                coeVn <- .genVec(x, "feature", "numeric")
-                coeVn[rownames(coeMN)] <- coeMN[, colI]
-                
-                if (ncol(coeMN) == 1) {
-                  fdaDF[, paste0(rspModC, "_coef")] <- coeVn
-                } else
-                  fdaDF[, paste0(rspModC, "_", colnames(coeMN)[colI], "-coef")] <- coeVn
-                
-              }
-            }
-            
-            SummarizedExperiment::colData(x) <- pdaDF
-            SummarizedExperiment::rowData(x) <- fdaDF
-            
-            return(invisible(x))
-            
-          })
-
-
-#### opls (MultiDataSet) ####
-
-#' @rdname opls
-#' @export
-setMethod("opls", signature(x = "MultiDataSet"),
-          function(x,
-                   y = NULL,
-                   predI = NA,
-                   orthoI = 0,
-                   
-                   algoC = c("default", "nipals", "svd")[1],
-                   crossvalI = 7,
-                   log10L = FALSE,
-                   permI = 20,
-                   scaleC = c("none", "center", "pareto", "standard")[4],
-                   subset = NULL,
-                   
-                   plotSubC = NA,                   
-                   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],                   
-                   info.txtC = c("none", "interactive", "myfile.txt")[2]) {
-            
-            if (!(info.txtC %in% c("none", "interactive")))
-              sink(info.txtC, append = TRUE)
-            
-            infTxtC <- info.txtC
-            if (infTxtC != "none")
-              infTxtC <- "interactive"
-            
-            if (!(fig.pdfC %in% c("none", "interactive")))
-              grDevices::pdf(fig.pdfC)
-            
-            figPdfC <- fig.pdfC
-            if (figPdfC != "none")
-              figPdfC <- "none"
-            
-            oplsMsetLs <- vector(mode = "list",
-                                 length = length(names(x)))
-            names(oplsMsetLs) <- names(x)
-            
-            for (setC in names(x)) {
-              
-              if (info.txtC != "none")
-                cat("\n\nBuilding the model for the '", setC, "' dataset:\n", sep = "")
-              
-              plotL <- TRUE
-              
-              setOpls <- opls(x[[setC]],
-                              y = y,
-                              predI = predI,
-                              orthoI = orthoI,
-                              
-                              algoC = algoC,
-                              crossvalI = crossvalI,
-                              log10L = log10L,
-                              permI = permI,
-                              scaleC = scaleC,
-                              subset = subset,
-                              
-                              plotSubC = plotSubC,                   
-                              fig.pdfC = figPdfC,                   
-                              info.txtC = infTxtC)
-              
-              if (cumprod(dim(getSummaryDF(setOpls)))[2] < 1 ||
-                  (grepl("PLS", setOpls@typeC) &&
-                   getSummaryDF(setOpls)["Total", "pQ2"] > 0.05)) {
-                
-                plotL <- FALSE
-                
-              }
-              
-              oplsMsetLs[[setC]] <- setOpls
-              
-              if (fig.pdfC != "none" && plotL)
-                plot(oplsMsetLs[[setC]],
-                     plotSubC = paste0("[", setC, "]"),
-                     fig.pdfC = fig.pdfC)
-              
-            }
-            
-            if (!(fig.pdfC %in% c("none", "interactive")))
-              grDevices::dev.off()
-            
-            if (!(info.txtC %in% c("none", "interactive")))
-              sink()
-            
-            oplsMset <- new("oplsMultiDataSet")
-            oplsMset@oplsLs <- oplsMsetLs
-            
-            return(invisible(oplsMset))
-            
-          })
-
-
-#### opls (ExpressionSet) ####
-
-#' @rdname opls
-#' @export
-setMethod("opls", signature(x = "ExpressionSet"),
-          function(x,
-                   y = NULL,
-                   predI = NA,
-                   orthoI = 0,
-                   
-                   algoC = c("default", "nipals", "svd")[1],
-                   crossvalI = 7,
-                   log10L = FALSE,
-                   permI = 20,
-                   scaleC = c("none", "center", "pareto", "standard")[4],
-                   subset = NULL,
-                   
-                   plotSubC = NA,                   
-                   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],                   
-                   info.txtC = c("none", "interactive", "myfile.txt")[2]) {
-            
-            if (is.null(y)) {
-              
-              opl <- opls(x = t(Biobase::exprs(x)),
-                          y = y,
-                          predI = predI,
-                          orthoI = orthoI,
-                          
-                          algoC = algoC,
-                          crossvalI = crossvalI,
-                          log10L = log10L,
-                          permI = permI,
-                          scaleC = scaleC,
-                          subset = subset,
-                          
-                          plotSubC = plotSubC,                   
-                          fig.pdfC = fig.pdfC,                   
-                          info.txtC = info.txtC)
-              
-            } else {
-              if (!is.character(y)) {
-                stop("'y' must be a character when the 'opls' method is applied to an 'ExpressionSet' instance")
-              } else {
-                if (!(y %in% colnames(pData(x)))) {
-                  stop("'y' must be the name of a column of the sampleMetadata slot of the 'ExpressionSet' instance")
-                } else {
-                  rspFcVcn <- pData(x)[, y]
-                  opl <- opls(t(exprs(x)),
-                              rspFcVcn,
-                              predI = predI,
-                              orthoI = orthoI,
-                              
-                              algoC = algoC,
-                              crossvalI = crossvalI,
-                              log10L = log10L,
-                              permI = permI,
-                              scaleC = scaleC,
-                              subset = subset,
-                              
-                              plotSubC = plotSubC,                   
-                              fig.pdfC = fig.pdfC,                   
-                              info.txtC = info.txtC)
-                }
-              }
-            }
-            
-            opl@eset <- x
-            
-            modC <- opl@typeC
-            sumDF <- getSummaryDF(opl)
-            
-            if (cumprod(dim(sumDF))[2] < 1)
-              return(invisible(opl))
-            
-            scoreMN <- getScoreMN(opl)
-            loadingMN <- getLoadingMN(opl)
-            
-            vipVn <- coeMN <- orthoScoreMN <- orthoLoadingMN <- orthoVipVn <- NULL
-            
-            if (grepl("PLS", modC)) {
-              
-              vipVn <- getVipVn(opl)
-              coeMN <- coef(opl)
-              
-              if (grepl("OPLS", modC)) {
-                orthoScoreMN <- getScoreMN(opl, orthoL = TRUE)
-                orthoLoadingMN <- getLoadingMN(opl, orthoL = TRUE)
-                orthoVipVn <- getVipVn(opl, orthoL = TRUE)
-              }
-              
-            }
-            
-            rspModC <- gsub("-", "", modC)
-            if (rspModC != "PCA")
-              rspModC <- paste0(make.names(y), "_", rspModC)
-            
-            pdaDF <- Biobase::pData(x)
-            fdaDF <- Biobase::fData(x)
-            
-            ## x-scores
-            
-            if (sumDF[, "pre"] > 0) {
-              
-              scx1Vn <- .genVec(x, "sample", "numeric")
-              scx1Vn[rownames(scoreMN)] <- scoreMN[, 1]
-              pdaDF[, paste0(rspModC, "_xscor-p1")] <- scx1Vn
-              
-            }
-            
-            if (grepl("OPLS", modC) && sumDF[, "ort"] > 0) {
-              
-              scx2Vn <- .genVec(x, "sample", "numeric")
-              scx2Vn[rownames(orthoScoreMN)] <- orthoScoreMN[, 1]
-              pdaDF[, paste0(rspModC, "_xscor-o1")] <- scx2Vn
-              
-            } else if (sumDF[, "pre"] > 1) {
-              
-              scx2Vn <- .genVec(x, "sample", "numeric")
-              scx2Vn[rownames(scoreMN)] <- scoreMN[, 2]
-              pdaDF[, paste0(rspModC, "_xscor-p2")] <- scx2Vn
-              
-            }
-            
-            ## prediction
-            
-            if (modC != "PCA") {
-              
-              fitMCN <- as.matrix(fitted(opl))
-              
-              for (colI in 1:ncol(fitMCN)) {
-                
-                fitVcn <- .genVec(x, "sample", mode(fitMCN))
-                fitVcn[rownames(fitMCN)] <- fitMCN[, colI]
-                
-                pdaDF[, paste0(rspModC,
-                               ifelse(!is.null(colnames(fitMCN)[colI]),
-                                      paste0(colnames(fitMCN)[colI], "_"),
-                                      ""),
-                               "_fitted")] <- fitVcn
-                
-              }
-            }
-            
-            ## x-loadings
-            
-            if (sumDF[, "pre"] > 0) {
-              
-              loa1Vn <- .genVec(x, "feature", "numeric")
-              loa1Vn[rownames(loadingMN)] <- loadingMN[, 1]
-              fdaDF[, paste0(rspModC, "_xload-p1")] <- loa1Vn
-              
-            }
-            
-            if (grepl("OPLS", modC) && sumDF[, "ort"] > 0) {
-              
-              loa2Vn <- .genVec(x, "feature", "numeric")
-              loa2Vn[rownames(orthoLoadingMN)] <- orthoLoadingMN[, 1]
-              fdaDF[, paste0(rspModC, "_xload-o1")] <- loa2Vn
-              
-            } else if (sumDF[, "pre"] > 1) {
-              
-              loa2Vn <- .genVec(x, "feature", "numeric")
-              loa2Vn[rownames(loadingMN)] <- loadingMN[, 2]
-              fdaDF[, paste0(rspModC, "_xload-p2")] <- loa2Vn
-              
-            }
-            
-            ## VIP
-            
-            if (!is.null(vipVn)) {
-              
-              pvipVn <- .genVec(x, "feature", "numeric")
-              pvipVn[names(vipVn)] <- vipVn
-              fdaDF[, paste0(rspModC,
-                             "_VIP",
-                             ifelse(!is.null(orthoVipVn),
-                                    "-pred",
-                                    ""))] <- pvipVn
-              if (!is.null(orthoVipVn)) {
-                ovipVn <- .genVec(x, "feature", "numeric")
-                ovipVn[names(orthoVipVn)] <- orthoVipVn
-                fdaDF[, paste0(rspModC,
-                               "_VIP-ortho")] <- ovipVn
-              }
-            }
-            
-            ## coefficients
-            
-            if (!is.null(coeMN)) {
-              
-              for (colI in 1:ncol(coeMN)) {
-                
-                coeVn <- .genVec(x, "feature", "numeric")
-                coeVn[rownames(coeMN)] <- coeMN[, colI]
-                
-                if (ncol(coeMN) == 1) {
-                  fdaDF[, paste0(rspModC, "_coef")] <- coeVn
-                } else
-                  fdaDF[, paste0(rspModC, "_", colnames(coeMN)[colI], "-coef")] <- coeVn
-                
-              }
-            }
-            
-            Biobase::pData(x) <- pdaDF
-            Biobase::fData(x) <- fdaDF
-            
-            opl@eset <- x
-            
-            
-            return(invisible(opl))
-            
-          })
-
-
-#### opls (data.frame) ####
-
-#' @rdname opls
-#' @export
-setMethod("opls", signature(x = "data.frame"),
-          function(x,
-                   y = NULL,
-                   predI = NA,
-                   orthoI = 0,
-                   
-                   algoC = c("default", "nipals", "svd")[1],
-                   crossvalI = 7,
-                   log10L = FALSE,
-                   permI = 20,
-                   scaleC = c("none", "center", "pareto", "standard")[4],
-                   subset = NULL,
-                   
-                   plotSubC = NA,                   
-                   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],                   
-                   info.txtC = c("none", "interactive", "myfile.txt")[2]) {
-            
-            if (!all(sapply(x, data.class) == "numeric")) {
-              stop("'x' data frame must contain columns of 'numeric' vectors only", call. = FALSE)
-            } else
-              x <- as.matrix(x)
-            
-            opl <- opls(x = x,
-                        y = y,
-                        predI = predI,
-                        orthoI = orthoI,
-                        
-                        algoC = algoC,
-                        crossvalI = crossvalI,
-                        log10L = log10L,
-                        permI = permI,
-                        scaleC = scaleC,
-                        subset = subset,
-                        
-                        plotSubC = plotSubC,                   
-                        fig.pdfC = fig.pdfC,                   
-                        info.txtC = info.txtC)
-            
-            return(invisible(opl))
-            
-          })
-
-
 ####    opls  (matrix)  ####
 
 #' @rdname opls
@@ -1422,6 +696,732 @@ setMethod("opls", signature(x = "matrix"),
           })
 
 
+#### opls (data.frame) ####
+
+#' @rdname opls
+#' @export
+setMethod("opls", signature(x = "data.frame"),
+          function(x,
+                   y = NULL,
+                   predI = NA,
+                   orthoI = 0,
+                   
+                   algoC = c("default", "nipals", "svd")[1],
+                   crossvalI = 7,
+                   log10L = FALSE,
+                   permI = 20,
+                   scaleC = c("none", "center", "pareto", "standard")[4],
+                   subset = NULL,
+                   
+                   plotSubC = NA,                   
+                   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],                   
+                   info.txtC = c("none", "interactive", "myfile.txt")[2]) {
+            
+            if (!all(sapply(x, data.class) == "numeric")) {
+              stop("'x' data frame must contain columns of 'numeric' vectors only", call. = FALSE)
+            } else
+              x <- as.matrix(x)
+            
+            opl <- opls(x = x,
+                        y = y,
+                        predI = predI,
+                        orthoI = orthoI,
+                        
+                        algoC = algoC,
+                        crossvalI = crossvalI,
+                        log10L = log10L,
+                        permI = permI,
+                        scaleC = scaleC,
+                        subset = subset,
+                        
+                        plotSubC = plotSubC,                   
+                        fig.pdfC = fig.pdfC,                   
+                        info.txtC = info.txtC)
+            
+            return(invisible(opl))
+            
+          })
+
+
+#### opls (SummarizedExperiment) ####
+
+#' @rdname opls
+#' @export
+setMethod("opls", signature(x = "SummarizedExperiment"),
+          function(x,
+                   y = NULL,
+                   predI = NA,
+                   orthoI = 0,
+                   
+                   algoC = c("default", "nipals", "svd")[1],
+                   crossvalI = 7,
+                   log10L = FALSE,
+                   permI = 20,
+                   scaleC = c("none", "center", "pareto", "standard")[4],
+                   subset = NULL,
+                   
+                   plotSubC = NA,                   
+                   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],                   
+                   info.txtC = c("none", "interactive", "myfile.txt")[2]) {
+            
+            type.c <- NULL
+            
+            if (is.list(y)) {
+              
+              if (length(y) > 1)
+                stop("'y' as a list should contain a single vector")
+              
+              if (is.null(names(y)))
+                stop("the name of the response should be provided in 'names(y)'")
+              
+              type.c <- names(y)
+              y <- y[[1]]
+              
+            }
+            
+            if (is.null(y)) {
+              
+              opl <- opls(t(SummarizedExperiment::assay(x)),
+                          y = y,
+                          predI = predI,
+                          orthoI = orthoI,
+                          
+                          algoC = algoC,
+                          crossvalI = crossvalI,
+                          log10L = log10L,
+                          permI = permI,
+                          scaleC = scaleC,
+                          subset = subset,
+                          
+                          plotSubC = plotSubC,                   
+                          fig.pdfC = fig.pdfC,                   
+                          info.txtC = info.txtC)
+              
+            } else if (length(y) == 1 && is.character(y)) {
+              
+              if (!(y %in% colnames(SummarizedExperiment::colData(x)))) {
+                stop("'y' must be the name of a column of the sampleMetadata slot of the 'SummarizedExperiment' instance")
+              } else {
+                rspFcVcn <- SummarizedExperiment::colData(x)[, y]
+                opl <- opls(t(SummarizedExperiment::assay(x)),
+                            rspFcVcn,
+                            predI = predI,
+                            orthoI = orthoI,
+                            
+                            algoC = algoC,
+                            crossvalI = crossvalI,
+                            log10L = log10L,
+                            permI = permI,
+                            scaleC = scaleC,
+                            subset = subset,
+                            
+                            plotSubC = plotSubC,                   
+                            fig.pdfC = fig.pdfC,                   
+                            info.txtC = info.txtC)
+              }
+              
+            } else {
+              
+              rspFcVcn <- y
+              opl <- opls(t(SummarizedExperiment::assay(x)),
+                          rspFcVcn,
+                          predI = predI,
+                          orthoI = orthoI,
+                          
+                          algoC = algoC,
+                          crossvalI = crossvalI,
+                          log10L = log10L,
+                          permI = permI,
+                          scaleC = scaleC,
+                          subset = subset,
+                          
+                          plotSubC = plotSubC,                   
+                          fig.pdfC = fig.pdfC,                   
+                          info.txtC = info.txtC)
+              
+            }
+            
+            modC <- opl@typeC
+            
+            rspModC <- gsub("-", "", modC)
+            
+            if (rspModC != "PCA") {
+              if (is.null(type.c))
+                rspModC <- paste0(make.names(y), "_", rspModC)
+              else
+                rspModC <- paste0(make.names(type.c), "_", rspModC)
+            }
+            
+            x@metadata[["opls"]][[rspModC]] <- opl
+            
+            sumDF <- getSummaryDF(opl)
+            
+            if (cumprod(dim(sumDF))[2] < 1) # i.e. no model was built
+              return(invisible(x))
+            
+            scoreMN <- getScoreMN(opl)
+            loadingMN <- getLoadingMN(opl)
+            
+            vipVn <- coeMN <- orthoScoreMN <- orthoLoadingMN <- orthoVipVn <- NULL
+            
+            if (grepl("PLS", modC)) {
+              
+              vipVn <- getVipVn(opl)
+              coeMN <- coef(opl)
+              
+              if (grepl("OPLS", modC)) {
+                orthoScoreMN <- getScoreMN(opl, orthoL = TRUE)
+                orthoLoadingMN <- getLoadingMN(opl, orthoL = TRUE)
+                orthoVipVn <- getVipVn(opl, orthoL = TRUE)
+              }
+              
+            }
+            
+            pdaDF <- SummarizedExperiment::colData(x)
+            fdaDF <- SummarizedExperiment::rowData(x)
+            
+            ## x-scores
+            
+            if (sumDF[, "pre"] > 0) {
+              
+              scx1Vn <- .genVec(x, "sample", "numeric")
+              scx1Vn[rownames(scoreMN)] <- scoreMN[, 1]
+              pdaDF[, paste0(rspModC, "_xscor-p1")] <- scx1Vn
+              
+            }
+            
+            if (grepl("OPLS", modC) && sumDF[, "ort"] > 0) {
+              
+              scx2Vn <- .genVec(x, "sample", "numeric")
+              scx2Vn[rownames(orthoScoreMN)] <- orthoScoreMN[, 1]
+              pdaDF[, paste0(rspModC, "_xscor-o1")] <- scx2Vn
+              
+            } else if (sumDF[, "pre"] > 1) {
+              
+              scx2Vn <- .genVec(x, "sample", "numeric")
+              scx2Vn[rownames(scoreMN)] <- scoreMN[, 2]
+              pdaDF[, paste0(rspModC, "_xscor-p2")] <- scx2Vn
+              
+            }
+            
+            ## prediction
+            
+            if (modC != "PCA") {
+              
+              fitMCN <- as.matrix(fitted(opl))
+              
+              for (colI in 1:ncol(fitMCN)) {
+                
+                fitVcn <- .genVec(x, "sample", mode(fitMCN))
+                fitVcn[rownames(fitMCN)] <- fitMCN[, colI]
+                
+                pdaDF[, paste0(rspModC,
+                               ifelse(!is.null(colnames(fitMCN)[colI]),
+                                      paste0(colnames(fitMCN)[colI], "_"),
+                                      ""),
+                               "_fitted")] <- fitVcn
+                
+              }
+            }
+            
+            ## x-loadings
+            
+            if (sumDF[, "pre"] > 0) {
+              
+              loa1Vn <- .genVec(x, "feature", "numeric")
+              loa1Vn[rownames(loadingMN)] <- loadingMN[, 1]
+              fdaDF[, paste0(rspModC, "_xload-p1")] <- loa1Vn
+              
+            }
+            
+            if (grepl("OPLS", modC) && sumDF[, "ort"] > 0) {
+              
+              loa2Vn <- .genVec(x, "feature", "numeric")
+              loa2Vn[rownames(orthoLoadingMN)] <- orthoLoadingMN[, 1]
+              fdaDF[, paste0(rspModC, "_xload-o1")] <- loa2Vn
+              
+            } else if (sumDF[, "pre"] > 1) {
+              
+              loa2Vn <- .genVec(x, "feature", "numeric")
+              loa2Vn[rownames(loadingMN)] <- loadingMN[, 2]
+              fdaDF[, paste0(rspModC, "_xload-p2")] <- loa2Vn
+              
+            }
+            
+            ## VIP
+            
+            if (!is.null(vipVn)) {
+              
+              pvipVn <- .genVec(x, "feature", "numeric")
+              pvipVn[names(vipVn)] <- vipVn
+              fdaDF[, paste0(rspModC,
+                             "_VIP",
+                             ifelse(!is.null(orthoVipVn),
+                                    "-pred",
+                                    ""))] <- pvipVn
+              if (!is.null(orthoVipVn)) {
+                ovipVn <- .genVec(x, "feature", "numeric")
+                ovipVn[names(orthoVipVn)] <- orthoVipVn
+                fdaDF[, paste0(rspModC,
+                               "_VIP-ortho")] <- ovipVn
+              }
+            }
+            
+            ## coefficients
+            
+            if (!is.null(coeMN)) {
+              
+              for (colI in 1:ncol(coeMN)) {
+                
+                coeVn <- .genVec(x, "feature", "numeric")
+                coeVn[rownames(coeMN)] <- coeMN[, colI]
+                
+                if (ncol(coeMN) == 1) {
+                  fdaDF[, paste0(rspModC, "_coef")] <- coeVn
+                } else
+                  fdaDF[, paste0(rspModC, "_", colnames(coeMN)[colI], "-coef")] <- coeVn
+                
+              }
+            }
+            
+            SummarizedExperiment::colData(x) <- pdaDF
+            SummarizedExperiment::rowData(x) <- fdaDF
+            
+            return(invisible(x))
+            
+          })
+
+
+#### opls (MultiAssayExperiment) ####
+
+#' @rdname opls
+#' @export
+setMethod("opls", signature(x = "MultiAssayExperiment"),
+          function(x,
+                   y = NULL,
+                   predI = NA,
+                   orthoI = 0,
+                   
+                   algoC = c("default", "nipals", "svd")[1],
+                   crossvalI = 7,
+                   log10L = FALSE,
+                   permI = 20,
+                   scaleC = c("none", "center", "pareto", "standard")[4],
+                   subset = NULL,
+                   
+                   plotSubC = NA,                   
+                   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],                   
+                   info.txtC = c("none", "interactive", "myfile.txt")[2]) {
+            
+            if (!is.null(y) && !is.character(y))
+              stop("'y' must be a character when the 'opls' method is applied to an 'MultiAssayExperiment' instance")
+            
+            if (!(info.txtC %in% c("none", "interactive")))
+              sink(info.txtC, append = TRUE)
+            
+            infTxtC <- info.txtC
+            if (infTxtC != "none")
+              infTxtC <- "interactive"
+            
+            if (!(fig.pdfC %in% c("none", "interactive")))
+              grDevices::pdf(fig.pdfC)
+            
+            figPdfC <- fig.pdfC
+            if (figPdfC != "none")
+              figPdfC <- "none"
+            
+            if (is.null(y)) {
+              type.c <- "PCA"
+              y.fcvcn <- NULL
+            } else if (!(y %in% colnames(MultiAssayExperiment::colData(x)))) {
+              stop("'y' must be the name of a column for the colData of the MultiAssayExperiment instance")
+            } else {
+              colData.DF <- MultiAssayExperiment::colData(x)
+              y.fcvcn <- colData.DF[, y]
+              names(y.fcvcn) <- rownames(colData.DF)
+              if (is.numeric(y.fcvcn)) {
+                type.c <- "PLS"
+              } else
+                type.c <- "PLSDA"
+              if (is.na(orthoI) || orthoI > 0)
+                type.c <- paste0("O", type.c)
+              type.c <- paste0(make.names(y), "_", type.c)
+            }
+            
+            for (setC in names(x)) {
+              
+              if (info.txtC != "none")
+                cat("\n\nBuilding the model for the '", setC, "' dataset:\n", sep = "")
+              
+              plotL <- TRUE
+              
+              set.se <- x[[setC]]
+              
+              if (is.null(y)) {
+                y_set.fcvcn <- NULL
+              } else
+                y_set.fcvcn <- y.fcvcn[colnames(set.se)]
+              
+              if (is.null(y)) {
+                y_set.ls <- NULL
+              } else {
+                y_set.ls <- list(y_set.fcvcn)
+                names(y_set.ls) <- y
+              }
+              
+              set.se <- opls(set.se,
+                             y = y_set.ls,
+                             predI = predI,
+                             orthoI = orthoI,
+                             
+                             algoC = algoC,
+                             crossvalI = crossvalI,
+                             log10L = log10L,
+                             permI = permI,
+                             scaleC = scaleC,
+                             subset = subset,
+                             
+                             plotSubC = plotSubC,                   
+                             fig.pdfC = figPdfC,                   
+                             info.txtC = infTxtC)
+              
+              setOpls <- getOpls(set.se)[[type.c]]
+              
+              if (cumprod(dim(getSummaryDF(setOpls)))[2] < 1 ||
+                  (grepl("PLS", setOpls@typeC) &&
+                   getSummaryDF(setOpls)["Total", "pQ2"] > 0.05)) {
+                
+                plotL <- FALSE
+                
+              }
+              
+              if (fig.pdfC != "none" && plotL)
+                plot(setOpls,
+                     plotSubC = paste0("[", setC, "]"),
+                     fig.pdfC = fig.pdfC)
+              
+              x[[setC]] <- set.se
+              
+            }
+            
+            if (!(fig.pdfC %in% c("none", "interactive")))
+              grDevices::dev.off()
+            
+            if (!(info.txtC %in% c("none", "interactive")))
+              sink()
+            
+            return(invisible(x))
+            
+          })
+
+
+#### opls (ExpressionSet) ####
+
+#' @rdname opls
+#' @export
+setMethod("opls", signature(x = "ExpressionSet"),
+          function(x,
+                   y = NULL,
+                   predI = NA,
+                   orthoI = 0,
+                   
+                   algoC = c("default", "nipals", "svd")[1],
+                   crossvalI = 7,
+                   log10L = FALSE,
+                   permI = 20,
+                   scaleC = c("none", "center", "pareto", "standard")[4],
+                   subset = NULL,
+                   
+                   plotSubC = NA,                   
+                   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],                   
+                   info.txtC = c("none", "interactive", "myfile.txt")[2]) {
+            
+            if (is.null(y)) {
+              
+              opl <- opls(x = t(Biobase::exprs(x)),
+                          y = y,
+                          predI = predI,
+                          orthoI = orthoI,
+                          
+                          algoC = algoC,
+                          crossvalI = crossvalI,
+                          log10L = log10L,
+                          permI = permI,
+                          scaleC = scaleC,
+                          subset = subset,
+                          
+                          plotSubC = plotSubC,                   
+                          fig.pdfC = fig.pdfC,                   
+                          info.txtC = info.txtC)
+              
+            } else {
+              if (!is.character(y)) {
+                stop("'y' must be a character when the 'opls' method is applied to an 'ExpressionSet' instance")
+              } else {
+                if (!(y %in% colnames(pData(x)))) {
+                  stop("'y' must be the name of a column of the sampleMetadata slot of the 'ExpressionSet' instance")
+                } else {
+                  rspFcVcn <- pData(x)[, y]
+                  opl <- opls(t(exprs(x)),
+                              rspFcVcn,
+                              predI = predI,
+                              orthoI = orthoI,
+                              
+                              algoC = algoC,
+                              crossvalI = crossvalI,
+                              log10L = log10L,
+                              permI = permI,
+                              scaleC = scaleC,
+                              subset = subset,
+                              
+                              plotSubC = plotSubC,                   
+                              fig.pdfC = fig.pdfC,                   
+                              info.txtC = info.txtC)
+                }
+              }
+            }
+            
+            opl@eset <- x
+            
+            modC <- opl@typeC
+            sumDF <- getSummaryDF(opl)
+            
+            if (cumprod(dim(sumDF))[2] < 1)
+              return(invisible(opl))
+            
+            scoreMN <- getScoreMN(opl)
+            loadingMN <- getLoadingMN(opl)
+            
+            vipVn <- coeMN <- orthoScoreMN <- orthoLoadingMN <- orthoVipVn <- NULL
+            
+            if (grepl("PLS", modC)) {
+              
+              vipVn <- getVipVn(opl)
+              coeMN <- coef(opl)
+              
+              if (grepl("OPLS", modC)) {
+                orthoScoreMN <- getScoreMN(opl, orthoL = TRUE)
+                orthoLoadingMN <- getLoadingMN(opl, orthoL = TRUE)
+                orthoVipVn <- getVipVn(opl, orthoL = TRUE)
+              }
+              
+            }
+            
+            rspModC <- gsub("-", "", modC)
+            if (rspModC != "PCA")
+              rspModC <- paste0(make.names(y), "_", rspModC)
+            
+            pdaDF <- Biobase::pData(x)
+            fdaDF <- Biobase::fData(x)
+            
+            ## x-scores
+            
+            if (sumDF[, "pre"] > 0) {
+              
+              scx1Vn <- .genVec(x, "sample", "numeric")
+              scx1Vn[rownames(scoreMN)] <- scoreMN[, 1]
+              pdaDF[, paste0(rspModC, "_xscor-p1")] <- scx1Vn
+              
+            }
+            
+            if (grepl("OPLS", modC) && sumDF[, "ort"] > 0) {
+              
+              scx2Vn <- .genVec(x, "sample", "numeric")
+              scx2Vn[rownames(orthoScoreMN)] <- orthoScoreMN[, 1]
+              pdaDF[, paste0(rspModC, "_xscor-o1")] <- scx2Vn
+              
+            } else if (sumDF[, "pre"] > 1) {
+              
+              scx2Vn <- .genVec(x, "sample", "numeric")
+              scx2Vn[rownames(scoreMN)] <- scoreMN[, 2]
+              pdaDF[, paste0(rspModC, "_xscor-p2")] <- scx2Vn
+              
+            }
+            
+            ## prediction
+            
+            if (modC != "PCA") {
+              
+              fitMCN <- as.matrix(fitted(opl))
+              
+              for (colI in 1:ncol(fitMCN)) {
+                
+                fitVcn <- .genVec(x, "sample", mode(fitMCN))
+                fitVcn[rownames(fitMCN)] <- fitMCN[, colI]
+                
+                pdaDF[, paste0(rspModC,
+                               ifelse(!is.null(colnames(fitMCN)[colI]),
+                                      paste0(colnames(fitMCN)[colI], "_"),
+                                      ""),
+                               "_fitted")] <- fitVcn
+                
+              }
+            }
+            
+            ## x-loadings
+            
+            if (sumDF[, "pre"] > 0) {
+              
+              loa1Vn <- .genVec(x, "feature", "numeric")
+              loa1Vn[rownames(loadingMN)] <- loadingMN[, 1]
+              fdaDF[, paste0(rspModC, "_xload-p1")] <- loa1Vn
+              
+            }
+            
+            if (grepl("OPLS", modC) && sumDF[, "ort"] > 0) {
+              
+              loa2Vn <- .genVec(x, "feature", "numeric")
+              loa2Vn[rownames(orthoLoadingMN)] <- orthoLoadingMN[, 1]
+              fdaDF[, paste0(rspModC, "_xload-o1")] <- loa2Vn
+              
+            } else if (sumDF[, "pre"] > 1) {
+              
+              loa2Vn <- .genVec(x, "feature", "numeric")
+              loa2Vn[rownames(loadingMN)] <- loadingMN[, 2]
+              fdaDF[, paste0(rspModC, "_xload-p2")] <- loa2Vn
+              
+            }
+            
+            ## VIP
+            
+            if (!is.null(vipVn)) {
+              
+              pvipVn <- .genVec(x, "feature", "numeric")
+              pvipVn[names(vipVn)] <- vipVn
+              fdaDF[, paste0(rspModC,
+                             "_VIP",
+                             ifelse(!is.null(orthoVipVn),
+                                    "-pred",
+                                    ""))] <- pvipVn
+              if (!is.null(orthoVipVn)) {
+                ovipVn <- .genVec(x, "feature", "numeric")
+                ovipVn[names(orthoVipVn)] <- orthoVipVn
+                fdaDF[, paste0(rspModC,
+                               "_VIP-ortho")] <- ovipVn
+              }
+            }
+            
+            ## coefficients
+            
+            if (!is.null(coeMN)) {
+              
+              for (colI in 1:ncol(coeMN)) {
+                
+                coeVn <- .genVec(x, "feature", "numeric")
+                coeVn[rownames(coeMN)] <- coeMN[, colI]
+                
+                if (ncol(coeMN) == 1) {
+                  fdaDF[, paste0(rspModC, "_coef")] <- coeVn
+                } else
+                  fdaDF[, paste0(rspModC, "_", colnames(coeMN)[colI], "-coef")] <- coeVn
+                
+              }
+            }
+            
+            Biobase::pData(x) <- pdaDF
+            Biobase::fData(x) <- fdaDF
+            
+            opl@eset <- x
+            
+            
+            return(invisible(opl))
+            
+          })
+
+
+#### opls (MultiDataSet) ####
+
+#' @rdname opls
+#' @export
+setMethod("opls", signature(x = "MultiDataSet"),
+          function(x,
+                   y = NULL,
+                   predI = NA,
+                   orthoI = 0,
+                   
+                   algoC = c("default", "nipals", "svd")[1],
+                   crossvalI = 7,
+                   log10L = FALSE,
+                   permI = 20,
+                   scaleC = c("none", "center", "pareto", "standard")[4],
+                   subset = NULL,
+                   
+                   plotSubC = NA,                   
+                   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],                   
+                   info.txtC = c("none", "interactive", "myfile.txt")[2]) {
+            
+            if (!(info.txtC %in% c("none", "interactive")))
+              sink(info.txtC, append = TRUE)
+            
+            infTxtC <- info.txtC
+            if (infTxtC != "none")
+              infTxtC <- "interactive"
+            
+            if (!(fig.pdfC %in% c("none", "interactive")))
+              grDevices::pdf(fig.pdfC)
+            
+            figPdfC <- fig.pdfC
+            if (figPdfC != "none")
+              figPdfC <- "none"
+            
+            oplsMsetLs <- vector(mode = "list",
+                                 length = length(names(x)))
+            names(oplsMsetLs) <- names(x)
+            
+            for (setC in names(x)) {
+              
+              if (info.txtC != "none")
+                cat("\n\nBuilding the model for the '", setC, "' dataset:\n", sep = "")
+              
+              plotL <- TRUE
+              
+              setOpls <- opls(x[[setC]],
+                              y = y,
+                              predI = predI,
+                              orthoI = orthoI,
+                              
+                              algoC = algoC,
+                              crossvalI = crossvalI,
+                              log10L = log10L,
+                              permI = permI,
+                              scaleC = scaleC,
+                              subset = subset,
+                              
+                              plotSubC = plotSubC,                   
+                              fig.pdfC = figPdfC,                   
+                              info.txtC = infTxtC)
+              
+              if (cumprod(dim(getSummaryDF(setOpls)))[2] < 1 ||
+                  (grepl("PLS", setOpls@typeC) &&
+                   getSummaryDF(setOpls)["Total", "pQ2"] > 0.05)) {
+                
+                plotL <- FALSE
+                
+              }
+              
+              oplsMsetLs[[setC]] <- setOpls
+              
+              if (fig.pdfC != "none" && plotL)
+                plot(oplsMsetLs[[setC]],
+                     plotSubC = paste0("[", setC, "]"),
+                     fig.pdfC = fig.pdfC)
+              
+            }
+            
+            if (!(fig.pdfC %in% c("none", "interactive")))
+              grDevices::dev.off()
+            
+            if (!(info.txtC %in% c("none", "interactive")))
+              sink()
+            
+            oplsMset <- new("oplsMultiDataSet")
+            oplsMset@oplsLs <- oplsMsetLs
+            
+            return(invisible(oplsMset))
+            
+          })
+
+
 ####    predict    ####
 
 #' Predict method for (O)PLS models
@@ -1434,7 +1434,6 @@ setMethod("opls", signature(x = "matrix"),
 #' @param newdata Either a data frame or a matrix, containing numeric columns
 #' only, with the same number of columns (variables) as the 'x' used for model
 #' training with 'opls'.
-#' @param ... Currently not used.
 #' @return Predictions (either a vector, factor, or matrix depending on the y
 #' response used for training the model)
 #' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
@@ -1462,7 +1461,7 @@ setMethod("opls", signature(x = "matrix"),
 #' @rdname predict
 #' @export
 setMethod("predict", "opls",
-          function(object, newdata, ...) {
+          function(object, newdata) {
             
             if(object@typeC == "PCA")
               stop("Predictions currently available for (O)PLS(-DA) models only (not PCA)",
@@ -1604,7 +1603,6 @@ setMethod("predict", "opls",
 #' @aliases print.opls print,opls-method
 #' @param x An S4 object of class \code{opls}, created by the \code{opls}
 #' function.
-#' @param ... Currently not used.
 #' @return Invisible.
 #' @examples
 #'
@@ -1619,7 +1617,7 @@ setMethod("predict", "opls",
 #' @rdname print
 #' @export
 setMethod("print", "opls",
-          function(x, ...) {
+          function(x) {
             
             cat("\n1) Data set:\n", sep = "")
             

@@ -1,3 +1,10 @@
+CHANGES IN VERSION 1.29.14
+------------------------------
+
+NEW FEATURE
+
+    o NCI60 dataset from omicade4 available in MultiAssayExperiment and MultiDataSet
+
 CHANGES IN VERSION 1.29.12
 ------------------------------
 

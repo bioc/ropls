@@ -1,3 +1,5 @@
+#### aminoacids ####
+
 #' Amino-Acids Dataset
 #'
 #' Quantitative structure property relationship (QSPR)
@@ -34,6 +36,9 @@
 #' @keywords datasets
 NULL
 
+
+#### cellulose ####
+
 #' NIR-Viscosity example data set to illustrate multivariate calibration using
 #' PLS, spectral filtering and OPLS
 #'
@@ -61,6 +66,9 @@ NULL
 #' Umetrics.
 #' @keywords datasets
 NULL
+
+
+#### cornell ####
 
 #' Octane of various blends of gasoline
 #'
@@ -92,6 +100,9 @@ NULL
 #' @source Tenenhaus (1998), Table 6, page 78.
 #' @keywords datasets
 NULL
+
+
+#### foods ####
 
 #' Food consumption patterns accross European countries (FOODS)
 #'
@@ -132,6 +143,9 @@ NULL
 #' @keywords datasets
 NULL
 
+
+#### Linnerud ####
+
 #' Linnerud Dataset
 #'
 #' Three physiological and three exercise variables are measured on twenty
@@ -160,6 +174,9 @@ NULL
 #' @source 'mixOmics' 'linnerud' dataset.
 #' @keywords datasets
 NULL
+
+
+#### lowarp ####
 
 #' A multi response optimization data set (LOWARP)
 #'
@@ -208,6 +225,9 @@ NULL
 #' @keywords datasets
 NULL
 
+
+#### mark ####
+
 #' 'mark' Dataset
 #'
 #' Examination marks obtained by French students in Mathematics, Physics,
@@ -235,6 +255,38 @@ NULL
 #' @keywords datasets
 NULL
 
+
+#### NCI60 ####
+
+#' Microarray gene expression profiles of the NCI 60 cell lines from 4 different platforms
+#'
+#' The 'NCI60_4arrays' dataset from the 'omicade4' package is provided here in
+#' the MultiAssayExperiment and MultiDataSet formats. The description of the dataset provided
+#' by the omicade4 package is as follows: 'The 60 human tumour cell lines are derived from patients with leukaemia, melanoma,
+#' lung, colon, central nervous system, ovarian, renal, breast and prostate cancers.
+#' The cell line panel is widely used in anti-cancer drug screen. In this dataset,
+#' a subset of microarray gene expression of the NCI 60 cell lines from four different platforms
+#' are provided.'
+#'
+#' @name NCI60
+#' @docType data
+#' @format A list with the following elements:
+#' \itemize{
+#' \item mae dataset in the MultiAssayExperiment format
+#' \item mds dataset in the MultiDataSet format
+#' }
+#' @return List containing the NCI60_4arrays dataset from the omicade4 package in the
+#' MultiAssayExperiment and MultiDataSet formats.
+#' @references Reinhold WC, Sunshine M, Liu H, Varma S, Kohn KW, Morris J, Doroshow J,
+#' Pommier Y (2012). CellMiner: A Web-Based Suite of Genomic and Pharmacologic Tools to
+#' Explore Transcript and Drug Patterns in the NCI-60 Cell Line Set. Cancer Research.
+#' DOI: 10.1158/0008-5472.CAN-12-1370
+#' @keywords datasets
+NULL
+
+
+#### sacurine ####
+
 #' Analysis of the human adult urinary metabolome variations with age, body
 #' mass index and gender
 #'
@@ -260,6 +312,8 @@ NULL
 #' MSI identification level ('msiLevel':
 #' either 1 or 2), HMDB ID when available ('hmdb', character), chemical class
 #' according to the 'super class' taxonomy of HMDB ('chemicalClass', character)
+#' \item se dataset in the SummarizedExperiment format
+#' \item eset dataset in the ExpressionSet format
 #' }
 #' @return List containing the 'dataMatrix' matrix (numeric) of data (samples
 #' as rows, variables as columns), the 'sampleMetadata' data frame of sample

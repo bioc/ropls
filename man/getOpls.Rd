@@ -3,18 +3,21 @@
 \name{getOpls}
 \alias{getOpls}
 \alias{getOpls,SummarizedExperiment-method}
-\title{Getting the models from the SummarizedExperiment object}
+\alias{getOpls,MultiAssayExperiment-method}
+\title{Getting the models from a SummarizedExperiment or a MultiAssayExperiment object}
 \usage{
 getOpls(object)
 
 \S4method{getOpls}{SummarizedExperiment}(object)
+
+\S4method{getOpls}{MultiAssayExperiment}(object)
 }
 \arguments{
-\item{object}{An S4 object of class \code{SummarizedExperiment}, once processed by the \code{opls}
-method}
+\item{object}{An S4 object of class \code{SummarizedExperiment} or \code{MultiAssayExperiment},
+once processed by the \code{opls} method}
 }
 \value{
-List of opls models contained in the SummarizedExperiment object
+List of opls models contained in the SummarizedExperiment object(s)
 }
 \description{
 The models are extracted as a list

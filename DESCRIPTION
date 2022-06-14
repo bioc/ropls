@@ -2,9 +2,10 @@ Package: ropls
 Type: Package
 Title: PCA, PLS(-DA) and OPLS(-DA) for multivariate analysis and
         feature selection of omics data
-Version: 1.29.12
-Date: 2022-06-12
-Author: Etienne A. Thevenot <etienne.thevenot@cea.fr>
+Version: 1.29.14
+Date: 2022-06-14
+Authors@R:
+    person("Etienne A.", "Thevenot", email = "etienne.thevenot@cea.fr", role = c("aut", "cre"), comment = c(ORCID = "0000-0003-1019-4577"))
 Maintainer: Etienne A. Thevenot <etienne.thevenot@cea.fr>
 biocViews: Regression, Classification, PrincipalComponent,
         Transcriptomics, Proteomics, Metabolomics, Lipidomics,
@@ -21,6 +22,7 @@ Description: Latent variable modeling with Principal Component Analysis (PCA) an
     permutation testing, detect outliers, and perform feature selection (e.g. with Variable Importance in Projection 
     or regression coefficients). The package can be accessed via a user interface on the Workflow4Metabolomics.org 
     online resource for computational metabolomics (built upon the Galaxy environment).
+Depends: R (>= 3.5.0)
 Imports: Biobase, graphics, grDevices, methods, MultiAssayExperiment, MultiDataSet, stats, SummarizedExperiment
 Suggests: BiocGenerics, BiocStyle, knitr, multtest, omicade4,
         rmarkdown, testthat
@@ -28,7 +30,7 @@ VignetteBuilder: knitr
 License: CeCILL
 Encoding: UTF-8
 LazyLoad: yes
-URL: http://dx.doi.org/10.1021/acs.jproteome.5b00354
+URL: https://doi.org/10.1021/acs.jproteome.5b00354
 NeedsCompilation: no
 RoxygenNote: 7.2.0
 git_url: https://git.bioconductor.org/packages/ropls

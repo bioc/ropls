@@ -131,6 +131,22 @@ setMethod("getOpls", "SummarizedExperiment",
           })
 
 
+#### getOpls (MultiAssayExperiment) ####
+
+#' @rdname getOpls
+#' @export
+setMethod("getOpls", "MultiAssayExperiment",
+          function(object) {
+            set.vc <- names(object)
+            opls.ls <- vector(mode = "list", length = length(set.vc))
+            names(opls.ls) <- set.vc
+            for (set.c in set.vc) {
+              opls.ls[[set.c]] <- object[[set.c]]@metadata[["opls"]]
+            }
+            return(opls.ls)
+          })
+
+
 ####    getPcaVarVn    ####
 
 #' @rdname getPcaVarVn

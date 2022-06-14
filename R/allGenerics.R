@@ -139,13 +139,13 @@ setGeneric("getMset",
 
 ####   getOpls    ####
 
-#' Getting the models from the SummarizedExperiment object
+#' Getting the models from a SummarizedExperiment or a MultiAssayExperiment object
 #'
 #' The models are extracted as a list
 #'
-#' @param object An S4 object of class \code{SummarizedExperiment}, once processed by the \code{opls}
-#' method
-#' @return List of opls models contained in the SummarizedExperiment object
+#' @param object An S4 object of class \code{SummarizedExperiment} or \code{MultiAssayExperiment},
+#' once processed by the \code{opls} method
+#' @return List of opls models contained in the SummarizedExperiment object(s)
 #' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
 #' @examples
 #'

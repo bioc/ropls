@@ -4,7 +4,7 @@ author: "Etienne A. Thevenot"
 date: "`r doc_date()`"
 package: "`r pkg_ver('ropls')`"
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{ropls-vignette}
   %\VignetteEncoding{UTF-8}
   %\VignetteKeywords{Regression, Classification, PrincipalComponent, Transcriptomics,
   %\VignetteEngine{knitr::rmarkdown}
@@ -26,8 +26,8 @@ knitr::opts_chunk$set(fig.width = 6,
 # The *ropls* package
 
 The
-[ropls](http://bioconductor.org/packages/release/bioc/html/ropls.html) R
-package implements the **PCA**, **PLS(-DA)** and **OPLS(-DA)**
+[`ropls`](http://bioconductor.org/packages/release/bioc/html/ropls.html)
+R package implements the **PCA**, **PLS(-DA)** and **OPLS(-DA)**
 approaches with the original, **NIPALS**-based, versions of the
 algorithms [@Wold2001; @Trygg2002]. It includes the **R2** and **Q2**
 quality metrics [@Eriksson2001; @Tenenhaus1998], the permutation
@@ -35,15 +35,6 @@ quality metrics [@Eriksson2001; @Tenenhaus1998], the permutation
 [@Wold2001], the score and orthogonal distances to detect **outliers**
 [@Hubert2005], as well as many **graphics** (scores, loadings,
 predictions, diagnostics, outliers, etc).
-
-The functionalities from
-[ropls](http://bioconductor.org/packages/release/bioc/html/ropls.html)
-can also be accessed via a graphical user interface in the
-**Multivariate** module from the
-[Workflow4Metabolomics.org](http://workflow4metabolomics.org) online
-resource for computational metabolomics, which provides a user-friendly,
-**Galaxy**-based environment for data pre-processing, statistical
-analysis, and annotation [@Giacomoni2015].
 
 # Context
 
@@ -80,6 +71,9 @@ algorithm in R has been described [@Gaude2013].
 
 # The *sacurine* metabolomics dataset
 
+The *sacurine* metabolomics dataset will be used as a case study to
+describe the features from the **ropls** pacakge.
+
 ## Study objective
 
 The objective was to study the influence of **age**, **body mass index
@@ -100,31 +94,31 @@ osmolality of the sample. Finally, the data were log10 transformed
 
 ## Covariates
 
-The volunteers' **age**, **body mass index (bmi)**, and **gender** were
-recorded.
+The volunteers' **`age`**, **body mass index (`bmi`)**, and **`gender`**
+were recorded.
 
 # Hands-on
 
 ## Loading
 
 We first load the
-[ropls](http://bioconductor.org/packages/release/bioc/html/ropls.html)
+[`ropls`](http://bioconductor.org/packages/release/bioc/html/ropls.html)
 package:
 
 ```{r load, message = FALSE}
 library(ropls)
 ```
 
-We then load the **sacurine** dataset which contains:
+We then load the **`sacurine`** dataset which contains:
 
-1.  The **dataMatrix** matrix of numeric type containing the intensity
+1.  The **`dataMatrix`** matrix of numeric type containing the intensity
     profiles (log10 transformed),
 
-2.  The **sampleMetadata** data frame containg sample metadata,
+2.  The **`sampleMetadata`** data frame containg sample metadata,
 
-3.  The **variableMetadata** data frame containg variable metadata
+3.  The **`variableMetadata`** data frame containg variable metadata
 
-```{r sacurine}
+```{r sacurine, message = FALSE}
 data(sacurine)
 names(sacurine)
 ```
@@ -547,16 +541,16 @@ procedure where each column of the matrix is modeled separately (as
 described above) and the resulting probabilities are aggregated (see for
 instance @Bylesjo2006).
 
-## Working on *SummarizedExperiment* omics objects from bioconductor
+## Working on `SummarizedExperiment` objects
 
 The **`SummarizedExperiment`** class from the
 [SummarizedExperiment](https://www.bioconductor.org/packages/SummarizedExperiment/)
 bioconductor package has been developed to conveniently handle
-preprocessed omics objects, including the variable x sample matrix of
-intensities, and two DataFrame containing the sample and variable
+preprocessed omics objects, including the *variable x sample* matrix of
+intensities, and two DataFrames containing the sample and variable
 metadata, which can be accessed by the `assay`, `colData` and `rowData`
-methods respectively (note that the data matrix is stored in the object
-with samples in columns).
+methods respectively (remember that the data matrix is stored with
+samples in columns).
 
 The `opls` method can be applied to a **`SummarizedExperiment`** object,
 by using the object as the `x` argument, and, for (O)PLS(-DA), by
@@ -566,40 +560,33 @@ object with the loading, score, VIP, etc. data as new columns in the
 `colData` and `rowData`, and with the PCA/(O)PLS(-DA) models in the
 `metadata` slot.
 
-In the example below, we will first build a minimal
-**`SummarizedExperiment`** object from the *sacurine* data set, and we
-subsequently perform a PLS-DA.
+Getting the sacurine dataset as a `SummarizedExperiment` (see the
+Appendix to see how such an `SummarizedExperiment` was built)
 
-We first build the `SummarizedExperiment` object:
-
-```{r se_building, message = FALSE, warning=FALSE}
-library(SummarizedExperiment)
-
-sac.se <- SummarizedExperiment(assays = list(se = t(dataMatrix)),
-                               colData = sampleMetadata,
-                               rowData = variableMetadata)
-view(sac.se)
-
-# Notes:
-# 1) A pre-existing ExpressionSet object can be converted to a SummarizedExperiment
-# sac.se <- as(sacSet, "SummarizedExperiment")
-
-# 2) The sacurine SummarizedExperiment is also directly available with
-# data(sacurine)
-# sac.se <- sacurine[["se"]]
+```{r get_se}
+data(sacurine)
+sac.se <- sacurine[["se"]]
 ```
 
-We then build the PLS-DA model of the gender response (note that this
-time the `opls` method returns a `SummarizedExperiment`):
+We then build the PLS-DA model of the gender response
 
 ```{r se_plsda}
-sac.se <- opls(sac.se, "gender")
-colData(sac.se)
-rowData(sac.se)
+sac.se <- opls(sac.se, "gender", fig.pdfC = "none", info.txtC = "none")
 ```
 
-We use the `getOpls` method to get the list of `opls` models included
-the `SummarizedExperiment`:
+Note that the `opls` method returns an updated `SummarizedExperiment`
+with the metadata about scores, loadings, VIPs, etc. stored in the
+`colData` and `rowData` DataFrames:
+
+```{r se_updated, message = FALSE}
+library(SummarizedExperiment)
+SummarizedExperiment::colData(sac.se)
+SummarizedExperiment::rowData(sac.se)
+```
+
+The opls model(s) are stored in the metadata of the sac.se
+`SummarizedExperiment` object, and can be accessed with the `getOpls`
+method:
 
 ```{r se_model}
 sac_opls.ls <- getOpls(sac.se)
@@ -607,133 +594,170 @@ names(sac_opls.ls)
 plot(sac_opls.ls[["gender_PLSDA"]], typeVc = "x-score")
 ```
 
-Note: Application of `opls` to `ExpressionSet` objects is deprecated.
+### `ExpressionSet` format
 
-## Working with multi-omics datasets: the MultiAssayExperiment format
+The `ExpressionSet` format is currently supported as a legacy
+representation from the previous versions of the `ropls` package (\<
+1.28.0) but will now be supplanted by `SummarizedExperiment` in future
+versions.
 
-The `MultiAssayExperiment` format is useful to handle multi-omics
+`exprs`, `pData`, and `fData` for `ExpressionSet` are similar to
+`assay`, `colData` and `rowData` for `SummarizedExperiment` except that
+`assay` is a list which can potentially include several matrices, and
+that `colData` and `rowData` are of the `DataFrame` format.
+`SummarizedExperiment` format further enables to store additional
+metadata (such as models or ggplots) in a dedicated `metadata` slot.
+
+In the example below, we will first build a minimal **`ExpressionSet`**
+object from the *sacurine* data set and view the data, and we
+subsequently perform an OPLS-DA.
+
+Getting the sacurine dataset as an `ExpressionSet` (see the Appendix to
+see how such an `ExpressionSet` was built)
+
+```{r get_eset}
+data("sacurine")
+sac.set <- sacurine[["eset"]]
+# viewing the ExpressionSet
+# ropls::view(sac.set)
+```
+
+We then build the PLS-DA model of the gender response
+
+```{r eset_plsda}
+# performing the PLS-DA
+sac.plsda <- opls(sac.set, "gender", fig.pdfC = "none", info.txtC = "none")
+```
+
+Note that this time `opls` returns the model as an object of the `opls`
+class. The update `ExpressionSet` object can be accessed with the
+`getEset` method:
+
+```{r eset_updated}
+sac.set <- getEset(sac.plsda)
+library(Biobase)
+head(Biobase::pData(sac.set))
+```
+
+## Working on `MultiAssayExperiment` objects
+
+The `MultiAssayExperiment` format is useful to handle **multi-omics**
 datasets [@Ramos_SoftwareIntegrationMultiomics_2017]. (O)PLS(-DA) models
 can be built in parallel for each dataset by applying `opls` to such
-formats. We provide an example based on the **NCI60_4arrays** cancer
-dataset available in the `omicade4` package.
+formats. We provide an example based on the `NCI60_4arrays` cancer
+dataset from the `omicade4` package (which is has been made available in
+this `ropls` package in the `MultiAssayExperiment` format).
 
-Loading the *NCI60_4arrays* from the `omicade4` package and selecting
-two of the four datasets:
+Getting the `NCI60` dataset as a `MultiAssayExperiment` (see the
+Appendix to see how such a `MultiAssayExperiment` can be built):
 
-```{r NCI60}
-data("NCI60_4arrays", package = "omicade4")
-set_names.vc <- c("agilent", "hgu95")
+```{r nci60_mae, message = FALSE}
+data("NCI60")
+nci.mae <- NCI60[["mae"]]
 ```
 
-Creating the `MultiAssayExperiment`:
-
-```{r mae_building, message = FALSE, warning=FALSE}
-library(MultiAssayExperiment)
-# Building the SummarizedExperiment instances
-experiment.ls <- list()
-sampleMap.ls <- list()
-for (set.c in set_names.vc) {
-  # Getting the data
-  assay.mn <- as.matrix(NCI60_4arrays[[set.c]])
-  assay.mn <- assay.mn[seq(1, nrow(assay.mn), by = 10), ]
-  coldata.df <- data.frame(row.names = colnames(assay.mn),
-                           .id = colnames(assay.mn),
-                           stringsAsFactors = FALSE)
-  rowdata.df <- data.frame(row.names = rownames(assay.mn),
-                           name = rownames(assay.mn),
-                           stringsAsFactors = FALSE)
-  # Building the SummarizedExperiment
-  assay.ls <- list(se = assay.mn)
-  names(assay.ls) <- set.c
-  se <- SummarizedExperiment(assays = assay.ls,
-                             colData = coldata.df,
-                             rowData = rowdata.df)
-  experiment.ls[[set.c]] <- se
-  sampleMap.ls[[set.c]] <- data.frame(primary = colnames(se),
-                                      colname = colnames(se))
-}
-sampleMap <- listToMap(sampleMap.ls)
-
-# The sample metadata are stored in the colData data frame
-stopifnot(identical(colnames(NCI60_4arrays[[1]]), colnames(NCI60_4arrays[[2]])))
-sample_names.vc <- colnames(NCI60_4arrays[[1]])
-colData.df <- data.frame(row.names = sample_names.vc,
-                         cancer = substr(sample_names.vc, 1, 2))
-
-nci.mae <- MultiAssayExperiment(experiments = experiment.ls,
-                                colData = colData.df,
-                                sampleMap = sampleMap)
-
-nci.mae
-```
-
-Building a **PCA** model on each dataset:
-
-```{r mae_pca}
-nci.mae <- opls(nci.mae)
-```
-
-Building the **PLS-DA** model of the *cancer* response for each dataset
+Building the PLS-DA model of the `cancer` response for each dataset
 
 ```{r mae_plsda}
-nci.mae <- opls(nci.mae, "cancer")
+nci.mae <- opls(nci.mae, "cancer",
+                predI = 2, fig.pdfC = "none")
 ```
 
-Note: Application of `opls` to `MultiDataSet` objects is deprecated.
+The `opls` method returns an updated `MultiAssayExperiment` with the
+metadata about scores, loadings, VIPs, etc. stored in the `colData` and
+`rowData` of the individual `SummarizedExperiment`:
 
-## Importing/exporting data from/to the Workflow4metabolomics infrastructure
-
-Galaxy is a web-based environment providing powerful graphical user
-interface and workflow management functionalities for omics data
-analysis (@Goecks2010; @Boekel2015). Wrapping an R code into a Galaxy
-module is quite straight-forward: examples can be found on the
-[toolshed](https://toolshed.g2.bx.psu.edu) central repository and in the
-[RGalaxy](https://www.bioconductor.org/packages/release/bioc/html/RGalaxy.html)
-bioconductor package.
-
-[Workflow4metabolomics](http://workflow4metabolomics.org) (W4M) is the
-online infrastructure for computational metabolomics based on the Galaxy
-environment [@Giacomoni2015]. W4M enables to build, run, save and share
-workflows efficiently. In addition, workflows and input/output data
-(called **histories**) can be
-[referenced](https://galaxy.workflow4metabolomics.org/history/list_published),
-thus enabling fully reproducible research. More than 30 modules are
-currently available for LC-MS, GC-MS and NMR data preprocessing,
-statistical analysis, and annotation, including wrappers of `xcms`,
-`CAMERA`, `metaMS`, `ropls`, and `biosigner`, and is open to [new
-contributions](http://workflow4metabolomics.org/node/49).
-
-In order to facilitate data import from/to W4M, the `fromW4M` function
-(respectively the `toW4M` method) enables import from (respectively
-export to) the **W4M 3 tabular file format** (**dataMatrix.tsv**,
-**sampleMetadata.tsv**, **variableMetadata.tsv**) into (respectively
-from) an `ExpressionSet` object, as shown in the following example which
-uses the 3 .tsv files stored in the **extdata** repository of the
-package to create a *sacSet* ExpressionSet object:
-
-```{r fromW4M}
-sacSet <- fromW4M(file.path(path.package("ropls"), "extdata"))
-sacSet
+```{r mae_updated}
+library(MultiAssayExperiment)
+MultiAssayExperiment::colData(nci.mae[["agilent"]])
 ```
 
-The generated *sacSet* `ExpressionSet` object can be used with the
-`opls` method as described in the previous section.
+The opls model(s) are stored in the metadata of the individual
+`SummarizedExperiment` objects included in the `MultiAssayExperiment`,
+and can be accessed with the `getOpls` method:
 
-Conversely, an `ExpressionSet` (with filled **exprs**, **phenoData** and
-**featureData** slots) can be exported to the 3 table W4M format:
-
-```{r toW4M, eval = FALSE}
-toW4M(sacSet, paste0(getwd(), "/out_"))
+```{r mae_model}
+mae_opls.ls <- getOpls(nci.mae)
+names(mae_opls.ls)
+plot(mae_opls.ls[["agilent"]][["cancer_PLSDA"]], typeVc = "x-score")
 ```
 
-Before moving to the next session whith another example dataset, we
-detach *sacurine* from the search path:
+### `MultiDataSet` objects
+
+The `MultiDataSet` format is currently supported as a legacy
+representation from the previous versions of the `ropls` package
+(\<1.28.0) but will now be supplanted by `MultiAssayExperiment` in
+future versions.
+
+Getting the `NCI60` dataset as a `MultiDataSet` (see the Appendix to see
+how such a `MultiDataSet` can be built):
+
+```{r get_mds}
+data("NCI60")
+nci.mds <- NCI60[["mds"]]
+```
+
+Building PLS-DA models for the cancer type:
+
+```{r mds_plsda}
+# Restricting to the "agilent" and "hgu95" datasets
+nci.mds <- nci.mds[, c("agilent", "hgu95")]
+# Restricting to the 'ME' and 'LE' cancer types
+library(Biobase)
+sample_names.vc <- Biobase::sampleNames(nci.mds[["agilent"]])
+cancer_type.vc <- Biobase::pData(nci.mds[["agilent"]])[, "cancer"]
+nci.mds <- nci.mds[sample_names.vc[cancer_type.vc %in% c("ME", "LE")], ]
+# Building PLS-DA models for the cancer type
+nci.plsda <- ropls::opls(nci.mds, "cancer", predI = 2)
+```
+
+Getting back the updated `MultiDataSet`:
+
+```{r mds_getmset}
+nci.mds <- ropls::getMset(nci.plsda)
+```
+
+## Importing/exporting data
+
+The datasets from the `SummarizedExperiment` and `MultiAssayExperiment`
+(as well as `ExpressionSet` and `MultiDataSet`) can be imported/exported
+to text files with the `reading` and `writing` functions from the
+`phenomis` package. The `phenomis` package is currently available on
+github and should be soon available on Bioconductor.
+
+Each dataset is imported/exported to 3 text files (tsv tabular format):
+
+-   dataMatrix.tsv: data matrix with features as rows and samples as
+    columns
+
+-   sampleMetadata.tsv: sample metadata
+
+-   variableMetadata.tsv: feature metadata
+
+```{r phenomis, eval = FALSE}
+install.packages("devtools")
+devtools::install_github("https://github.com/odisce/phenomis")
+data(sacurine)
+sacurine.se <- sacurine[["se"]]
+library(phenomis)
+phenomis::writing(sacurine.se, dir.c = getwd())
+```
 
 ```{r detach}
 detach(sacurine)
 ```
 
-# Other datasets
+## Graphical User Interface
+
+The features from the `ropls` package can also be accessed via a
+graphical user interface in the **Multivariate** module from the
+[Workflow4Metabolomics.org](http://workflow4metabolomics.org) online
+resource for computational metabolomics, based on the Galaxy
+environment.
+
+# Appendix
+
+## Additional datasets
 
 In addition to the *sacurine* dataset presented above, the package
 contains the following datasets to illustrate the functionalities of
@@ -767,6 +791,257 @@ function):
 -   **mark** Marks obtained by french students in mathematics, physics,
     french and english. Toy example to illustrate the potentialities of
     PCA [@Baccini2010].
+
+## Cheat sheets for Bioconductor (multi)omics containers
+
+### `SummarizedExperiment`
+
+The `SummarizedExperiment` format has been designed by the Bioconductor
+team to handle (single) omics datasets [@Morgan2022].
+
+An example of `SummarizedExperiment` creation and a summary of useful
+methods are provided below.
+
+Please refer to [package
+vignettes](https://bioconductor.org/packages/release/bioc/vignettes/SummarizedExperiment/inst/doc/SummarizedExperiment.html)
+for a full description of `SummarizedExperiment` objects .
+
+```{r se_build}
+# Preparing the data (matrix) and sample and variable metadata (data frames):
+data(sacurine, package = "ropls")
+data.mn <- sacurine[["dataMatrix"]] # matrix: samples x variables
+samp.df <- sacurine[["sampleMetadata"]] # data frame: samples x sample metadata
+feat.df <- sacurine[["variableMetadata"]] # data frame: features x feature metadata
+
+# Creating the SummarizedExperiment (package SummarizedExperiment)
+library(SummarizedExperiment)
+sac.se <- SummarizedExperiment(assays = list(sacurine = t(data.mn)),
+                               colData = samp.df,
+                               rowData = feat.df)
+# note that colData and rowData main format is DataFrame, but data frames are accepted when building the object
+stopifnot(validObject(sac.se))
+
+# Viewing the SummarizedExperiment
+# ropls::view(sac.se)
+```
+
+| [Methods]{.smallcaps}                           | [Description]{.smallcaps}                           | [Returned class]{.smallcaps}      |
+|--------------------------|---------------------------|-------------------|
+| [**Constructors**]{.smallcaps}                  |                                                     |                                   |
+| **`SummarizedExperiment`**                      | Create a SummarizedExperiment object                | `SummarizedExperiment`            |
+| **`makeSummarizedExperimentFromExpressionSet`** |                                                     | `SummarizedExperiment`            |
+| [**Accessors**]{.smallcaps}                     |                                                     |                                   |
+| **`assayNames`**                                | Get or set the names of assay() elements            | `character`                       |
+| **`assay`**                                     | Get or set the ith (default first) assay element    | `matrix`                          |
+| **`assays`**                                    | Get the list of experimental data numeric matrices  | `SimpleList`                      |
+| **`rowData`**                                   | Get or set the row data (features)                  | `DataFrame`                       |
+| **`colData`**                                   | Get or set the column data (samples)                | `DataFrame`                       |
+| **`metadata`**                                  | Get or set the experiment data                      | `list`                            |
+| **`dim`**                                       | Get the dimensions (features of interest x samples) | `integer`                         |
+| **`dimnames`**                                  | Get or set the dimension names                      | `list` of length 2 character/NULL |
+| **`rownames`**                                  | Get the feature names                               | `character`                       |
+| **`colnames`**                                  | Get the sample names                                | `character`                       |
+| [**Conversion**]{.smallcaps}                    |                                                     |                                   |
+| **`as(, "SummarizedExperiment")`**              | Convert an ExpressionSet to a SummarizedExperiment  | `SummarizedExperiment`            |
+
+### `MultiAssayExperiment`
+
+The `MultiAssayExperiment` format has been designed by the Bioconductor
+team to handle multiomics datasets
+[@Ramos_SoftwareIntegrationMultiomics_2017].
+
+An example of `MultiAssayExperiment` creation and a summary of useful
+methods are provided below. Please refer to [package
+vignettes](https://bioconductor.org/packages/MultiAssayExperiment/) or
+to the original publication for a full description of
+`MultiAssayExperiment` objects
+[@Ramos_SoftwareIntegrationMultiomics_2017].
+
+Loading the `NCI60_4arrays` from the `omicade4` package:
+
+```{r mae_build_load}
+data("NCI60_4arrays", package = "omicade4")
+```
+
+Creating the `MultiAssayExperiment`:
+
+```{r mae_build, message = FALSE, warning=FALSE}
+library(MultiAssayExperiment)
+# Building the individual SummarizedExperiment instances
+experiment.ls <- list()
+sampleMap.ls <- list()
+for (set.c in names(NCI60_4arrays)) {
+  # Getting the data and metadata
+  assay.mn <- as.matrix(NCI60_4arrays[[set.c]])
+  coldata.df <- data.frame(row.names = colnames(assay.mn),
+                           .id = colnames(assay.mn),
+                           stringsAsFactors = FALSE) # the 'cancer' information will be stored in the main colData of the mae, not the individual SummarizedExperiments
+  rowdata.df <- data.frame(row.names = rownames(assay.mn),
+                           name = rownames(assay.mn),
+                           stringsAsFactors = FALSE)
+  # Building the SummarizedExperiment
+  assay.ls <- list(se = assay.mn)
+  names(assay.ls) <- set.c
+  se <- SummarizedExperiment(assays = assay.ls,
+                             colData = coldata.df,
+                             rowData = rowdata.df)
+  experiment.ls[[set.c]] <- se
+  sampleMap.ls[[set.c]] <- data.frame(primary = colnames(se),
+                                      colname = colnames(se)) # both datasets use identical sample names
+}
+sampleMap <- listToMap(sampleMap.ls)
+
+# The sample metadata are stored in the colData data frame (both datasets have the same samples)
+stopifnot(identical(colnames(NCI60_4arrays[[1]]),
+                    colnames(NCI60_4arrays[[2]])))
+sample_names.vc <- colnames(NCI60_4arrays[[1]])
+colData.df <- data.frame(row.names = sample_names.vc,
+                         cancer = substr(sample_names.vc, 1, 2))
+
+nci.mae <- MultiAssayExperiment(experiments = experiment.ls,
+                                colData = colData.df,
+                                sampleMap = sampleMap)
+
+stopifnot(validObject(nci.mae))
+```
+
+| [Methods]{.smallcaps}          | [Description]{.smallcaps}                                            | [Returned class]{.smallcaps} |
+|-------------------|----------------------------------|-------------------|
+| [**Constructors**]{.smallcaps} |                                                                      |                              |
+| **`MultiAssayExperiment`**     | Create a MultiAssayExperiment object                                 | `MultiAssayExperiment`       |
+| **`ExperimentList`**           | Create an ExperimentList from a List or list                         | `ExperimentList`             |
+| [**Accessors**]{.smallcaps}    |                                                                      |                              |
+| **`colData`**                  | Get or set data that describe the patients/biological units          | `DataFrame`                  |
+| **`experiments`**              | Get or set the list of experimental data objects as original classes | `experimentList`             |
+| **`assays`**                   | Get the list of experimental data numeric matrices                   | `SimpleList`                 |
+| **`assay`**                    | Get the first experimental data numeric matrix                       | `matrix`, matrix-like        |
+| **`sampleMap`**                | Get or set the map relating observations to subjects                 | `DataFrame`                  |
+| **`metadata`**                 | Get or set additional data descriptions                              | `list`                       |
+| **`rownames`**                 | Get row names for all experiments                                    | `CharacterList`              |
+| **`colnames`**                 | Get column names for all experiments                                 | `CharacterList`              |
+| [**Subsetting**]{.smallcaps}   |                                                                      |                              |
+| **`mae[i, j, k]`**             | Get rows, columns, and/or experiments                                | `MultiAssayExperiment`       |
+| **`mae[i, ,]`**                | i: GRanges, character, integer, logical, List, list                  | `MultiAssayExperiment`       |
+| **`mae[,j,]`**                 | j: character, integer, logical, List, list                           | `MultiAssayExperiment`       |
+| **`mae[,,k]`**                 | k: character, integer, logical                                       | `MultiAssayExperiment`       |
+| **`mae[[i]]`**                 | Get or set object of arbitrary class from experiments                | (Varies)                     |
+| **`mae[[i]]`**                 | Character, integer, logical                                          |                              |
+| **`mae$column`**               | Get or set colData column                                            | `vector` (varies)            |
+| [**Management**]{.smallcaps}   |                                                                      |                              |
+| **`complete.cases`**           | Identify subjects with complete data in all experiments              | `vector` (logical)           |
+| **`duplicated`**               | Identify subjects with replicate observations per experiment         | `list` of `LogicalLists`     |
+| **`mergeReplicates`**          | Merge replicate observations within each experiment                  | `MultiAssayExperiment`       |
+| **`intersectRows`**            | Return features that are present for all experiments                 | `MultiAssayExperiment`       |
+| **`intersectColumns`**         | Return subjects with data available for all experiments              | `MultiAssayExperiment`       |
+| **`prepMultiAssay`**           | Troubleshoot common problems when constructing main class            | `list`                       |
+| [**Reshaping**]{.smallcaps}    |                                                                      |                              |
+| **`longFormat`**               | Return a long and tidy DataFrame with optional colData columns       | `DataFrame`                  |
+| **`wideFormat`**               | Create a wide DataFrame, one row per subject                         | `DataFrame`                  |
+| [**Combining**]{.smallcaps}    |                                                                      |                              |
+| **`c`**                        | Concatenate an experiment                                            | `MultiAssayExperiment`       |
+| [**Viewing**]{.smallcaps}      |                                                                      |                              |
+| **`upsetSamples`**             | Generalized Venn Diagram analog for sample membership                | `upset`                      |
+| [**Exporting**]{.smallcaps}    |                                                                      |                              |
+| **`exportClass`**              | Exporting to flat files                                              | `csv` or `tsv` files         |
+
+### `ExpressionSet`
+
+The `ExpressionSet` format (`Biobase` package) was designed by the
+Bioconductor team as the first format to handle (single) omics data. It
+has now been supplanted by the `SummarizedExperiment` format.
+
+An example of `ExpressionSet` creation and a summary of useful methods
+are provided below. Please refer to ['An introduction to Biobase and
+ExpressionSets'](https://bioconductor.org/packages/release/bioc/vignettes/Biobase/inst/doc/ExpressionSetIntroduction.pdf)
+from the documentation from the
+[`Biobase`](https://doi.org/doi:10.18129/B9.bioc.Biobase) package for a
+full description of `ExpressionSet` objects.
+
+```{r eset_build, message = FALSE, warning = FALSE}
+# Preparing the data (matrix) and sample and variable metadata (data frames):
+data(sacurine)
+data.mn <- sacurine[["dataMatrix"]] # matrix: samples x variables
+samp.df <- sacurine[["sampleMetadata"]] # data frame: samples x sample metadata
+feat.df <- sacurine[["variableMetadata"]] # data frame: features x feature metadata
+# Creating the ExpressionSet (package Biobase)
+sac.set <- Biobase::ExpressionSet(assayData = t(data.mn))
+Biobase::pData(sac.set) <- samp.df
+Biobase::fData(sac.set) <- feat.df
+stopifnot(validObject(sac.set))
+# Viewing the ExpressionSet
+# ropls::view(sac.set)
+```
+
+| [Methods]{.smallcaps} | [Description]{.smallcaps}                         | [Returned class]{.smallcaps} |
+|-------------------|----------------------------------|-------------------|
+| **`exprs`**           | 'variable times samples' numeric matrix           | `matrix`                     |
+| **`pData`**           | sample metadata                                   | `data.frame`                 |
+| **`fData`**           | variable metadata                                 | `data.frame`                 |
+| **`sampleNames`**     | sample names                                      | `character`                  |
+| **`featureNames`**    | variable names                                    | `character`                  |
+| **`dims`**            | 2x1 matrix of 'Features' and 'Samples' dimensions | `matrix`                     |
+| **`varLabels`**       | Column names of the sample metadata data frame    | `character`                  |
+| **`fvarLabels`**      | Column names of the variable metadata data frame  | `character`                  |
+
+### `MultiDataSet`
+
+[@HernandezFerrer2017].
+
+Loading the `NCI60_4arrays` from the `omicade4` package:
+
+```{r mset_build_load}
+data("NCI60_4arrays", package = "omicade4")
+```
+
+Creating the `MultiDataSet`:
+
+```{r mset_build, message = FALSE, warning=FALSE}
+library(MultiDataSet)
+# Creating the MultiDataSet instance
+nci.mds <- MultiDataSet::createMultiDataSet()
+# Adding the two datasets as ExpressionSet instances
+for (set.c in names(NCI60_4arrays)) {
+  # Getting the data
+  expr.mn <- as.matrix(NCI60_4arrays[[set.c]])
+  pdata.df <- data.frame(row.names = colnames(expr.mn),
+                        cancer = substr(colnames(expr.mn), 1, 2),
+                        stringsAsFactors = FALSE)
+  fdata.df <- data.frame(row.names = rownames(expr.mn),
+                        name = rownames(expr.mn),
+                        stringsAsFactors = FALSE)
+  # Building the ExpressionSet
+  eset <- Biobase::ExpressionSet(assayData = expr.mn,
+                                 phenoData = new("AnnotatedDataFrame",
+                                                 data = pdata.df),
+                                 featureData = new("AnnotatedDataFrame",
+                                                   data = fdata.df),
+                                 experimentData = new("MIAME",
+                                                      title = set.c))
+  # Adding to the MultiDataSet
+  nci.mds <- MultiDataSet::add_eset(nci.mds, eset, dataset.type = set.c,
+                                     GRanges = NA, warnings = FALSE)
+}
+stopifnot(validObject(nci.mds))
+```
+
+| [Methods]{.smallcaps}          | [Description]{.smallcaps}                        | [Returned class]{.smallcaps} |
+|-------------------|-----------------------------------|------------------|
+| [**Constructors**]{.smallcaps} |                                                  |                              |
+| **`createMultiDataSet`**       | Create a MultiDataSet object                     | `MultiDataSet`               |
+| **`add_eset`**                 | Create a MultiAssayExperiment object             | `MultiDataSet`               |
+| [**Subsetting**]{.smallcaps}   |                                                  |                              |
+| **`mset[i, ]`**                | i: character,logical (samples to select)         | `MultiDataSet`               |
+| **`mset[, k]`**                | k: character (names of datasets to select)       | `MultiDataSet`               |
+| **`mset[[k]]`**                | k: character (name of the datast to select)      | `ExpressionSet`              |
+| [**Accessors**]{.smallcaps}    |                                                  |                              |
+| **`as.list`**                  | Get the list of data matrices                    | `list`                       |
+| **`pData`**                    | Get the list of sample metadata                  | `list`                       |
+| **`fData`**                    | Get the list of variable metadata                | `list`                       |
+| **`sampleNames`**              | Get the list of sample names                     | `list`                       |
+| [**Management**]{.smallcaps}   |                                                  |                              |
+| **`commonSamples`**            | Select samples that are present in all datasets  | `MultiDataSet`               |
+| [**Conversion**]{.smallcaps}   |                                                  |                              |
+| **`mds2mae`**                  | Convert a MultiDataSet to a MultiAssayExperiment | `MultiAssayExperiment`       |
 
 # Session info
 

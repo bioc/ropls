@@ -26,22 +26,11 @@ Extracts the complemented ExpressionSet when opls has been applied to an Express
 \examples{
 
 data(sacurine)
-attach(sacurine)
-
-sacSet <- Biobase::ExpressionSet(assayData = t(dataMatrix), 
-                                 phenoData = new("AnnotatedDataFrame", 
-                                                 data = sampleMetadata), 
-                                 featureData = new("AnnotatedDataFrame", 
-                                                   data = variableMetadata),
-                                 experimentData = new("MIAME", 
-                                                      title = "sacurine"))
-                                                      
+sacSet <- sacurine[["eset"]]
 sacPlsda <- opls(sacSet, "gender")
 sacSet <- getEset(sacPlsda)
 head(Biobase::pData(sacSet))
 head(Biobase::fData(sacSet))
-
-detach(sacurine)
 
 }
 \author{

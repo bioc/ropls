@@ -30,22 +30,11 @@ setGeneric("checkW4M", function(x) {standardGeneric("checkW4M")})
 #' @examples
 #'
 #' data(sacurine)
-#' attach(sacurine)
-#' 
-#' sacSet <- Biobase::ExpressionSet(assayData = t(dataMatrix), 
-#'                                  phenoData = new("AnnotatedDataFrame", 
-#'                                                  data = sampleMetadata), 
-#'                                  featureData = new("AnnotatedDataFrame", 
-#'                                                    data = variableMetadata),
-#'                                  experimentData = new("MIAME", 
-#'                                                       title = "sacurine"))
-#'                                                       
+#' sacSet <- sacurine[["eset"]]
 #' sacPlsda <- opls(sacSet, "gender")
 #' sacSet <- getEset(sacPlsda)
 #' head(Biobase::pData(sacSet))
 #' head(Biobase::fData(sacSet))
-#' 
-#' detach(sacurine)
 #'
 #' @rdname getEset
 #' @export
@@ -96,41 +85,18 @@ setGeneric("getLoadingMN",
 #' function applied to a MultiDataSet
 #' @return An S4 object of class \code{MultiDataSet}.
 #' @examples
-#' # Building a MultiDataSet object
-#' # Loading the 'NCI60_4arrays' from the 'omicade4' package
-#' data("NCI60_4arrays", package = "omicade4")
-#' # Selecting two of the four datasets
-#' setNamesVc <- c("agilent", "hgu95")
-#' # Creating the MultiDataSet instance
-#' nciMset <- MultiDataSet::createMultiDataSet()
-#' # Adding the two datasets as ExpressionSet instances
-#' for (setC in setNamesVc) {
-#'   # Getting the data
-#'   exprMN <- as.matrix(NCI60_4arrays[[setC]])
-#'   pdataDF <- data.frame(row.names = colnames(exprMN),
-#'                         cancer = substr(colnames(exprMN), 1, 2),
-#'                         stringsAsFactors = FALSE)
-#'   fdataDF <- data.frame(row.names = rownames(exprMN),
-#'                         name = rownames(exprMN),
-#'                         stringsAsFactors = FALSE)
-#'   # Building the ExpressionSet
-#'   eset <- Biobase::ExpressionSet(assayData = exprMN,
-#'                                  phenoData = new("AnnotatedDataFrame",
-#'                                                  data = pdataDF),
-#'                                  featureData = new("AnnotatedDataFrame",
-#'                                                    data = fdataDF),
-#'                                  experimentData = new("MIAME",
-#'                                                       title = setC))
-#'   # Adding to the MultiDataSet
-#'   nciMset <- MultiDataSet::add_eset(nciMset, eset, dataset.type = setC,
-#'                                     GRanges = NA, warnings = FALSE)
-#' }
-#' # Summary of the MultiDataSet
-#' nciMset
+#' data(NCI60)
+#' nci.mds <- NCI60[["mds"]]
+#' # Restricting to the 'agilent' and 'hgu95' datasets
+#' nci.mds <- nci.mds[, c("agilent", "hgu95")]
+#' # Restricting to the 'ME' and 'LE' cancer types
+#' sampleNamesVc <- Biobase::sampleNames(nci.mds[["agilent"]])
+#' cancerTypeVc <- Biobase::pData(nci.mds[["agilent"]])[, "cancer"]
+#' nci.mds <- nci.mds[sampleNamesVc[cancerTypeVc %in% c("ME", "LE")], ]
 #' # Principal Component Analysis of each data set
-#' nciPca <- ropls::opls(nciMset)
+#' nci.pca <- opls(nci.mds)
 #' # Getting the MultiDataSet with additional info. in pData and fData
-#' nciMset <- ropls::getMset(nciPca)
+#' nci.mds <- getMset(nci.pca)
 #' @rdname getMset
 #' @export
 setGeneric("getMset",
@@ -500,21 +466,8 @@ setGeneric("getWeightMN",
 #' ## OPLS-DA
 #'
 #' sacurine.oplsda <- opls(dataMatrix, sampleMetadata[, "gender"], predI = 1, orthoI = NA)
-#'
-#' ## Application to an ExpressionSet
 #' 
-#' sacSet <- Biobase::ExpressionSet(assayData = t(dataMatrix), 
-#'                                  phenoData = new("AnnotatedDataFrame", 
-#'                                                  data = sampleMetadata), 
-#'                                  featureData = new("AnnotatedDataFrame", 
-#'                                                    data = variableMetadata),
-#'                                  experimentData = new("MIAME", 
-#'                                                       title = "sacurine"))
-#'                                                       
-#' sacPlsda <- opls(sacSet, "gender")
-#' sacSet <- getEset(sacPlsda)
-#' head(Biobase::pData(sacSet))
-#' head(Biobase::fData(sacSet))
+#' detach(sacurine)
 #' 
 #' ## Application to a SummarizedExperiment
 #' 
@@ -525,55 +478,56 @@ setGeneric("getWeightMN",
 #' sac_gender.plsda <- sac.se@metadata[["opls"]][["gender_PLSDA"]]
 #' plot(sac_gender.plsda, typeVc = "x-score")
 #' 
-#' detach(sacurine)
+#' ## Application to a MultiAssayExperiment
+#' 
+#' data(NCI60)
+#' nci.mae <- NCI60[["mae"]]
+#' # Restricting to the 'ME' and 'LE' cancer types and to the 'agilent' and 'hgu95' datasets
+#' library(MultiAssayExperiment)
+#' nci.mae <- nci.mae[, nci.mae$cancer %in% c("ME", "LE"), c("agilent", "hgu95")]
+#' # Principal Component Analysis of each data set
+#' nci.mae <- opls(nci.mae)
+#' # Coloring the score plots according to cancer types
+#' for (set.c in names(nci.mae))
+#' plot(getOpls(nci.mae)[[set.c]][["PCA"]],
+#' parAsColFcVn = MultiAssayExperiment::colData(nci.mae)[, "cancer"],
+#' typeVc = "x-score",
+#' plotSubC = set.c)
+#' # Building PLS-DA models for the cancer type, and getting back the updated MultiDataSet
+#' nci.mae <- opls(nci.mae, "cancer", predI = 2)
+#' # Viewing the new variable metadata (including VIP and coefficients)
+#' lapply(names(nci.mae), function(set.c) head(SummarizedExperiment::rowData(nci.mae[[set.c]])))
+#' 
+#' ## Application to an ExpressionSet
+#' 
+#' sacSet <- sacurine[["eset"]]
+#'                                                       
+#' sacPlsda <- opls(sacSet, "gender")
+#' sacSet <- getEset(sacPlsda)
+#' head(Biobase::pData(sacSet))
+#' head(Biobase::fData(sacSet))
 #' 
 #' ## Application to a MultiDataSet
 #' 
-#' # Loading the 'NCI60_4arrays' from the 'omicade4' package
-#' data("NCI60_4arrays", package = "omicade4")
-#' # Selecting two of the four datasets
-#' setNamesVc <- c("agilent", "hgu95")
-#' # Creating the MultiDataSet instance
-#' nciMset <- MultiDataSet::createMultiDataSet()
-#' # Adding the two datasets as ExpressionSet instances
-#' for (setC in setNamesVc) {
-#'   # Getting the data
-#'   exprMN <- as.matrix(NCI60_4arrays[[setC]])
-#'   pdataDF <- data.frame(row.names = colnames(exprMN),
-#'                         cancer = substr(colnames(exprMN), 1, 2),
-#'                         stringsAsFactors = FALSE)
-#'   fdataDF <- data.frame(row.names = rownames(exprMN),
-#'                         name = rownames(exprMN),
-#'                         stringsAsFactors = FALSE)
-#'   # Building the ExpressionSet
-#'   eset <- Biobase::ExpressionSet(assayData = exprMN,
-#'                                  phenoData = new("AnnotatedDataFrame",
-#'                                                  data = pdataDF),
-#'                                  featureData = new("AnnotatedDataFrame",
-#'                                                    data = fdataDF),
-#'                                  experimentData = new("MIAME",
-#'                                                       title = setC))
-#'   # Adding to the MultiDataSet
-#'   nciMset <- MultiDataSet::add_eset(nciMset, eset, dataset.type = setC,
-#'                                     GRanges = NA, warnings = FALSE)
-#' }
-#' # Summary of the MultiDataSet
-#' nciMset
-#' # Principal Component Analysis of each data set
-#' nciPca <- ropls::opls(nciMset)
-#' # Coloring the Score plot according to cancer types
-#' ropls::plot(nciPca, y = "cancer", typeVc = "x-score")
-#' # Getting the updated MultiDataSet (now including scores and loadings)
-#' nciMset <- ropls::getMset(nciPca)
+#' data(NCI60)
+#' nci.mds <- NCI60[["mds"]]
+#' # Restricting to the 'agilent' and 'hgu95' datasets
+#' nci.mds <- nci.mds[, c("agilent", "hgu95")]
 #' # Restricting to the 'ME' and 'LE' cancer types
-#' sampleNamesVc <- Biobase::sampleNames(nciMset[["agilent"]])
-#' cancerTypeVc <- Biobase::pData(nciMset[["agilent"]])[, "cancer"]
-#' nciMset <- nciMset[sampleNamesVc[cancerTypeVc %in% c("ME", "LE")], ]
+#' sampleNamesVc <- Biobase::sampleNames(nci.mds[["agilent"]])
+#' cancerTypeVc <- Biobase::pData(nci.mds[["agilent"]])[, "cancer"]
+#' nci.mds <- nci.mds[sampleNamesVc[cancerTypeVc %in% c("ME", "LE")], ]  
+#' # Principal Component Analysis of each data set
+#' nci.pca <- opls(nci.mds)
+#' # Coloring the Score plot according to cancer types
+#' plot(nci.pca, parAsColFcVn = Biobase::pData(nci.mds[["agilent"]])[, "cancer"], typeVc = "x-score")
+#' # Getting the updated MultiDataSet (now including scores and loadings)
+#' nci.mds <- getMset(nci.pca)
 #' # Building PLS-DA models for the cancer type, and getting back the updated MultiDataSet
-#' nciPlsda <- ropls::opls(nciMset, "cancer", predI = 2)
-#' nciMset <- ropls::getMset(nciPlsda)
+#' nci.plsda <- opls(nci.mds, "cancer", predI = 2)
+#' nci.mds <- getMset(nci.plsda)
 #' # Viewing the new variable metadata (including VIP and coefficients)
-#' lapply(Biobase::fData(nciMset), head)
+#' lapply(Biobase::fData(nci.mds), head)
 #' @rdname opls
 #' @export
 setGeneric("opls",
@@ -666,19 +620,30 @@ setGeneric("tested",
 #' @return this method has no output
 #' @examples
 #' library(ropls)
+#' 
 #' # Get the sacurine dataset
+#' 
 #' data(sacurine)
+#' 
 #' # Display the data matrix
+#' 
 #' view(sacurine[["dataMatrix"]])
 #' view(sacurine[["dataMatrix"]][, 1:40], mainC = "'Sacurine' dataset", rowAllL = TRUE,
 #' colAllL = TRUE, colTruncI = 13, colMarN = 7)
 #' view(sacurine[["dataMatrix"]][, 1:40], mainC = "'Sacurine' dataset", paletteC = "ramp")
+#' 
 #' # Display the sample metadata (dataframe)
+#' 
 #' view(sacurine[["sampleMetadata"]])
-#' # Display the ExpressionSet
-#' view(sacurine[["eset"]])
+#' 
 #' # Display the SummarizedExperiment
+#' 
 #' view(sacurine[["se"]])
+#' 
+#' # Display the ExpressionSet
+#' 
+#' view(sacurine[["eset"]])
+#' 
 #' @rdname view
 #' @export
 setGeneric("view",

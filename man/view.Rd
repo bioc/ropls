@@ -214,19 +214,30 @@ Wrapper of the stats::image function used inside the 'view' method
 }
 \examples{
 library(ropls)
+
 # Get the sacurine dataset
+
 data(sacurine)
+
 # Display the data matrix
+
 view(sacurine[["dataMatrix"]])
 view(sacurine[["dataMatrix"]][, 1:40], mainC = "'Sacurine' dataset", rowAllL = TRUE,
 colAllL = TRUE, colTruncI = 13, colMarN = 7)
 view(sacurine[["dataMatrix"]][, 1:40], mainC = "'Sacurine' dataset", paletteC = "ramp")
+
 # Display the sample metadata (dataframe)
+
 view(sacurine[["sampleMetadata"]])
-# Display the ExpressionSet
-view(sacurine[["eset"]])
+
 # Display the SummarizedExperiment
+
 view(sacurine[["se"]])
+
+# Display the ExpressionSet
+
+view(sacurine[["eset"]])
+
 
 data(sacurine)
 strF(sacurine[['dataMatrix']])

@@ -435,57 +435,22 @@ test_that("SummarizedExperiment", {
 
 test_that("MultiAssayExperiment", {
   
-  # Loading the 'NCI60_4arrays' from the 'omicade4' package
-  data("NCI60_4arrays", package = "omicade4")
-  # Selecting two of the four datasets
-  set_names.vc <- c("agilent", "hgu95")
-  # Creating the MultiAssayExperiemnt
-  nci.mae <- MultiAssayExperiment::MultiAssayExperiment()
-  # Adding the two datasets as SummarizedExperiment instances
-  experiment.ls <- list()
-  sampleMap.ls <- list()
-  for (set.c in set_names.vc) {
-    # Getting the data
-    assay.mn <- as.matrix(NCI60_4arrays[[set.c]])
-    # Reducing the number of features by 10 fold
-    assay.mn <- assay.mn[seq(1, nrow(assay.mn), by = 10), ]
-    coldata.df <- data.frame(row.names = colnames(assay.mn),
-                             .id = colnames(assay.mn),
-                             stringsAsFactors = FALSE)
-    rowdata.df <- data.frame(row.names = rownames(assay.mn),
-                             name = rownames(assay.mn),
-                             stringsAsFactors = FALSE)
-    # Building the SummarizedExperiment
-    assay.ls <- list(se = assay.mn)
-    names(assay.ls) <- set.c
-    se <- SummarizedExperiment::SummarizedExperiment(assays = assay.ls,
-                                                     colData = coldata.df,
-                                                     rowData = rowdata.df)
-    experiment.ls[[set.c]] <- se
-    sampleMap.ls[[set.c]] <- data.frame(primary = colnames(se),
-                                        colname = colnames(se))
-  }
-  sampleMap <- MultiAssayExperiment::listToMap(sampleMap.ls)
-  
-  stopifnot(identical(colnames(NCI60_4arrays[[1]]), colnames(NCI60_4arrays[[2]])))
-  sample_names.vc <- colnames(NCI60_4arrays[[1]])
-  colData.df <- data.frame(row.names = sample_names.vc,
-                           cancer = substr(sample_names.vc, 1, 2))
-  
-  nci.mae <- MultiAssayExperiment::MultiAssayExperiment(experiments = experiment.ls,
-                                                        colData = colData.df,
-                                                        sampleMap = sampleMap)
+  ## Application to a MultiAssayExperiment
+  data(NCI60)
+  nci.mae <- NCI60[["mae"]]
+  # Restricting to the 'ME' and 'LE' cancer types and to the 'agilent' and 'hgu95' datasets
+  nci.mae <- nci.mae[, nci.mae$cancer %in% c("ME", "LE"), c("agilent", "hgu95")]
   
   ## PCA
   
-  nci.mae <- opls(nci.mae)
+  nci.mae <- opls(nci.mae, fig.pdfC = "none", info.txtC = "none")
   
   testthat::expect_equivalent(getSummaryDF(getOpls(nci.mae[["agilent"]])[["PCA"]])["Total", "R2X(cum)"],
-                              0.554,
+                              0.521,
                               tolerance = 1e-3)
   
-  testthat::expect_equivalent(SummarizedExperiment::colData(nci.mae[["agilent"]])["BR.MCF7", "PCA_xscor-p1"],
-                              -1.47285,
+  testthat::expect_equivalent(SummarizedExperiment::colData(nci.mae[["agilent"]])["LE.CCRF_CEM", "PCA_xscor-p1"],
+                              -15.04493,
                               tolerance = 1e-5)
   
   ## PLS-DA
@@ -493,11 +458,11 @@ test_that("MultiAssayExperiment", {
   nci.mae <- opls(nci.mae, "cancer")
   
   testthat::expect_equivalent(getSummaryDF(getOpls(nci.mae[["agilent"]])[["cancer_PLSDA"]])["Total", "Q2(cum)"],
-                              0.347,
+                              0.906,
                               tolerance = 1e-3)
   
   testthat::expect_equivalent(SummarizedExperiment::rowData(nci.mae[["agilent"]])["ST8SIA1", "cancer_PLSDA_VIP"],
-                              1.394171,
+                              1.568032,
                               tolerance = 1e-5)
   
 })
@@ -509,13 +474,7 @@ test_that("ExpressionSet", {
   
   data(sacurine)
   
-  sacSet <- Biobase::ExpressionSet(assayData = t(sacurine[["dataMatrix"]]),
-                                   phenoData = new("AnnotatedDataFrame",
-                                                   data = sacurine[["sampleMetadata"]]),
-                                   featureData = new("AnnotatedDataFrame",
-                                                     data = sacurine[["variableMetadata"]]),
-                                   experimentData = new("MIAME",
-                                                        title = "sacurine"))
+  sacSet <- sacurine[["eset"]]
   
   ## PCA
   
@@ -558,55 +517,31 @@ test_that("ExpressionSet", {
 test_that("MultiDataSet", {
   
   ## Application to a MultiDataSet
-  
-  # Loading the 'NCI60_4arrays' from the 'omicade4' package
-  data("NCI60_4arrays", package = "omicade4")
-  # Selecting two of the four datasets
-  setNamesVc <- c("agilent", "hgu95")
-  # Creating the MultiDataSet instance
-  nciMset <- MultiDataSet::createMultiDataSet()
-  # Adding the two datasets as ExpressionSet instances
-  for (setC in setNamesVc) {
-    # Getting the data
-    exprMN <- as.matrix(NCI60_4arrays[[setC]])
-    pdataDF <- data.frame(row.names = colnames(exprMN),
-                          cancer = substr(colnames(exprMN), 1, 2),
-                          stringsAsFactors = FALSE)
-    fdataDF <- data.frame(row.names = rownames(exprMN),
-                          name = rownames(exprMN),
-                          stringsAsFactors = FALSE)
-    # Building the ExpressionSet
-    eset <- Biobase::ExpressionSet(assayData = exprMN,
-                                   phenoData = new("AnnotatedDataFrame",
-                                                   data = pdataDF),
-                                   featureData = new("AnnotatedDataFrame",
-                                                     data = fdataDF),
-                                   experimentData = new("MIAME",
-                                                        title = setC))
-    # Adding to the MultiDataSet
-    nciMset <- MultiDataSet::add_eset(nciMset, eset, dataset.type = setC,
-                                      GRanges = NA, warnings = FALSE)
-  }
+  data(NCI60)
+  nci.mds <- NCI60[["mds"]]
+  # Restricting to the 'agilent' and 'hgu95' datasets
+  nci.mds <- nci.mds[, c("agilent", "hgu95")]
+  # Restricting to the 'ME' and 'LE' cancer types
+  sampleNamesVc <- Biobase::sampleNames(nci.mds[["agilent"]])
+  cancerTypeVc <- Biobase::pData(nci.mds[["agilent"]])[, "cancer"]
+  nci.mds <- nci.mds[sampleNamesVc[cancerTypeVc %in% c("ME", "LE")], ]  
+
   # Principal Component Analysis of each data set
-  nciPca <- ropls::opls(nciMset)
+  nciPca <- opls(nci.mds)
   
-  testthat::expect_equivalent(ropls::getSummaryDF(nciPca@oplsLs[["agilent"]])["Total", "R2X(cum)"],
-                              0.503,
+  testthat::expect_equivalent(getSummaryDF(nciPca@oplsLs[["agilent"]])["Total", "R2X(cum)"],
+                              0.521,
                               tol = 1e-3)
   
   # Getting the updated MultiDataSet (now including scores and loadings)
-  nciMset <- ropls::getMset(nciPca)
-  testthat::expect_equivalent(Biobase::fData(nciMset)[["hgu95"]]["USE1", "PCA_xload-p1"],
-                              -0.03092684,
+  nci.mds <- getMset(nciPca)
+  testthat::expect_equivalent(Biobase::fData(nci.mds)[["hgu95"]]["USE1", "PCA_xload-p1"],
+                              0.003122651,
                               tol = 1e-8)
   
-  # Restricting to the 'ME' and 'LE' cancer types
-  sampleNamesVc <- Biobase::sampleNames(nciMset[["agilent"]])
-  cancerTypeVc <- Biobase::pData(nciMset[["agilent"]])[, "cancer"]
-  nciMset <- nciMset[sampleNamesVc[cancerTypeVc %in% c("ME", "LE")], ]
   # Building PLS-DA models for the cancer type, and getting back the updated MultiDataSet
-  nciPlsda <- ropls::opls(nciMset, "cancer", predI = 2)
-  testthat::expect_equivalent(ropls::getSummaryDF(nciPlsda@oplsLs[["hgu95"]])["Total", "Q2(cum)"],
+  nciPlsda <- opls(nci.mds, "cancer", predI = 2, fig.pdfC = "none", info.txtC = "none")
+  testthat::expect_equivalent(getSummaryDF(nciPlsda@oplsLs[["hgu95"]])["Total", "Q2(cum)"],
                               0.908,
                               tol = 1e-3)  
   

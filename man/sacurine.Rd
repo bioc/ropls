@@ -18,6 +18,8 @@ numeric), and gender ('gender', factor)
 MSI identification level ('msiLevel':
 either 1 or 2), HMDB ID when available ('hmdb', character), chemical class
 according to the 'super class' taxonomy of HMDB ('chemicalClass', character)
+\item se dataset in the SummarizedExperiment format
+\item eset dataset in the ExpressionSet format
 }
 }
 \value{

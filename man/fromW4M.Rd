@@ -2,12 +2,13 @@
 % Please edit documentation in R/helpers.R
 \name{fromW4M}
 \alias{fromW4M}
-\title{fromW4M (deprecated)}
+\title{fromW4M}
 \usage{
 fromW4M(
   dirC,
   namePatternC = "",
   fileTableNamesVc = c("dataMatrix", "sampleMetadata", "variableMetadata"),
+  outputC = c("exp", "set")[2],
   verboseL = TRUE
 )
 }
@@ -22,6 +23,8 @@ within the same directory)}
 contain the standard 'dataMatrix', 'sampleMetadata', and 'variableMetadata'
 patterns (e.g. if you use 'profile', 'observation', and 'feature' instead),
 please indicate them here}
+
+\item{outputC}{character(1): either 'exp' for SummarizedExperiment (default) or 'set' for ExpressionSet output format}
 
 \item{verboseL}{Logical: should comments be printed?}
 }

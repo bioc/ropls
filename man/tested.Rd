@@ -5,15 +5,13 @@
 \alias{tested,opls-method}
 \title{Tested method for (O)PLS models}
 \usage{
-tested(object, ...)
+tested(object)
 
 \S4method{tested}{opls}(object)
 }
 \arguments{
 \item{object}{An S4 object of class \code{opls}, created by \code{opls}
 function.}
-
-\item{...}{Currently not used.}
 }
 \value{
 Predictions (either a vector, factor, or matrix depending on the y

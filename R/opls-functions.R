@@ -8,7 +8,8 @@
                    crossvalI,
                    subsetL,
                    subsetVi,
-                   .char2numF = .char2numF){
+                   .char2numF = .char2numF,
+                   info.txtC){
   
   epsN <- .Machine[["double.eps"]] ## [1] 2.22e-16
   
@@ -45,7 +46,8 @@
   if(algoC == "svd" && length(which(is.na(c(xMN)))) > 0) {
     minN <- min(c(xMN[!is.na(xMN)])) / 2
     xMN[is.na(xMN)] <- minN
-    warning("Missing values set to ", round(minN, 1), " (half minimum value) for 'svd' algorithm to be used", call. = FALSE)
+    if (info.txtC != "none")
+      warning("Missing values set to ", round(minN, 1), " (half minimum value) for 'svd' algorithm to be used", call. = FALSE)
   }
   
   if(!is.null(yMCN)) {
@@ -94,7 +96,8 @@
     if(autMaxN == 1) {
       orthoI <- 0
       predI <- 1
-      warning("The data contain a single variable (or sample): A PLS model with a single component will be built", call. = FALSE)
+      if (info.txtC != "none")
+        warning("The data contain a single variable (or sample): A PLS model with a single component will be built", call. = FALSE)
     } else {
       orthoI <- autMaxN - 1
       predI <- 1
@@ -105,9 +108,12 @@
     if(orthoI > 0) {
       if(autMaxN == 1) {
         orthoI <- 0
-        warning("The data contain a single variable (or sample): A PLS model with a single component will be built", call. = FALSE)
-      } else
-        warning("OPLS(-DA): The number of predictive component is set to 1 for a single response model", call. = FALSE)
+        if (info.txtC != "none")
+          warning("The data contain a single variable (or sample): A PLS model with a single component will be built", call. = FALSE)
+      } else {
+        if (info.txtC != "none")
+          warning("OPLS(-DA): The number of predictive component is set to 1 for a single response model", call. = FALSE)
+      }
       predI <- 1
       if((predI + orthoI) > min(dim(xMN)))
         stop("The sum of 'predI' (", predI, ") and 'orthoI' (", orthoI, ") exceeds the minimum dimension of the 'x' data matrix (", min(dim(xMN)), ")" , call. = FALSE)
@@ -201,8 +207,8 @@
                  if(naxL) {
                    pNewVn <- numeric(length(pOldVn))
                    for(j in 1:length(pNewVn)) {
-                     comVl <- complete.cases(xOldMN[, j]) &
-                       complete.cases(tOldVn)
+                     comVl <- stats::complete.cases(xOldMN[, j]) &
+                       stats::complete.cases(tOldVn)
                      pNewVn[j] <- crossprod(xOldMN[comVl, j], tOldVn[comVl]) / drop(crossprod(tOldVn[comVl]))
                    }
                  } else {
@@ -214,7 +220,7 @@
                  if(naxL) {
                    tNewVn <- numeric(length(tOldVn))
                    for(i in 1:length(tNewVn)) {
-                     comVl <- complete.cases(xOldMN[i, ])
+                     comVl <- stats::complete.cases(xOldMN[i, ])
                      tNewVn[i] <- crossprod(xOldMN[i, comVl], pNewVn[comVl])
                    }
                  } else {
@@ -287,7 +293,8 @@
       vSelVi <- which(vSelVl)
       
       if(length(vSelVi) == 0) {
-        warning("The maximum number of components for the automated mode (", autMaxN, ") has been reached whereas the cumulative variance ", round(tail(modelDF[, "R2X(cum)"], 1) * 100), "% is still less than 50%.", call. = FALSE)
+        if (info.txtC != "none")
+          warning("The maximum number of components for the automated mode (", autMaxN, ") has been reached whereas the cumulative variance ", round(tail(modelDF[, "R2X(cum)"], 1) * 100), "% is still less than 50%.", call. = FALSE)
       } else
         predI <- vSelVi[1]
       
@@ -398,8 +405,8 @@
           if(naxL || nayL) {
             wVn <- numeric(ncol(xnMN))
             for(j in 1:ncol(xnMN)) {
-              comVl <- complete.cases(xnMN[, j]) &
-                complete.cases(uVn)
+              comVl <- stats::complete.cases(xnMN[, j]) &
+                stats::complete.cases(uVn)
               wVn[j] <- crossprod(xnMN[comVl, j], uVn[comVl]) / drop(crossprod(uVn[comVl]))
             }
           } else
@@ -410,7 +417,7 @@
           if(naxL) {
             tVn <- numeric(nrow(xnMN))
             for(i in 1:nrow(xnMN)) {
-              comVl <- complete.cases(xnMN[i, ])
+              comVl <- stats::complete.cases(xnMN[i, ])
               tVn[i] <- crossprod(xnMN[i, comVl], wVn[comVl]) / drop(crossprod(wVn[comVl]))
             }
           } else
@@ -419,7 +426,7 @@
           if(nayL) {
             cVn <- numeric(ncol(ynMN))
             for(j in 1:ncol(ynMN)) {
-              comVl <- complete.cases(ynMN[, j])
+              comVl <- stats::complete.cases(ynMN[, j])
               cVn[j] <- crossprod(ynMN[comVl, j], tVn[comVl]) / drop(crossprod(tVn[comVl]))
             }
           } else
@@ -436,7 +443,7 @@
             if(nayL) {
               uVn <- numeric(nrow(xnMN))
               for(i in 1:nrow(xnMN)) {
-                comVl <- complete.cases(ynMN[i, ])
+                comVl <- stats::complete.cases(ynMN[i, ])
                 uVn[i] <- crossprod(ynMN[i, comVl], cVn[comVl]) / drop(crossprod(cVn[comVl]))
               }
             } else
@@ -453,7 +460,7 @@
         if(naxL) {
           pVn <- numeric(ncol(xnMN))
           for(j in 1:ncol(xnMN)) {
-            comVl <- complete.cases(xnMN[, j])
+            comVl <- stats::complete.cases(xnMN[, j])
             pVn[j] <- crossprod(xnMN[comVl, j], tVn[comVl]) / drop(crossprod(tVn[comVl]))
           }
         } else
@@ -497,8 +504,8 @@
             if(nkxL || nkyL) {
               ckwVn <- numeric(ncol(ckxMN))
               for(j in 1:ncol(ckxMN)) {
-                comVl <- complete.cases(ckxMN[, j]) &
-                  complete.cases(ckuVn)
+                comVl <- stats::complete.cases(ckxMN[, j]) &
+                  stats::complete.cases(ckuVn)
                 ## ckwVn[j] <- crossprod(ckxMN[comVl, j], ckuVn[comVl])
                 ckwVn[j] <- crossprod(ckxMN[comVl, j], ckuVn[comVl]) / drop(crossprod(ckuVn[comVl]))
               }
@@ -510,7 +517,7 @@
             if(nkxL) {
               cktVn <- numeric(nrow(ckxMN))
               for(i in 1:nrow(ckxMN)) {
-                comVl <- complete.cases(ckxMN[i, ])
+                comVl <- stats::complete.cases(ckxMN[i, ])
                 cktVn[i] <- crossprod(ckxMN[i, comVl], ckwVn[comVl]) / drop(crossprod(ckwVn[comVl]))
                 ## cktVn[i] <- crossprod(ckxMN[i, comVl], ckwVn[comVl])
               }
@@ -520,7 +527,7 @@
             if(nkyL) {
               ckcVn <- numeric(ncol(ckyMN))
               for(j in 1:ncol(ckyMN)) {
-                comVl <- complete.cases(ckyMN[, j])
+                comVl <- stats::complete.cases(ckyMN[, j])
                 ckcVn[j] <- crossprod(ckyMN[comVl, j], cktVn[comVl]) / drop(crossprod(cktVn[comVl]))
               }
             } else
@@ -536,7 +543,7 @@
               if(nkyL) {
                 ckuVn <- numeric(nrow(ckxMN))
                 for(i in 1:nrow(ckxMN)) {
-                  comVl <- complete.cases(ckyMN[i, ])
+                  comVl <- stats::complete.cases(ckyMN[i, ])
                   ckuVn[i] <- crossprod(ckyMN[i, comVl], ckcVn[comVl]) / drop(crossprod(ckcVn[comVl]))
                 }
               } else
@@ -551,7 +558,7 @@
           if(any(is.na(xnMN[cvfOutLs[[k]], ]))) {
             prxVn <- numeric(length(cvfOutLs[[k]]))
             for(r in 1:length(prxVn)) {
-              comVl <- complete.cases(xnMN[cvfOutLs[[k]][r], ])
+              comVl <- stats::complete.cases(xnMN[cvfOutLs[[k]][r], ])
               ## prxVn[r] <- crossprod(xnMN[cvfOutLs[[k]][r], comVl], ckwVn[comVl])
               prxVn[r] <- crossprod(xnMN[cvfOutLs[[k]][r], comVl], ckwVn[comVl]) / drop(crossprod(ckwVn[comVl]))
             }
@@ -595,11 +602,34 @@
         
         hN <- hN - 1
         
-        if(hN == 0)
-          stop("No model was built because the first predictive component was already not significant;\nSelect a number of predictive components of 1 if you want the algorithm to compute a model despite this.", call. = FALSE)
+        if(hN == 0) {
+          if (info.txtC != "none")
+            cat("No model was built because the first predictive component was already not significant.\n", sep = "")
+          opl <- new("opls")
+          opl@suppLs <- list(.char2numF = .char2numF,
+                             ## yLevelVc = NULL,
+                             algoC = algoC,
+                             naxL = naxL,
+                             nayL = nayL,
+                             nayVi = nayVi,
+                             permMN = NULL,
+                             scaleC = scaleC,
+                             topLoadI = NULL,
+                             yMCN = yMCN,
+                             xSubIncVarMN = NULL,
+                             xCorMN = NULL,
+                             y = NULL,
+                             xModelMN = xMN,
+                             yModelMN = yMN,
+                             yPreMN = NULL,
+                             yTesMN = NULL)
+          return(opl)
+        }
         
-        if(hN == autMaxN)
-          warning("The maximum number of components in the automated mode (", autMaxN, ") has been reached whereas R2Y (", round(modelDF[hN, 'R2Y'] * 100), "%) is still above 1% and Q2Y (", round(modelDF[hN, 'Q2'] * 100), "%) is still above ", round(ru1ThrN * 100), "%.", call. = FALSE)
+        if(hN == autMaxN) {
+          if (info.txtC != "none")
+            warning("The maximum number of components in the automated mode (", autMaxN, ") has been reached whereas R2Y (", round(modelDF[hN, 'R2Y'] * 100), "%) is still above 1% and Q2Y (", round(modelDF[hN, 'Q2'] * 100), "%) is still above ", round(ru1ThrN * 100), "%.", call. = FALSE)
+        }
         
         wMN <- wMN[, 1:hN, drop = FALSE]
         tMN <- tMN[, 1:hN, drop = FALSE]
@@ -679,7 +709,7 @@
           yTesScaMN <- matrix(0, nrow = nrow(xteMN), ncol = ncol(bMN))
           for(j in 1:ncol(yTesScaMN))
             for(i in 1:nrow(yTesScaMN)) {
-              comVl <- complete.cases(xteMN[i, ])
+              comVl <- stats::complete.cases(xteMN[i, ])
               yTesScaMN[i, j] <- crossprod(xteMN[i, comVl], bMN[comVl, j])
             }
         } else
@@ -793,7 +823,7 @@
                             function(colVn) {
                               wwjVn <- numeric(ncol(xcvTraMN))
                               for(j in 1:ncol(xcvTraMN)) {
-                                comVl <- complete.cases(xcvTraMN[, j]) & complete.cases(colVn)
+                                comVl <- stats::complete.cases(xcvTraMN[, j]) & stats::complete.cases(colVn)
                                 wwjVn[j] <- crossprod(xcvTraMN[comVl,j], colVn[comVl]) / drop(crossprod(colVn[comVl]))
                               }
                               wwjVn
@@ -825,8 +855,8 @@
             if(naxL || nayL) {
               wVn <- numeric(ncol(xcvTraMN))
               for(j in 1:ncol(xcvTraMN)) {
-                comVl <- complete.cases(xcvTraMN[, j]) &
-                  complete.cases(uOldVn)
+                comVl <- stats::complete.cases(xcvTraMN[, j]) &
+                  stats::complete.cases(uOldVn)
                 wVn[j] <- crossprod(xcvTraMN[comVl, j], uOldVn[comVl]) / drop(crossprod(uOldVn[comVl]))
               }
             } else
@@ -841,7 +871,7 @@
             if(naxL) {
               tVn <- numeric(nrow(xcvTraMN))
               for(i in 1:nrow(xcvTraMN)) {
-                comVl <- complete.cases(xcvTraMN[i, ])
+                comVl <- stats::complete.cases(xcvTraMN[i, ])
                 tVn[i] <- crossprod(xcvTraMN[i, comVl], wVn[comVl]) / drop(crossprod(wVn[comVl]))
               }
             } else
@@ -852,7 +882,7 @@
             if(nayL) {
               cVn <- numeric(ncol(ycvTraMN))
               for(j in 1:ncol(ycvTraMN)) {
-                comVl <- complete.cases(ycvTraMN[, j])
+                comVl <- stats::complete.cases(ycvTraMN[, j])
                 cVn[j] <- crossprod(ycvTraMN[comVl, j], tVn[comVl]) / drop(crossprod(tVn[comVl]))
               }
             } else
@@ -863,14 +893,14 @@
             if(nayL) {
               uVn <- numeric(nrow(xcvTraMN))
               for(i in 1:nrow(xcvTraMN)) {
-                comVl <- complete.cases(ycvTraMN[i, ])
+                comVl <- stats::complete.cases(ycvTraMN[i, ])
                 uVn[i] <- crossprod(ycvTraMN[i, comVl], cVn[comVl]) / drop(crossprod(cVn[comVl]))
               }
             } else
               uVn <- ycvTraMN %*% cVn / drop(crossprod(cVn))
             
             if(nayL) {
-              comVl <- complete.cases(uOldVn)
+              comVl <- stats::complete.cases(uOldVn)
               dscN <- drop(sqrt(crossprod((uVn[comVl] - uOldVn[comVl] / uVn[comVl]))))
             } else
               dscN <- drop(sqrt(crossprod((uVn - uOldVn) / uVn)))
@@ -893,7 +923,7 @@
           if(naxL) {
             pVn <- numeric(ncol(xcvTraMN))
             for(j in 1:ncol(xcvTraMN)) {
-              comVl <- complete.cases(xcvTraMN[, j])
+              comVl <- stats::complete.cases(xcvTraMN[, j])
               pVn[j] <- crossprod(xcvTraMN[comVl, j], tVn[comVl]) / drop(crossprod(tVn[comVl]))
             }
           } else
@@ -916,7 +946,7 @@
           if(naxL) {
             toVn <- numeric(nrow(xcvTraMN))
             for(i in 1:nrow(xcvTraMN)) {
-              comVl <- complete.cases(xcvTraMN[i, ])
+              comVl <- stats::complete.cases(xcvTraMN[i, ])
               toVn[i] <- crossprod(xcvTraMN[i, comVl], woVn[comVl]) / drop(crossprod(woVn[comVl]))
             }
           } else
@@ -925,7 +955,7 @@
           if(nayL) {
             coVn <- numeric(ncol(ycvTraMN))
             for(j in 1:ncol(ycvTraMN)) {
-              comVl <- complete.cases(ycvTraMN[, j])
+              comVl <- stats::complete.cases(ycvTraMN[, j])
               coVn[j] <- crossprod(ycvTraMN[comVl, j], toVn[comVl]) / drop(crossprod(toVn[comVl]))
             }
           } else
@@ -936,7 +966,7 @@
           if(naxL) {
             poVn <- numeric(ncol(xcvTraMN))
             for(j in 1:ncol(xcvTraMN)) {
-              comVl <- complete.cases(xcvTraMN[, j])
+              comVl <- stats::complete.cases(xcvTraMN[, j])
               poVn[j] <- crossprod(xcvTraMN[comVl, j], toVn[comVl]) / drop(crossprod(toVn[comVl]))
             }
           } else
@@ -952,7 +982,7 @@
             if(any(is.na(xcvTesMN))) {
               prxVn <- numeric(nrow(xcvTesMN))
               for(r in 1:length(prxVn)) {
-                comVl <- complete.cases(xcvTesMN[r, ])
+                comVl <- stats::complete.cases(xcvTesMN[r, ])
                 prxVn[r] <- crossprod(xcvTesMN[r, comVl], wVn[comVl]) / drop(crossprod(wVn[comVl]))
               }
               prkVn[cvN] <- sum((ycvTesMN - prxVn %*% t(cVn))^2, na.rm = TRUE)
@@ -962,7 +992,7 @@
             if(naxL) {
               toTesVn <- numeric(nrow(xcvTesMN))
               for(i in 1:nrow(xcvTesMN)) {
-                comVl <- complete.cases(xcvTesMN[i, ])
+                comVl <- stats::complete.cases(xcvTesMN[i, ])
                 toTesVn[i] <- crossprod(xcvTesMN[i, comVl], woVn[comVl]) / drop(crossprod(woVn[comVl]))
               }
             } else
@@ -1064,18 +1094,57 @@
       if (autNcoL) {
         
         if (modelDF["p1", "Signif."] != "R1") {
-          
-          stop("No model was built because the predictive component was not significant", call. = FALSE)
+          if (info.txtC != "none")
+            cat("No model was built because the first predictive component was already not significant\n", sep = "")
+          opl <- new("opls")
+          opl@suppLs <- list(.char2numF = .char2numF,
+                             ## yLevelVc = NULL,
+                             algoC = algoC,
+                             naxL = naxL,
+                             nayL = nayL,
+                             nayVi = nayVi,
+                             permMN = NULL,
+                             scaleC = scaleC,
+                             topLoadI = NULL,
+                             yMCN = yMCN,
+                             xSubIncVarMN = NULL,
+                             xCorMN = NULL,
+                             y = NULL,
+                             xModelMN = xMN,
+                             yModelMN = yMN,
+                             yPreMN = NULL,
+                             yTesMN = NULL)
+          return(opl)
           
         } else if (modelDF["o1", "Signif."] != "R1") {
-          
-          stop("No model was built because the first orthogonal component was already not significant;\nSelect a number of orthogonal components of 1 if you want the algorithm to compute a model despite this.", call. = FALSE)
+          if (info.txtC != "none")
+            cat("No model was built because the first predictive component was already not significant\n", sep = "")
+          opl <- new("opls")
+          opl@suppLs <- list(.char2numF = .char2numF,
+                             ## yLevelVc = NULL,
+                             algoC = algoC,
+                             naxL = naxL,
+                             nayL = nayL,
+                             nayVi = nayVi,
+                             permMN = NULL,
+                             scaleC = scaleC,
+                             topLoadI = NULL,
+                             yMCN = yMCN,
+                             xSubIncVarMN = NULL,
+                             xCorMN = NULL,
+                             y = NULL,
+                             xModelMN = xMN,
+                             yModelMN = yMN,
+                             yPreMN = NULL,
+                             yTesMN = NULL)
+          return(opl)
           
         } else if (all(modelDF[, "Signif."] == "R1", na.rm = TRUE)) {
           
           orthoI <- noN - 1
           
-          warning("The maximum number of orthogonal components in the automated mode (", autMaxN - 1, ") has been reached whereas R2Y (", round(modelDF[autMaxN, 'R2Y'] * 100), "%) is above 1% and Q2Y (", round(modelDF[autMaxN, 'Q2'] * 100), "%) is still above ", round(ru1ThrN * 100), "%.", call. = FALSE)
+          if (info.txtC != "none")
+            warning("The maximum number of orthogonal components in the automated mode (", autMaxN - 1, ") has been reached whereas R2Y (", round(modelDF[autMaxN, 'R2Y'] * 100), "%) is above 1% and Q2Y (", round(modelDF[autMaxN, 'Q2'] * 100), "%) is still above ", round(ru1ThrN * 100), "%.", call. = FALSE)
           
         } else {
           
@@ -1150,7 +1219,7 @@
           if(naxL) {
             xtoMN <- matrix(0, nrow = nrow(xteMN), ncol = 1)
             for(i in 1:nrow(xtoMN)) {
-              comVl <- complete.cases(xteMN[i, ])
+              comVl <- stats::complete.cases(xteMN[i, ])
               xtoMN[i, ] <- crossprod(xteMN[i, comVl], woMN[comVl, noN]) / drop(crossprod(woMN[comVl, noN]))
             }
           } else
@@ -1163,7 +1232,7 @@
           yTesScaMN <- matrix(0, nrow = nrow(xteMN), ncol = ncol(bMN), dimnames = list(rownames(xteMN), colnames(bMN)))
           for(j in 1:ncol(yTesScaMN))
             for(i in 1:nrow(yTesScaMN)) {
-              comVl <- complete.cases(xteMN[i, ])
+              comVl <- stats::complete.cases(xteMN[i, ])
               yTesScaMN[i, j] <- crossprod(xteMN[i, comVl], bMN[comVl, j])
             }
         } else
@@ -1324,23 +1393,33 @@
 .errorF <- function(x, y)
   sqrt(mean(drop((x - y)^2), na.rm = TRUE))
 
-.genVec <- function(ese,
+.genVec <- function(x,
                     dimC = c("sample", "feature")[1],
                     typC = c("character", "numeric")[1]) {
   
   switch(dimC,
          sample = {
            
-           vecVcn <- rep(NA, ncol(ese))
+           vecVcn <- rep(NA, ncol(x))
            mode(vecVcn) <- typC
-           names(vecVcn) <- sampleNames(ese)
+           if (is(x, "ExpressionSet")) {
+             names(vecVcn) <- Biobase::sampleNames(x)
+           } else if (is(x, "SummarizedExperiment")) {
+             names(vecVcn) <- colnames(x)
+           } else
+             stop("Unknown class")           
            
          },
          feature = {
            
-           vecVcn <- rep(NA, nrow(ese))
+           vecVcn <- rep(NA, nrow(x))
            mode(vecVcn) <- typC
-           names(vecVcn) <- featureNames(ese)
+           if (is(x, "ExpressionSet")) {
+             names(vecVcn) <- Biobase::featureNames(x)
+           } else if (is(x, "SummarizedExperiment")) {
+             names(vecVcn) <- rownames(x)
+           } else
+             stop("Unknown class")
            
          })
   

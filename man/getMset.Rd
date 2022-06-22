@@ -2,20 +2,18 @@
 % Please edit documentation in R/allGenerics.R, R/oplsMultiDataSet-methods.R
 \name{getMset}
 \alias{getMset}
-\alias{getMset,oplsMultiDataSet-method}
 \alias{getMset,}
 \alias{oplsMultiDataSet-method}
+\alias{getMset,oplsMultiDataSet-method}
 \title{getMset method}
 \usage{
-getMset(object, ...)
+getMset(object)
 
 \S4method{getMset}{oplsMultiDataSet}(object)
 }
 \arguments{
 \item{object}{An S4 object of class \code{oplsMultiDataSet}, created by \code{opls}
 function applied to a MultiDataSet}
-
-\item{...}{Currently not used}
 }
 \value{
 An S4 object of class \code{MultiDataSet}.
@@ -24,39 +22,16 @@ An S4 object of class \code{MultiDataSet}.
 Extracts the complemented MultiDataSet when opls has been applied to a MultiDataSet
 }
 \examples{
-# Building a MultiDataSet object
-# Loading the 'NCI60_4arrays' from the 'omicade4' package
-data("NCI60_4arrays", package = "omicade4")
-# Selecting two of the four datasets
-setNamesVc <- c("agilent", "hgu95")
-# Creating the MultiDataSet instance
-nciMset <- MultiDataSet::createMultiDataSet()
-# Adding the two datasets as ExpressionSet instances
-for (setC in setNamesVc) {
-  # Getting the data
-  exprMN <- as.matrix(NCI60_4arrays[[setC]])
-  pdataDF <- data.frame(row.names = colnames(exprMN),
-                        cancer = substr(colnames(exprMN), 1, 2),
-                        stringsAsFactors = FALSE)
-  fdataDF <- data.frame(row.names = rownames(exprMN),
-                        name = rownames(exprMN),
-                        stringsAsFactors = FALSE)
-  # Building the ExpressionSet
-  eset <- Biobase::ExpressionSet(assayData = exprMN,
-                                 phenoData = new("AnnotatedDataFrame",
-                                                 data = pdataDF),
-                                 featureData = new("AnnotatedDataFrame",
-                                                   data = fdataDF),
-                                 experimentData = new("MIAME",
-                                                      title = setC))
-  # Adding to the MultiDataSet
-  nciMset <- MultiDataSet::add_eset(nciMset, eset, dataset.type = setC,
-                                    GRanges = NA, warnings = FALSE)
-}
-# Summary of the MultiDataSet
-nciMset
+data(NCI60)
+nci.mds <- NCI60[["mds"]]
+# Restricting to the 'agilent' and 'hgu95' datasets
+nci.mds <- nci.mds[, c("agilent", "hgu95")]
+# Restricting to the 'ME' and 'LE' cancer types
+sampleNamesVc <- Biobase::sampleNames(nci.mds[["agilent"]])
+cancerTypeVc <- Biobase::pData(nci.mds[["agilent"]])[, "cancer"]
+nci.mds <- nci.mds[sampleNamesVc[cancerTypeVc \%in\% c("ME", "LE")], ]
 # Principal Component Analysis of each data set
-nciPca <- ropls::opls(nciMset)
+nci.pca <- opls(nci.mds)
 # Getting the MultiDataSet with additional info. in pData and fData
-nciMset <- ropls::getMset(nciPca)
+nci.mds <- getMset(nci.pca)
 }

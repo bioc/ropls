@@ -1,48 +1,101 @@
+#### view (SummarizedExperiment) ####
+
+#' @rdname view
+#' @export
+setMethod("view", signature(x = "SummarizedExperiment"),
+          function(x,
+                   printL = TRUE,
+                   plotL = TRUE,
+                   mainC = "",
+                   paletteC = c("heat",
+                                "revHeat",
+                                "grey",
+                                "revGrey",
+                                "palette",
+                                "ramp")[1],
+                   rowAllL = FALSE,
+                   rowCexN = 1,
+                   rowMarN = 5.1,
+                   rowLabC = "",
+                   rowTruncI = 0,
+                   colAllL = FALSE,
+                   colCexN = 1,
+                   colMarN = 3.1,
+                   colLabC = "",
+                   colTruncI = 0,
+                   drawScaleL = TRUE,
+                   delimitReplicatesL = FALSE,
+                   standardizeL = FALSE,
+                   fig.pdfC = "interactive") {
+            
+            message("'assay(x)':")
+            ropls::view(SummarizedExperiment::assay(x),
+                        printL = printL,
+                        plotL = plotL,
+                        mainC = paste0(mainC, "[assay]"),
+                        subC = "",
+                        paletteC = paletteC,
+                        rowAllL = rowAllL,
+                        rowCexN = rowCexN,
+                        rowMarN = rowMarN,
+                        rowLabC = rowLabC,
+                        rowTruncI = rowTruncI,
+                        colAllL = colAllL,
+                        colCexN = colCexN,
+                        colMarN = colMarN,
+                        colLabC = colLabC,
+                        colTruncI = colTruncI,
+                        drawScaleL = drawScaleL,
+                        delimitReplicatesL = delimitReplicatesL,
+                        standardizeL = standardizeL,
+                        fig.pdfC = fig.pdfC)
+            message("'colData(x)':")
+            ropls::view(as.data.frame(SummarizedExperiment::colData(x)),
+                        printL = printL,
+                        plotL = plotL,
+                        mainC = paste0(mainC, "[colData]"),
+                        subC = "",
+                        paletteC = paletteC,
+                        rowAllL = rowAllL,
+                        rowCexN = rowCexN,
+                        rowMarN = rowMarN,
+                        rowLabC = rowLabC,
+                        rowTruncI = rowTruncI,
+                        colAllL = colAllL,
+                        colCexN = colCexN,
+                        colMarN = colMarN,
+                        colLabC = colLabC,
+                        colTruncI = colTruncI,
+                        drawScaleL = drawScaleL,
+                        delimitReplicatesL = delimitReplicatesL,
+                        standardizeL = standardizeL,
+                        fig.pdfC = fig.pdfC)
+            message("'rowData(x)':")
+            ropls::view(as.data.frame(SummarizedExperiment::rowData(x)),
+                        printL = printL,
+                        plotL = plotL,
+                        mainC = paste0(mainC, "[rowData]"),
+                        subC = "",
+                        paletteC = paletteC,
+                        rowAllL = rowAllL,
+                        rowCexN = rowCexN,
+                        rowMarN = rowMarN,
+                        rowLabC = rowLabC,
+                        rowTruncI = rowTruncI,
+                        colAllL = colAllL,
+                        colCexN = colCexN,
+                        colMarN = colMarN,
+                        colLabC = colLabC,
+                        colTruncI = colTruncI,
+                        drawScaleL = drawScaleL,
+                        delimitReplicatesL = delimitReplicatesL,
+                        standardizeL = standardizeL,
+                        fig.pdfC = fig.pdfC)
+            
+          })
+
 #### view (ExpressionSet) ####
 
-#' view
-#'
-#' Numeric and graphical display of exprs, pData and fData slots
-#' from an ExpressionSet object
-#'
-#' @param x data frame to be viewed
-#' @param printL should the numerical summary be printed?
-#' @param plotL should the graphical image be displayed?
-#' @param mainC character: plot main title
-#' @param paletteC character: color palette; either 'heat' [default], 'revHeat', 'grey', 'revGrey', 'palette', 'ramp'
-#' @param rowAllL logical: should all rownames be displayed or only the first and
-#' last ones?
-#' @param rowCexN numeric: size of row labels [default: 1]
-#' @param rowMarN numeric: row margin [default: 5.1]
-#' @param rowLabC character: label for the y (row) axis
-#' @param rowTruncI integer: number of character for truncation of rownames (default,
-#' 0, means no truncation)
-#' @param colAllL logical: should all column names be displayed or only the first and
-#' last ones?
-#' @param colCexN numeric: size of column labels [default: 1]
-#' @param colMarN numeric: column margin [default: 3.1]
-#' @param colLabC character: label for the x (column) axis
-#' @param colTruncI integer: number of character for truncation of colnames (default,
-#' 0, means no truncation)
-#' @param drawScaleL logical: should the color scale be drawn? [default: TRUE]
-#' @param delimitReplicatesL logical: should lines be added to the image to delimit
-#' replicates in row or column names?
-#' @param standardizeL Logical: should columns be standardized for display? 
-#' (i.e. subtracting the mean and dividing by the standard deviation) [default: FALSE]
-#' @param fig.pdfC character: either 'interactive' [default] or the name of the pdf file to save the figure
-#' @param ... Currently not used.
-#' @return this method has no output
-#' @examples
-#' library(ropls)
-#' data(sacurine)
-#' sacSet <- Biobase::ExpressionSet(assayData = t(sacurine[["dataMatrix"]]), 
-#'                                  phenoData = new("AnnotatedDataFrame", 
-#'                                                  data = sacurine[["sampleMetadata"]]), 
-#'                                  featureData = new("AnnotatedDataFrame", 
-#'                                                    data = sacurine[["variableMetadata"]]),
-#'                                  experimentData = new("MIAME", 
-#'                                                       title = "sacurine"))
-#' view(sacSet)
 #' @rdname view
 #' @export
 setMethod("view", signature(x = "ExpressionSet"),
@@ -78,8 +131,8 @@ setMethod("view", signature(x = "ExpressionSet"),
             ropls::view(Biobase::exprs(x),
                         printL = printL,
                         plotL = plotL,
-                        mainC = mainC,
-                        subC = "exprs",
+                        mainC = paste0(mainC, "[exprs]"),
+                        subC = "",
                         paletteC = paletteC,
                         rowAllL = rowAllL,
                         rowCexN = rowCexN,
@@ -99,8 +152,8 @@ setMethod("view", signature(x = "ExpressionSet"),
             ropls::view(Biobase::pData(x),
                         printL = printL,
                         plotL = plotL,
-                        mainC = mainC,
-                        subC = "pData",
+                        mainC = paste0(mainC, "[pData]"),
+                        subC = "",
                         paletteC = paletteC,
                         rowAllL = rowAllL,
                         rowCexN = rowCexN,
@@ -120,8 +173,8 @@ setMethod("view", signature(x = "ExpressionSet"),
             ropls::view(Biobase::fData(x),
                         printL = printL,
                         plotL = plotL,
-                        mainC = mainC,
-                        subC = "fData",
+                        mainC = paste0(mainC, "[fData]"),
+                        subC = "",
                         paletteC = paletteC,
                         rowAllL = rowAllL,
                         rowCexN = rowCexN,
@@ -142,42 +195,6 @@ setMethod("view", signature(x = "ExpressionSet"),
 
 #### view (data.frame) ####
 
-#' view
-#'
-#' Numeric and graphical display of a data frame
-#'
-#' @param x data frame to be viewed
-#' @param printL should the numerical summary be printed?
-#' @param plotL should the graphical image be displayed?
-#' @param mainC character: plot main title
-#' @param subC character: plot subtitle
-#' @param paletteC character: color palette; either 'heat' [default], 'revHeat', 'grey', 'revGrey', 'palette', 'ramp'
-#' @param rowAllL logical: should all rownames be displayed or only the first and
-#' last ones?
-#' @param rowCexN numeric: size of row labels [default: 1]
-#' @param rowMarN numeric: row margin [default: 5.1]
-#' @param rowLabC character: label for the y (row) axis
-#' @param rowTruncI integer: number of character for truncation of rownames (default,
-#' 0, means no truncation)
-#' @param colAllL logical: should all column names be displayed or only the first and
-#' last ones?
-#' @param colCexN numeric: size of column labels [default: 1]
-#' @param colMarN numeric: column margin [default: 3.1]
-#' @param colLabC character: label for the x (column) axis
-#' @param colTruncI integer: number of character for truncation of colnames (default,
-#' 0, means no truncation)
-#' @param drawScaleL logical: should the color scale be drawn? [default: TRUE]
-#' @param delimitReplicatesL logical: should lines be added to the image to delimit
-#' replicates in row or column names?
-#' @param standardizeL Logical: should columns be standardized for display? 
-#' (i.e. subtracting the mean and dividing by the standard deviation) [default: FALSE]
-#' @param fig.pdfC character: either 'interactive' [default] or the name of the pdf file to save the figure
-#' @param ... Currently not used.
-#' @return this method has no output
-#' @examples
-#' library(ropls)
-#' data(sacurine)
-#' view(sacurine[["sampleMetadata"]])
 #' @rdname view
 #' @export
 setMethod("view", signature(x = "data.frame"),
@@ -275,54 +292,6 @@ setMethod("view", signature(x = "data.frame"),
 
 #### view (matrix) ####
 
-#' view
-#'
-#' Numeric and graphical display of a matrix
-#'
-#' @param x matrix to be viewed
-#' @param printL should the numerical summary be printed?
-#' @param plotL should the graphical image be displayed?
-#' @param mainC character: plot main title
-#' @param subC character: plot subtitle
-#' @param paletteC character: color palette; either 'heat' [default], 'revHeat', 'grey', 'revGrey', 'palette', 'ramp'
-#' @param rowAllL logical: should all rownames be displayed or only the first and
-#' last ones?
-#' @param rowCexN numeric: size of row labels [default: 1]
-#' @param rowMarN numeric: row margin [default: 5.1]
-#' @param rowLabC character: label for the y (row) axis
-#' @param rowTruncI integer: number of character for truncation of rownames (default,
-#' 0, means no truncation)
-#' @param colAllL logical: should all column names be displayed or only the first and
-#' last ones?
-#' @param colCexN numeric: size of column labels [default: 1]
-#' @param colMarN numeric: column margin [default: 3.1]
-#' @param colLabC character: label for the x (column) axis
-#' @param colTruncI integer: number of character for truncation of colnames (default,
-#' 0, means no truncation)
-#' @param drawScaleL logical: should the color scale be drawn? [default: TRUE]
-#' @param delimitReplicatesL logical: should lines be added to the image to delimit
-#' replicates in row or column names?
-#' @param standardizeL Logical: should columns be standardized for display? 
-#' (i.e. subtracting the mean and dividing by the standard deviation) [default: FALSE]
-#' @param fig.pdfC character: either 'interactive' [default] or the name of the pdf file to save the figure
-#' @param ... Currently not used.
-#' @return this method has no output
-#' @examples
-#' library(ropls)
-#' data(sacurine)
-#' dataMN <- sacurine[["dataMatrix"]]
-#' view(dataMN)
-#' view(dataMN[, 1:40], mainC = "'Sacurine' dataset", rowAllL = TRUE,
-#' colAllL = TRUE, colTruncI = 13, colMarN = 7)
-#' view(dataMN[, 1:40], mainC = "'Sacurine' dataset", paletteC = "ramp")
-#' sacSet <- Biobase::ExpressionSet(assayData = t(sacurine[["dataMatrix"]]), 
-#'                                  phenoData = new("AnnotatedDataFrame", 
-#'                                                  data = sacurine[["sampleMetadata"]]), 
-#'                                  featureData = new("AnnotatedDataFrame", 
-#'                                                    data = sacurine[["variableMetadata"]]),
-#'                                  experimentData = new("MIAME", 
-#'                                                       title = "sacurine"))
-#' view(sacSet)
 #' @rdname view
 #' @export
 setMethod("view", signature(x = "matrix"),
@@ -1305,188 +1274,44 @@ imageF <- function(x,
   
 }
 
+####   checkW4M (SummarizedExperiment)   ####
 
-#' fromW4M (deprecated)
-#'
-#' Creating a ExpressionSet object from the 3 'dataMatrix.tsv',
-#' 'sampleMetadata.tsv' and 'variableMetadata.tsv' tabulated files
-#'
-#' @param dirC Character: directory containing the 3 .tsv files
-#' @param namePatternC Character: optional file name pattern common to all three
-#' file names (e.g., when you want to distinguish between two sets of files
-#' within the same directory)
-#' @param fileTableNamesVc Vector of characters: if your file names do not
-#' contain the standard 'dataMatrix', 'sampleMetadata', and 'variableMetadata'
-#' patterns (e.g. if you use 'profile', 'observation', and 'feature' instead),
-#' please indicate them here
-#' @param verboseL Logical: should comments be printed?
-#' @return ExpressionSet instance
-#' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
-#' @examples sacSet <- fromW4M(file.path(path.package("ropls"), "extdata"))
-#' @rdname fromW4M
-#' @export
-fromW4M <- function(dirC,
-                    namePatternC = "",
-                    fileTableNamesVc = c("dataMatrix",
-                                         "sampleMetadata",
-                                         "variableMetadata"),
-                    verboseL = TRUE) {
-  
-  tabVc <- c("dataMatrix",
-             "sampleMetadata",
-             "variableMetadata")
-  
-  if (!file.exists(dirC))
-    stop("Directory '", dirC, "' was not found.",
-         call. = FALSE)
-  
-  filVc <- character(length(tabVc))
-  names(filVc) <- tabVc
-  
-  filAllVc <- list.files(dirC,
-                         pattern = "^.*\\.tsv$")
-  
-  ## restricting to files with pattern
-  if (namePatternC != "")
-    filAllVc <- grep(namePatternC, filAllVc, value = TRUE)
-  
-  ## restricting to one file for each table
-  for (tabC in tabVc) {
-    namC <- fileTableNamesVc[tabVc == tabC]
-    filC <- grep(namC, filAllVc, value = TRUE)
-    if (length(filC) == 0) {
-      stop("No file found for the ", tabC, " with ",
-           ifelse(namePatternC != "",
-                  paste0("'", namC, "' pattern and "), ""),
-           "a name including '", namC, "' in the '", dirC,
-           "' directory.", call. = FALSE)
-    } else if (length(filC) > 1) {
-      stop("Several files found for the ", tabC, " with ",
-           ifelse(namePatternC != "", paste0("'", namC, "' pattern and "),
-                  ""), "a name including '", namC, "' in the '",
-           dirC, "' directory.", call. = FALSE)
-    } else {
-      filVc[tabC] <- filC
-      ## R standards for row and column names in matrices and data frames
-      .checkRformatF(dirC, filC, verboseL)
-    }
-  }
-  
-  ## Loading data
-  
-  for(tabC in tabVc) {
-    
-    tabDF <- read.table(file.path(dirC, filVc[tabC]),
-                        check.names = FALSE,
-                        header = TRUE,
-                        row.names = 1,
-                        sep = "\t",
-                        stringsAsFactors = FALSE)
-    switch(tabC,
-           dataMatrix = {
-             datMN <- as.matrix(tabDF)
-           },
-           sampleMetadata = {
-             samDF <- tabDF
-           },
-           variableMetadata = {
-             varDF <- tabDF
-           })
-    
-  }
-  
-  chkL <- .checkW4mFormatF(t(datMN), samDF, varDF)
-  
-  if(chkL) {
-    TRUE
-  } else
-    "Problem with the sample or variable names in the tables (see above)"
-  
-  eset <- ExpressionSet(assayData = datMN,
-                        phenoData = new("AnnotatedDataFrame",
-                                        data = samDF),
-                        featureData = new("AnnotatedDataFrame",
-                                          data = varDF),
-                        experimentData = new("MIAME",
-                                             title = namePatternC))
-  
-  validObject(eset)
-  
-  return(eset)
-  
-}
+#' @rdname checkW4M
+setMethod("checkW4M", "SummarizedExperiment",
+          function(x) {
+            
+            datMN <- t(SummarizedExperiment::assay(x))
+            samDF <- as.data.frame(SummarizedExperiment::colData(x))
+            varDF <- as.data.frame(SummarizedExperiment::rowData(x))
+            
+            chkL <- .checkW4mFormatF(datMN, samDF, varDF)
+            
+            if(!chkL) {
+              stop("Problem with the sample or variable names in the tables to be imported from (exported to) W4M", call. = FALSE)
+            } else
+              return(TRUE)
+          })
 
-# deprecated
-.checkRformatF <- function(dirCa, filCa, vrbLa) {
-  
-  rowVc <- read.table(file.path(dirCa, filCa),
-                      check.names = FALSE,
-                      header = TRUE,
-                      sep = "\t",
-                      stringsAsFactors = FALSE)[, 1]
-  
-  colVc <- unlist(read.table(file.path(dirCa, filCa),
-                             check.names = FALSE,
-                             nrows = 1,
-                             sep = "\t",
-                             stringsAsFactors = FALSE))[-1]
-  
-  if (any(duplicated(rowVc)))
-    stop("The following ",
-         ifelse(names(filCa) == 'sampleMetadata', 'sample', 'variable'),
-         " name(s) is/are duplicated in the ",
-         names(filCa),
-         ": '",
-         paste(rowVc[duplicated(rowVc)], collapse = "', '"), "'",
-         call. = FALSE)
-  
-  if (any(duplicated(colVc)))
-    stop("The following ", ifelse(names(filCa) == 'sampleMetadata', 'variable', 'sample'), " name(s) is/are duplicated in the ",
-         names(filCa),
-         ": '",
-         paste(colVc[duplicated(colVc)], collapse = "', '"), "'",
-         call. = FALSE)
-  
-  rowMakVc <- make.names(rowVc, unique = TRUE)
-  
-  rowDifVl <- rowVc != rowMakVc
-  
-  if (any(rowDifVl)) {
-    rowDifDF <- data.frame(row = 1:length(rowVc),
-                           actual = rowVc,
-                           preferred = rowMakVc)
-    rowDifDF <- rowDifDF[rowDifVl, , drop = FALSE]
-    if (vrbLa) {
-      warning("The following ",
-              ifelse(names(filCa) == 'sampleMetadata', 'sample', 'variable'),
-              " name(s) of the ",
-              names(filCa),
-              " is/are not in the standard R format, which may result in errors when loading the data:")
-      print(rowDifDF)
-    }
-  }
-  
-  colMakVc <- make.names(colVc, unique = TRUE)
-  
-  colDifVl <- colVc != colMakVc
-  
-  if (any(colDifVl)) {
-    colDifDF <- data.frame(col = 1:length(colVc),
-                           actual = colVc,
-                           preferred = colMakVc)
-    colDifDF <- colDifDF[colDifVl, , drop = FALSE]
-    if (vrbLa) {
-      warning("The following ",
-              ifelse(names(filCa) == 'sampleMetadata', 'variable', 'sample'),
-              " name(s) of the ",
-              names(filCa),
-              " is/are not in the standard R format, which may result in errors when loading the data:")
-      print(colDifDF)
-    }
-  }
-}
 
-# deprecated
+####   checkW4M (ExpressionSet)   ####
+
+#' @rdname checkW4M
+setMethod("checkW4M", "ExpressionSet",
+          function(x) {
+            
+            datMN <- t(exprs(x))
+            samDF <- pData(x)
+            varDF <- fData(x)
+            
+            chkL <- .checkW4mFormatF(datMN, samDF, varDF)
+            
+            if(!chkL) {
+              stop("Problem with the sample or variable names in the tables to be imported from (exported to) W4M", call. = FALSE)
+            } else
+              return(TRUE)
+          })
+
+
 .checkW4mFormatF <- function(datMN, samDF, varDF) {
   
   chkL <- TRUE
@@ -1570,6 +1395,273 @@ fromW4M <- function(dirC,
   }
   
   return(chkL)
+  
+}
+
+####   fromW4M   ####
+
+#' fromW4M
+#'
+#' Creating a ExpressionSet object from the 3 'dataMatrix.tsv',
+#' 'sampleMetadata.tsv' and 'variableMetadata.tsv' tabulated files
+#'
+#' @param dirC Character: directory containing the 3 .tsv files
+#' @param namePatternC Character: optional file name pattern common to all three
+#' file names (e.g., when you want to distinguish between two sets of files
+#' within the same directory)
+#' @param fileTableNamesVc Vector of characters: if your file names do not
+#' contain the standard 'dataMatrix', 'sampleMetadata', and 'variableMetadata'
+#' patterns (e.g. if you use 'profile', 'observation', and 'feature' instead),
+#' please indicate them here
+#' @param outputC character(1): either 'exp' for SummarizedExperiment (default) or 'set' for ExpressionSet output format
+#' @param verboseL Logical: should comments be printed?
+#' @return ExpressionSet instance
+#' @author Etienne Thevenot, \email{etienne.thevenot@@cea.fr}
+#' @examples sacSet <- fromW4M(file.path(path.package("ropls"), "extdata"))
+#' @rdname fromW4M
+#' @export
+fromW4M <- function(dirC,
+                    namePatternC = "",
+                    fileTableNamesVc = c("dataMatrix",
+                                         "sampleMetadata",
+                                         "variableMetadata"),
+                    outputC = c("exp", "set")[2],
+                    verboseL = TRUE) {
+  
+  tabVc <- c("dataMatrix",
+             "sampleMetadata",
+             "variableMetadata")
+  
+  if (!file.exists(dirC))
+    stop("Directory '", dirC, "' was not found.",
+         call. = FALSE)
+  
+  filVc <- character(length(tabVc))
+  names(filVc) <- tabVc
+  
+  filAllVc <- list.files(dirC,
+                         pattern = "^.*\\.tsv$")
+  
+  ## restricting to files with pattern
+  if (namePatternC != "")
+    filAllVc <- grep(namePatternC, filAllVc, value = TRUE)
+  
+  ## restricting to one file for each table
+  for (tabC in tabVc) {
+    namC <- fileTableNamesVc[tabVc == tabC]
+    filC <- grep(namC, filAllVc, value = TRUE)
+    if (length(filC) == 0) {
+      stop("No file found for the ", tabC, " with ",
+           ifelse(namePatternC != "",
+                  paste0("'", namC, "' pattern and "), ""),
+           "a name including '", namC, "' in the '", dirC,
+           "' directory.", call. = FALSE)
+    } else if (length(filC) > 1) {
+      stop("Several files found for the ", tabC, " with ",
+           ifelse(namePatternC != "", paste0("'", namC, "' pattern and "),
+                  ""), "a name including '", namC, "' in the '",
+           dirC, "' directory.", call. = FALSE)
+    } else {
+      filVc[tabC] <- filC
+      ## R standards for row and column names in matrices and data frames
+      .checkRformatF(dirC, filC, verboseL)
+    }
+  }
+  
+  ## Loading data
+  
+  for(tabC in tabVc) {
+    
+    tabDF <- read.table(file.path(dirC, filVc[tabC]),
+                        check.names = FALSE,
+                        header = TRUE,
+                        row.names = 1,
+                        sep = "\t",
+                        stringsAsFactors = FALSE)
+    switch(tabC,
+           dataMatrix = {
+             datMN <- as.matrix(tabDF)
+           },
+           sampleMetadata = {
+             samDF <- tabDF
+           },
+           variableMetadata = {
+             varDF <- tabDF
+           })
+    
+  }
+  
+  chkL <- .checkW4mFormatF(t(datMN), samDF, varDF)
+  
+  if(chkL) {
+    TRUE
+  } else
+    "Problem with the sample or variable names in the tables (see above)"
+  
+  if (outputC == "exp") {
+    
+    x <- SummarizedExperiment::SummarizedExperiment(assays = list(se = datMN),
+                                                    colData = samDF,
+                                                    rowData = varDF)
+    
+    x@metadata$experimentData@title <- namePatternC
+    
+  } else if (outputC == "set") {
+    
+    x <- ExpressionSet(assayData = datMN,
+                       phenoData = new("AnnotatedDataFrame",
+                                       data = samDF),
+                       featureData = new("AnnotatedDataFrame",
+                                         data = varDF),
+                       experimentData = new("MIAME",
+                                            title = namePatternC))
+    
+  }
+  
+  validObject(x)
+  
+  return(x)
+  
+}
+
+
+.checkRformatF <- function(dirCa, filCa, vrbLa) {
+  
+  rowVc <- read.table(file.path(dirCa, filCa),
+                      check.names = FALSE,
+                      header = TRUE,
+                      sep = "\t",
+                      stringsAsFactors = FALSE)[, 1]
+  
+  colVc <- unlist(read.table(file.path(dirCa, filCa),
+                             check.names = FALSE,
+                             nrows = 1,
+                             sep = "\t",
+                             stringsAsFactors = FALSE))[-1]
+  
+  if (any(duplicated(rowVc)))
+    stop("The following ",
+         ifelse(names(filCa) == 'sampleMetadata', 'sample', 'variable'),
+         " name(s) is/are duplicated in the ",
+         names(filCa),
+         ": '",
+         paste(rowVc[duplicated(rowVc)], collapse = "', '"), "'",
+         call. = FALSE)
+  
+  if (any(duplicated(colVc)))
+    stop("The following ", ifelse(names(filCa) == 'sampleMetadata', 'variable', 'sample'), " name(s) is/are duplicated in the ",
+         names(filCa),
+         ": '",
+         paste(colVc[duplicated(colVc)], collapse = "', '"), "'",
+         call. = FALSE)
+  
+  rowMakVc <- make.names(rowVc, unique = TRUE)
+  
+  rowDifVl <- rowVc != rowMakVc
+  
+  if (any(rowDifVl)) {
+    rowDifDF <- data.frame(row = 1:length(rowVc),
+                           actual = rowVc,
+                           preferred = rowMakVc)
+    rowDifDF <- rowDifDF[rowDifVl, , drop = FALSE]
+    if (vrbLa) {
+      warning("The following ",
+              ifelse(names(filCa) == 'sampleMetadata', 'sample', 'variable'),
+              " name(s) of the ",
+              names(filCa),
+              " is/are not in the standard R format, which may result in errors when loading the data:")
+      print(rowDifDF)
+    }
+  }
+  
+  colMakVc <- make.names(colVc, unique = TRUE)
+  
+  colDifVl <- colVc != colMakVc
+  
+  if (any(colDifVl)) {
+    colDifDF <- data.frame(col = 1:length(colVc),
+                           actual = colVc,
+                           preferred = colMakVc)
+    colDifDF <- colDifDF[colDifVl, , drop = FALSE]
+    if (vrbLa) {
+      warning("The following ",
+              ifelse(names(filCa) == 'sampleMetadata', 'variable', 'sample'),
+              " name(s) of the ",
+              names(filCa),
+              " is/are not in the standard R format, which may result in errors when loading the data:")
+      print(colDifDF)
+    }
+  }
+}
+
+####   toW4M (ExpressionSet)  ####
+
+#' @rdname toW4M
+setMethod("toW4M", "ExpressionSet",
+          function(x,
+                   filePrefixC = paste0(getwd(), "/out_"),
+                   verboseL = TRUE){
+            
+            if(checkW4M(x)) {
+              
+              datMN <- exprs(x)
+              datDF <- cbind.data.frame(dataMatrix = rownames(datMN),
+                                        as.data.frame(datMN))
+              
+              samDF <- pData(x)
+              samDF <- cbind.data.frame(sampleMetadata = rownames(samDF),
+                                        samDF)
+              
+              
+              varDF <- fData(x)
+              varDF <- cbind.data.frame(variableMetadata = rownames(varDF),
+                                        varDF)
+              
+              .writeW4M(datDF = datDF,
+                        samDF = samDF,
+                        varDF = varDF,
+                        filePrefixC = filePrefixC,
+                        verboseL = verboseL)
+            }
+            
+          })
+
+.writeW4M <- function(datDF,
+                      samDF,
+                      varDF,
+                      filePrefixC,
+                      verboseL) {
+  
+  filDatC <- paste0(filePrefixC, "dataMatrix.tsv")
+  filSamC <- paste0(filePrefixC, "sampleMetadata.tsv")
+  filVarC <- paste0(filePrefixC, "variableMetadata.tsv")
+  
+  write.table(datDF,
+              file = filDatC,
+              quote = FALSE,
+              row.names = FALSE,
+              sep = "\t")
+  
+  write.table(samDF,
+              file = filSamC,
+              quote = FALSE,
+              row.names = FALSE,
+              sep = "\t")
+  
+  write.table(varDF,
+              file = filVarC,
+              quote = FALSE,
+              row.names = FALSE,
+              sep = "\t")
+  
+  if (verboseL) {
+    cat("The following 3 files:\n")
+    print(basename(filDatC))
+    print(basename(filSamC))
+    print(basename(filVarC))
+    cat("have been written in the following directory:\n")
+    print(dirname(filDatC))
+  }
   
 }
 

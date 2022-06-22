@@ -1,59 +1,33 @@
 ####    plot  (oplsMultiDataSet)  ####
 
-#' Plot Method for (O)PLS(-DA)
-#'
-#' This function plots values based upon a model trained by \code{opls}.
-#'
-#' @aliases plot.oplsMultiDataSet plot,oplsMultiDataSet-method
-#' @examples
-#' # Loading the 'NCI60_4arrays' from the 'omicade4' package
-#' data("NCI60_4arrays", package = "omicade4")
-#' # Selecting two of the four datasets
-#' setNamesVc <- c("agilent", "hgu95")
-#' # Creating the MultiDataSet instance
-#' nciMset <- MultiDataSet::createMultiDataSet()
-#' # Adding the two datasets as ExpressionSet instances
-#' for (setC in setNamesVc) {
-#'   # Getting the data
-#'   exprMN <- as.matrix(NCI60_4arrays[[setC]])
-#'   pdataDF <- data.frame(row.names = colnames(exprMN),
-#'                         cancer = substr(colnames(exprMN), 1, 2),
-#'                         stringsAsFactors = FALSE)
-#'   fdataDF <- data.frame(row.names = rownames(exprMN),
-#'                         name = rownames(exprMN),
-#'                         stringsAsFactors = FALSE)
-#'   # Building the ExpressionSet
-#'   eset <- Biobase::ExpressionSet(assayData = exprMN,
-#'                                  phenoData = new("AnnotatedDataFrame",
-#'                                                  data = pdataDF),
-#'                                  featureData = new("AnnotatedDataFrame",
-#'                                                    data = fdataDF),
-#'                                  experimentData = new("MIAME",
-#'                                                       title = setC))
-#'   # Adding to the MultiDataSet
-#'   nciMset <- MultiDataSet::add_eset(nciMset, eset, dataset.type = setC,
-#'                                     GRanges = NA, warnings = FALSE)
-#' }
-#' # Summary of the MultiDataSet
-#' nciMset
-#' # Principal Component Analysis of each data set
-#' nciPca <- ropls::opls(nciMset)
-#' # Coloring the Score plot according to cancer types
-#' ropls::plot(nciPca, y = "cancer", typeVc = "x-score")
-#' # Restricting to the 'ME' and 'LE' cancer types
-#' sampleNamesVc <- Biobase::sampleNames(nciMset[["agilent"]])
-#' cancerTypeVc <- Biobase::pData(nciMset[["agilent"]])[, "cancer"]
-#' nciMset <- nciMset[sampleNamesVc[cancerTypeVc %in% c("ME", "LE")], ]
-#' # Building PLS-DA models for the cancer type
-#' nciPlsda <- ropls::opls(nciMset, "cancer", predI = 2)
 #' @rdname plot
 #' @export
 setMethod("plot", signature(x = "oplsMultiDataSet"),
           function(x,
                    y,
+                   typeVc = c("correlation",
+                              "outlier",
+                              "overview",
+                              "permutation",
+                              "predict-train",
+                              "predict-test",
+                              "summary",
+                              "x-loading",
+                              "x-score",
+                              "x-variance",
+                              "xy-score",
+                              "xy-weight")[7],
+                   parAsColFcVn = NA,
+                   parCexN = 0.8,
+                   parCompVi = c(1, 2),
+                   parEllipsesL = NA,
+                   parLabVc = NA,
+                   parPaletteVc = NA,
+                   parTitleL = TRUE,
+                   parCexMetricN = NA,
+                   plotSubC = "",
                    fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
-                   info.txtC = c("none", "interactive", "myfile.txt")[2],
-                   ...) {
+                   info.txtC = c("none", "interactive", "myfile.txt")[2]) {
             
             if (!(info.txtC %in% c("none", "interactive"))) {
               sink(info.txtC, append = TRUE)
@@ -79,10 +53,19 @@ setMethod("plot", signature(x = "oplsMultiDataSet"),
                 cat("No model has been built for the '", names(oplsLs)[setI], "' dataset and thus no plot can be displayed.", sep = "")
               } else
               plot(opl,
-                   plotSubC = paste0("[", names(oplsLs)[setI], "]"),
+                   y = NULL,
+                   typeVc = typeVc,
+                   parAsColFcVn = parAsColFcVn,
+                   parCexN = parCexN,
+                   parCompVi = parCompVi,
+                   parEllipsesL = parEllipsesL,
+                   parLabVc = parLabVc,
+                   parPaletteVc = parPaletteVc,
+                   parTitleL = parTitleL,
+                   parCexMetricN = parCexMetricN,
+                   plotSubC = paste0(plotSubC, " [", names(oplsLs)[setI], "]"),
                    fig.pdfC = figPdfC,
-                   info.txtC = infTxtC,
-                   ...)
+                   info.txtC = infTxtC)
             }
             
             if (!(fig.pdfC %in% c("none", "interactive")))
@@ -99,7 +82,7 @@ setMethod("plot", signature(x = "oplsMultiDataSet"),
 #'
 #' This function plots values based upon a model trained by \code{opls}.
 #'
-#' @aliases plot.opls plot,opls-method
+#' @aliases plot.opls plot,opls-method plot.oplsMultiDataSet plot,oplsMultiDataSet-method
 #' @param x An S4 object of class \code{opls} or \code{oplsMultiDataSet},
 #' created by the \code{opls} function.
 #' @param y Currently not used
@@ -135,9 +118,6 @@ setMethod("plot", signature(x = "oplsMultiDataSet"),
 #' the user wishes to add specific titles a posteriori
 #' @param parCexMetricN Numeric: magnification of the metrics at the bottom of
 #' score plot (default -NA- is 1 in 1x1 and 0.7 in 2x2 display)
-#' @param plotPhenoDataC Character: if x was generated from an ExpressionSet (i.e. if the 
-#' 'eset' slot from x is not NULL), the name of the pData(x) column to be used
-#' for coloring can be specified here (instead of 'parAsColFcVn')
 #' @param plotSubC Character: Graphic subtitle
 #' @param fig.pdfC Character: File name with '.pdf' extension for the figure;
 #' if 'interactive' (default), figures will be displayed interactively; if 'none',
@@ -145,9 +125,7 @@ setMethod("plot", signature(x = "oplsMultiDataSet"),
 #' @param info.txtC Character: File name with '.txt' extension for the printed
 #' results (call to sink()'); if 'interactive' (default), messages will be
 #' printed on the screen; if 'none', no verbose will be generated
-#' @param file.pdfC Character: deprecated; use the 'fig.pdfC' argument instead
-#' @param .sinkC Character: deprecated; use the 'info.txtC' argument instead
-#' @param ... Currently not used.
+#' @return This method does not return any object
 #' @examples
 #'
 #' data(sacurine)
@@ -180,20 +158,28 @@ setMethod("plot", signature(x = "oplsMultiDataSet"),
 #' sacPlsda <- opls(dataMatrix, sampleMetadata[, "gender"])
 #' plot(sacPlsda, parPaletteVc = c("green4", "magenta"))
 #' 
-#' #### Application to an ExpressionSet
+#' detach(sacurine)
 #' 
-#' sacSet <- Biobase::ExpressionSet(assayData = t(dataMatrix), 
-#'                                  phenoData = new("AnnotatedDataFrame", 
-#'                                                  data = sampleMetadata), 
-#'                                  featureData = new("AnnotatedDataFrame", 
-#'                                                    data = variableMetadata),
-#'                                  experimentData = new("MIAME", 
-#'                                                       title = "sacurine"))
+#' #### Application to an opls object generated by an ExpressionSet
+#' 
+#' sacSet <- sacurine[["eset"]]
 #'                                                       
 #' sacPlsda <- opls(sacSet, "gender")
-#' plot(sacPlsda, "gender", typeVc = "x-score")
-#'
-#' detach(sacurine)
+#' plot(sacPlsda, typeVc = "x-score")
+#' 
+#' #### Application to a opls object generated by an MultiDataSet
+#' 
+#' data(NCI60)
+#' nciMset <- NCI60[["mds"]]
+#' # Restricting to the 'agilent' and 'hgu95' datasets
+#' nciMset <- nciMset[, c("agilent", "hgu95")]
+#' # Restricting to the 'ME' and 'LE' cancer types
+#' sampleNamesVc <- Biobase::sampleNames(nciMset[["agilent"]])
+#' cancerTypeVc <- Biobase::pData(nciMset[["agilent"]])[, "cancer"]
+#' nciMset <- nciMset[sampleNamesVc[cancerTypeVc %in% c("ME", "LE")], ]
+#' # Building PLS-DA models for the cancer type
+#' nciPlsda <- opls(nciMset, "cancer", predI = 2)
+#' plot(nciPlsda, typeVc = "x-score")
 #'
 #' @rdname plot
 #' @export
@@ -220,49 +206,9 @@ setMethod("plot", signature(x = "opls"),
                    parPaletteVc = NA,
                    parTitleL = TRUE,
                    parCexMetricN = NA,
-                   plotPhenoDataC = NA,
-                   plotSubC = NA,
+                   plotSubC = "",
                    fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
-                   info.txtC = c("none", "interactive", "myfile.txt")[2],                   
-                   
-                   file.pdfC = NULL,
-                   .sinkC = NULL,
-                   ...) {
-            
-            if (!is.null(file.pdfC)) {
-              warning("'file.pdfC' argument is deprecated; use 'fig.pdfC' instead.")
-              fig.pdfC <- file.pdfC
-            }
-            
-            if (!is.null(.sinkC)) {
-              warning("'.sinkC' argument is deprecated; use 'info.txtC' instead.",
-                      call. = FALSE)
-              info.txtC <- .sinkC
-            }
-            
-            if (is.null(info.txtC)) {
-              warning("'info.txtC = NULL' argument value is deprecated; use 'info.txtC = 'none'' instead.",
-                      call. = FALSE)
-              info.txtC <- 'none'
-            }
-            
-            if (is.na(info.txtC)) {
-              warning("'info.txtC = NA' argument value is deprecated; use 'info.txtC = 'interactive'' instead.",
-                      call. = FALSE)
-              info.txtC <- 'interactive'
-            }
-            
-            if (is.null(fig.pdfC)) {
-              warning("'fig.pdfC = NULL' argument value is deprecated; use 'fig.pdfC = 'none'' instead.",
-                      call. = FALSE)
-              fig.pdfC <- 'none'
-            }
-            
-            if (is.na(fig.pdfC)) {
-              warning("'fig.pdfC = NA' argument value is deprecated; use 'fig.pdfC = 'interactive'' instead.",
-                      call. = FALSE)
-              fig.pdfC <- 'interactive'
-            }
+                   info.txtC = c("none", "interactive", "myfile.txt")[2]) {
             
             if (fig.pdfC == "none")
               stop("'fig.pdfC' cannot be set to 'none' in the 'plot' method.",
@@ -311,24 +257,24 @@ setMethod("plot", signature(x = "opls"),
                 stop("'parLabVc' must be of 'character' type", call. = FALSE)
             }
             
-            eset <- getEset(x)
-            
-            if (is.na(plotSubC) && !is.null(eset))
-              plotSubC <- Biobase::experimentData(eset)@title
-            if (nchar(plotSubC) > 32)
-              plotSubC <- paste0(substr(plotSubC, 1, 32), ".")
-              
-            if (!is.na(plotPhenoDataC)) {
-              if (is.null(eset))
-                stop("'plotPhenoDataC' is provided but the 'eset' slot from the 'opls' instance is NULL")
-              if (!is.character(plotPhenoDataC))
-                stop("'plotPhenoDataC' must be a character when the 'plot' method is applied to an 'opls' instance")
-              pdataDF <- Biobase::pData(eset)
-              if (!(plotPhenoDataC %in% colnames(pdataDF))) {
-                stop("'plotPhenoDataC' must be the name of a column of the sampleMetadata slot of the 'ExpressionSet' instance")
-              } else
-                parAsColFcVn <- pdataDF[, plotPhenoDataC]
-            }
+            # eset <- getEset(x)
+            # 
+            # if (is.na(plotSubC) && cumprod(dim(Biobase::exprs(eset)))[2] > 0)
+            #   plotSubC <- Biobase::experimentData(eset)@title
+            # if (nchar(plotSubC) > 32)
+            #   plotSubC <- paste0(substr(plotSubC, 1, 32), ".")
+            #   
+            # if (!is.na(plotPhenoDataC)) {
+            #   if (cumprod(dim(Biobase::exprs(eset)))[2] < 1)
+            #     stop("'plotPhenoDataC' can be used only for models computed on ExpressionSet objects")
+            #   if (!is.character(plotPhenoDataC))
+            #     stop("'plotPhenoDataC' must be a character when the 'plot' method is applied to an 'opls' instance")
+            #   pdataDF <- Biobase::pData(eset)
+            #   if (!(plotPhenoDataC %in% colnames(pdataDF))) {
+            #     stop("'plotPhenoDataC' must be the name of a column of the sampleMetadata slot of the 'ExpressionSet' instance")
+            #   } else
+            #     parAsColFcVn <- pdataDF[, plotPhenoDataC]
+            # }
             
             # if (!any(is.na(parAsColFcVn))) {
             if (!all(is.na(parAsColFcVn))) {
@@ -419,7 +365,7 @@ setMethod("plot", signature(x = "opls"),
             ##                           function(x) sqrt(t(as.matrix(x)) %*% mahInvCovMN %*% as.matrix(x))),
             ##                       odsVn = apply(x@suppLs[["xModelMN"]] - tcrossprod(tCompMN, pCompMN),
             ##                           1,
-            ##                           function(x) sqrt(drop(crossprod(x[complete.cases(x)])))))
+            ##                           function(x) sqrt(drop(crossprod(x[stats::complete.cases(x)])))))
             
             ## } else
             ##     pcaResMN <- NULL
@@ -1042,7 +988,7 @@ setMethod("plot", signature(x = "opls"),
                                     function(x) sqrt(t(as.matrix(x)) %*% mahInvCovMN %*% as.matrix(x))),
                       odsVn = apply(opl@suppLs[["xModelMN"]] - tcrossprod(tCompMN, pCompMN),
                                     1,
-                                    function(x) sqrt(drop(crossprod(x[complete.cases(x)])))))
+                                    function(x) sqrt(drop(crossprod(x[stats::complete.cases(x)])))))
     
     pcaResThrVn <- c(sqrt(qchisq(0.975, 2)),
                      (mean(pcaResMN[, 2]^(2/3)) + sd(pcaResMN[, 2]^(2/3)) * qnorm(0.975))^(3/2))

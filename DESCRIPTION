@@ -1,13 +1,16 @@
 Package: ropls
 Type: Package
-Title: PCA, PLS(-DA) and OPLS(-DA) for multivariate analysis and feature selection of omics data
-Version: 1.28.0
-Date: 2022-03-27
-Author: Etienne A. Thevenot <etienne.thevenot@cea.fr>
+Title: PCA, PLS(-DA) and OPLS(-DA) for multivariate analysis and
+        feature selection of omics data
+Version: 1.28.2
+Date: 2022-06-22
+Authors@R: 
+    person("Etienne A.", "Thevenot", email = "etienne.thevenot@cea.fr", role = c("aut", "cre"), comment = c(ORCID = "0000-0003-1019-4577"))
 Maintainer: Etienne A. Thevenot <etienne.thevenot@cea.fr>
-biocViews: Regression, Classification, PrincipalComponent, Transcriptomics, Proteomics, Metabolomics,
-    Lipidomics, MassSpectrometry, ImmunoOncology
-Description: Latent variable modeling with Principal Component Analysis(PCA) and Partial Least Squares (PLS) are
+biocViews: Regression, Classification, PrincipalComponent,
+        Transcriptomics, Proteomics, Metabolomics, Lipidomics,
+        MassSpectrometry, ImmunoOncology
+Description: Latent variable modeling with Principal Component Analysis (PCA) and Partial Least Squares (PLS) are
     powerful methods for visualization, regression, classification, and feature selection of omics data where the
     number of variables exceeds the number of samples and with multicollinearity among variables. Orthogonal Partial
     Least Squares (OPLS) enables to separately model the variation correlated (predictive) to the factor of interest
@@ -19,26 +22,21 @@ Description: Latent variable modeling with Principal Component Analysis(PCA) and
     permutation testing, detect outliers, and perform feature selection (e.g. with Variable Importance in Projection 
     or regression coefficients). The package can be accessed via a user interface on the Workflow4Metabolomics.org 
     online resource for computational metabolomics (built upon the Galaxy environment).
-Depends:
-    Biobase
-Imports:
-    graphics,
-    grDevices,
-    methods,
-    MultiDataSet,
-    stats
-Suggests:
-    BiocGenerics,
-    BiocStyle,
-    knitr,
-    multtest,
-    omicade4,
-    rmarkdown,
-    testthat
+Depends: R (>= 3.5.0)
+Imports: Biobase, graphics, grDevices, methods, stats, MultiAssayExperiment, MultiDataSet, SummarizedExperiment, utils
+Suggests: BiocGenerics, BiocStyle, knitr, multtest, omicade4, rmarkdown, testthat
 VignetteBuilder: knitr
 License: CeCILL
 Encoding: UTF-8
 LazyLoad: yes
-URL: http://dx.doi.org/10.1021/acs.jproteome.5b00354
+URL: https://doi.org/10.1021/acs.jproteome.5b00354
 NeedsCompilation: no
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
+git_url: https://git.bioconductor.org/packages/ropls
+git_branch: master
+git_last_commit: 4d77cd4
+git_last_commit_date: 2022-04-26
+Date/Publication: 2022-04-26
+Packaged: 2022-06-22 18:51:13 UTC; ET207099
+Author: Etienne A. Thevenot [aut, cre]
+    (<https://orcid.org/0000-0003-1019-4577>)

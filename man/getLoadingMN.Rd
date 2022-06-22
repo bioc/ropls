@@ -5,7 +5,7 @@
 \alias{getLoadingMN,opls-method}
 \title{getLoadingMN method for PCA/(O)PLS(-DA) models}
 \usage{
-getLoadingMN(object, ...)
+getLoadingMN(object, orthoL = FALSE)
 
 \S4method{getLoadingMN}{opls}(object, orthoL = FALSE)
 }
@@ -13,10 +13,8 @@ getLoadingMN(object, ...)
 \item{object}{An S4 object of class \code{opls}, created by \code{opls}
 function.}
 
-\item{...}{Currently not used.
+\item{orthoL}{Logical: Should the orthogonal loading matrix be returned
 (default is FALSE and the predictive loading matrix is returned)}
-
-\item{orthoL}{Logical: Should the orthogonal loading matrix be returned}
 }
 \value{
 Numeric matrix with a number of rows equal to the number of

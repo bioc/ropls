@@ -1,3 +1,13 @@
+CHANGES IN VERSION 1.28.2
+------------------------------
+
+NEW FEATURE
+
+    o 'opls' method now handles SummarizedExperiment and MultiAssayExperiment
+    o 'view' method now handles SummarizedExperiment
+    o 'sacurine' dataset includes the ExpressionSet and SummarizedExperiment formats
+    o NCI60 dataset from omicade4 available in MultiAssayExperiment and MultiDataSet
+
 CHANGES IN VERSION 1.27.8
 ------------------------------
 

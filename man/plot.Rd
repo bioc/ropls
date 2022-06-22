@@ -2,19 +2,30 @@
 % Please edit documentation in R/plot-methods.R
 \name{plot,oplsMultiDataSet,ANY-method}
 \alias{plot,oplsMultiDataSet,ANY-method}
-\alias{plot.oplsMultiDataSet}
-\alias{plot,oplsMultiDataSet-method}
 \alias{plot,opls,ANY-method}
 \alias{plot.opls}
 \alias{plot,opls-method}
+\alias{plot.oplsMultiDataSet}
+\alias{plot,oplsMultiDataSet-method}
 \title{Plot Method for (O)PLS(-DA)}
 \usage{
 \S4method{plot}{oplsMultiDataSet,ANY}(
   x,
   y,
+  typeVc = c("correlation", "outlier", "overview", "permutation", "predict-train",
+    "predict-test", "summary", "x-loading", "x-score", "x-variance", "xy-score",
+    "xy-weight")[7],
+  parAsColFcVn = NA,
+  parCexN = 0.8,
+  parCompVi = c(1, 2),
+  parEllipsesL = NA,
+  parLabVc = NA,
+  parPaletteVc = NA,
+  parTitleL = TRUE,
+  parCexMetricN = NA,
+  plotSubC = "",
   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
-  info.txtC = c("none", "interactive", "myfile.txt")[2],
-  ...
+  info.txtC = c("none", "interactive", "myfile.txt")[2]
 )
 
 \S4method{plot}{opls,ANY}(
@@ -31,13 +42,9 @@
   parPaletteVc = NA,
   parTitleL = TRUE,
   parCexMetricN = NA,
-  plotPhenoDataC = NA,
-  plotSubC = NA,
+  plotSubC = "",
   fig.pdfC = c("none", "interactive", "myfile.pdf")[2],
-  info.txtC = c("none", "interactive", "myfile.txt")[2],
-  file.pdfC = NULL,
-  .sinkC = NULL,
-  ...
+  info.txtC = c("none", "interactive", "myfile.txt")[2]
 )
 }
 \arguments{
@@ -45,16 +52,6 @@
 created by the \code{opls} function.}
 
 \item{y}{Currently not used}
-
-\item{fig.pdfC}{Character: File name with '.pdf' extension for the figure;
-if 'interactive' (default), figures will be displayed interactively; if 'none',
-no figure will be generated}
-
-\item{info.txtC}{Character: File name with '.txt' extension for the printed
-results (call to sink()'); if 'interactive' (default), messages will be
-printed on the screen; if 'none', no verbose will be generated}
-
-\item{...}{Currently not used.}
 
 \item{typeVc}{Character vector: the following plots are available:
 'correlation': Variable correlations with the components, 'outlier':
@@ -97,62 +94,23 @@ the user wishes to add specific titles a posteriori}
 \item{parCexMetricN}{Numeric: magnification of the metrics at the bottom of
 score plot (default -NA- is 1 in 1x1 and 0.7 in 2x2 display)}
 
-\item{plotPhenoDataC}{Character: if x was generated from an ExpressionSet (i.e. if the 
-'eset' slot from x is not NULL), the name of the pData(x) column to be used
-for coloring can be specified here (instead of 'parAsColFcVn')}
-
 \item{plotSubC}{Character: Graphic subtitle}
 
-\item{file.pdfC}{Character: deprecated; use the 'fig.pdfC' argument instead}
+\item{fig.pdfC}{Character: File name with '.pdf' extension for the figure;
+if 'interactive' (default), figures will be displayed interactively; if 'none',
+no figure will be generated}
 
-\item{.sinkC}{Character: deprecated; use the 'info.txtC' argument instead}
+\item{info.txtC}{Character: File name with '.txt' extension for the printed
+results (call to sink()'); if 'interactive' (default), messages will be
+printed on the screen; if 'none', no verbose will be generated}
+}
+\value{
+This method does not return any object
 }
 \description{
 This function plots values based upon a model trained by \code{opls}.
-
-This function plots values based upon a model trained by \code{opls}.
 }
 \examples{
-# Loading the 'NCI60_4arrays' from the 'omicade4' package
-data("NCI60_4arrays", package = "omicade4")
-# Selecting two of the four datasets
-setNamesVc <- c("agilent", "hgu95")
-# Creating the MultiDataSet instance
-nciMset <- MultiDataSet::createMultiDataSet()
-# Adding the two datasets as ExpressionSet instances
-for (setC in setNamesVc) {
-  # Getting the data
-  exprMN <- as.matrix(NCI60_4arrays[[setC]])
-  pdataDF <- data.frame(row.names = colnames(exprMN),
-                        cancer = substr(colnames(exprMN), 1, 2),
-                        stringsAsFactors = FALSE)
-  fdataDF <- data.frame(row.names = rownames(exprMN),
-                        name = rownames(exprMN),
-                        stringsAsFactors = FALSE)
-  # Building the ExpressionSet
-  eset <- Biobase::ExpressionSet(assayData = exprMN,
-                                 phenoData = new("AnnotatedDataFrame",
-                                                 data = pdataDF),
-                                 featureData = new("AnnotatedDataFrame",
-                                                   data = fdataDF),
-                                 experimentData = new("MIAME",
-                                                      title = setC))
-  # Adding to the MultiDataSet
-  nciMset <- MultiDataSet::add_eset(nciMset, eset, dataset.type = setC,
-                                    GRanges = NA, warnings = FALSE)
-}
-# Summary of the MultiDataSet
-nciMset
-# Principal Component Analysis of each data set
-nciPca <- ropls::opls(nciMset)
-# Coloring the Score plot according to cancer types
-ropls::plot(nciPca, y = "cancer", typeVc = "x-score")
-# Restricting to the 'ME' and 'LE' cancer types
-sampleNamesVc <- Biobase::sampleNames(nciMset[["agilent"]])
-cancerTypeVc <- Biobase::pData(nciMset[["agilent"]])[, "cancer"]
-nciMset <- nciMset[sampleNamesVc[cancerTypeVc \%in\% c("ME", "LE")], ]
-# Building PLS-DA models for the cancer type
-nciPlsda <- ropls::opls(nciMset, "cancer", predI = 2)
 
 data(sacurine)
 attach(sacurine)
@@ -184,19 +142,27 @@ for(typeC in c("correlation", "outlier", "overview",
 sacPlsda <- opls(dataMatrix, sampleMetadata[, "gender"])
 plot(sacPlsda, parPaletteVc = c("green4", "magenta"))
 
-#### Application to an ExpressionSet
+detach(sacurine)
 
-sacSet <- Biobase::ExpressionSet(assayData = t(dataMatrix), 
-                                 phenoData = new("AnnotatedDataFrame", 
-                                                 data = sampleMetadata), 
-                                 featureData = new("AnnotatedDataFrame", 
-                                                   data = variableMetadata),
-                                 experimentData = new("MIAME", 
-                                                      title = "sacurine"))
+#### Application to an opls object generated by an ExpressionSet
+
+sacSet <- sacurine[["eset"]]
                                                       
 sacPlsda <- opls(sacSet, "gender")
-plot(sacPlsda, "gender", typeVc = "x-score")
+plot(sacPlsda, typeVc = "x-score")
 
-detach(sacurine)
+#### Application to a opls object generated by an MultiDataSet
+
+data(NCI60)
+nciMset <- NCI60[["mds"]]
+# Restricting to the 'agilent' and 'hgu95' datasets
+nciMset <- nciMset[, c("agilent", "hgu95")]
+# Restricting to the 'ME' and 'LE' cancer types
+sampleNamesVc <- Biobase::sampleNames(nciMset[["agilent"]])
+cancerTypeVc <- Biobase::pData(nciMset[["agilent"]])[, "cancer"]
+nciMset <- nciMset[sampleNamesVc[cancerTypeVc \%in\% c("ME", "LE")], ]
+# Building PLS-DA models for the cancer type
+nciPlsda <- opls(nciMset, "cancer", predI = 2)
+plot(nciPlsda, typeVc = "x-score")
 
 }

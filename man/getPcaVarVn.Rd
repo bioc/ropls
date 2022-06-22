@@ -5,15 +5,13 @@
 \alias{getPcaVarVn,opls-method}
 \title{getPcaVarVn method for PCA models}
 \usage{
-getPcaVarVn(object, ...)
+getPcaVarVn(object)
 
 \S4method{getPcaVarVn}{opls}(object)
 }
 \arguments{
 \item{object}{An S4 object of class \code{opls}, created by \code{opls}
 function.}
-
-\item{...}{Currently not used.}
 }
 \value{
 Numeric vector with the same length as the number of components

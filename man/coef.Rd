@@ -5,13 +5,11 @@
 \alias{coef.opls}
 \title{Coefficients method for (O)PLS models}
 \usage{
-\S4method{coef}{opls}(object, ...)
+\S4method{coef}{opls}(object)
 }
 \arguments{
 \item{object}{An S4 object of class \code{opls}, created by \code{opls}
 function.}
-
-\item{...}{Currently not used.}
 }
 \value{
 Numeric matrix of coefficients (number of rows equals the number of

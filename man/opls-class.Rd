@@ -6,7 +6,7 @@
 \title{Class "opls"}
 \description{
 An S4 class to store PCA and (O)PLS(-DA) models: Objects can be created by calls of the form
-\code{new("opls", ...)} or by calling the \code{opls} function
+\code{new("opls")} or by calling the \code{opls} function
 }
 \section{Slots}{
 
@@ -68,7 +68,7 @@ is stored here}
 
 \section{Objects from the Class}{
  Objects can be created by calls of the form
-\code{new("opls", ...)} or by calling the \code{opls} function
+\code{new("opls")} or by calling the \code{opls} function
 }
 
 \examples{
@@ -118,7 +118,5 @@ detach(sacurine)
 \code{\link{opls}}
 }
 \author{
-Etienne Thevenot, \email{etienne.thevenot@cea.fr}
-
 Etienne Thevenot, \email{etienne.thevenot@cea.fr}
 }

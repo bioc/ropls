@@ -20,7 +20,9 @@
 #' accessed via a user interface on the Workflow4Metabolomics online
 #' resource built upon the Galaxy environment.
 #'
-#' @import Biobase methods
+#' @import Biobase methods SummarizedExperiment
+#' @importClassesFrom MultiAssayExperiment MultiAssayExperiment
+#' @importClassesFrom MultiDataSet MultiDataSet
 #' @importFrom grDevices dev.new dev.off pdf rainbow
 #' @importFrom graphics abline axTicks axis barplot boxplot layout legend lines mtext par pie plot points rect text
 #' @importFrom stats complete.cases cor cov median qchisq qf qnorm sd var

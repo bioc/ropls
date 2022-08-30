@@ -1,3 +1,316 @@
+#### gg_scoreplot (SummarizedExperiment) ####
+
+#' @rdname gg_scoreplot
+#' @export
+setMethod("gg_scoreplot", signature(x = "SummarizedExperiment"), 
+          function(x,
+                   model.c = "",
+                   components.vi = c(1, 2),
+                   label.c = c("", "sample_names")[2],
+                   color.c = "",
+                   title.c = "",
+                   palette.c = "Set1",
+                   legend.c = "right",
+                   ellipse.l = TRUE,
+                   plotly.l = FALSE,
+                   info.vc = "sample_names",
+                   size.ls = list(axis_lab.i = 16,
+                                  axis_text.i = 14,
+                                  point.i = 3,
+                                  label.i = 5,
+                                  title.i = 20,
+                                  legend_title.i = 15,
+                                  legend_text.i = 15)) {
+            
+            ## model
+            
+            ropls_model.ls <- ropls::getOpls(x)
+            stopifnot(model.c %in% names(ropls_model.ls))
+            ropls.model <- ropls_model.ls[[model.c]]
+            
+            ## dataset
+            
+            pdata.df <- as.data.frame(SummarizedExperiment::colData(x))
+            
+            data.df <- cbind.data.frame(.names = colnames(x),
+                                        pdata.df,
+                                        stringsAsFactors = FALSE)
+            
+            ## plot
+            
+            .gg_scoreplot(data.df = data.df,
+                          color.c = color.c,
+                          components.vi = components.vi,
+                          ellipse.l = ellipse.l,
+                          info.vc = info.vc,
+                          label.c = label.c,
+                          legend.c = legend.c,
+                          model.c = model.c,
+                          palette.c = palette.c,
+                          plotly.l = plotly.l,
+                          ropls.model = ropls.model,
+                          size.ls = size.ls,
+                          title.c = title.c)
+            
+          })
+
+#### gg_scoreplot (opls) ####
+
+#' @rdname gg_scoreplot
+#' @export
+setMethod("gg_scoreplot", signature(x = "opls"),
+          function(x,
+                   model.c = "",
+                   components.vi = c(1, 2),
+                   label.c = c("", "sample_names")[2],
+                   color.c = "",
+                   title.c = "",
+                   palette.c = "Set1",
+                   legend.c = "right",
+                   ellipse.l = TRUE,
+                   plotly.l = FALSE,
+                   info.vc = "sample_names",
+                   size.ls = list(axis_lab.i = 16,
+                                  axis_text.i = 14,
+                                  point.i = 3,
+                                  label.i = 5,
+                                  title.i = 20,
+                                  legend_title.i = 15,
+                                  legend_text.i = 15)) {
+            
+            
+            # checking arguments and preparing data
+            
+            ## dataset [ExpressionSet]
+            
+            eset <- ropls::getEset(x)
+            
+            if (any(dim(eset) < 1))
+              stop("ExpressionSet object could not be extracted from the 'x' argument")
+            
+            pdata.df <- Biobase::pData(eset)
+            
+            data.df <- cbind.data.frame(.names = Biobase::sampleNames(eset),
+                                        pdata.df,
+                                        stringsAsFactors = FALSE)
+            
+            ## plot
+            
+            .gg_scoreplot(data.df = data.df,
+                          color.c = color.c,
+                          components.vi = components.vi,
+                          ellipse.l = ellipse.l,
+                          info.vc = info.vc,
+                          label.c = label.c,
+                          legend.c = legend.c,
+                          model.c = model.c,
+                          palette.c = palette.c,
+                          plotly.l = plotly.l,
+                          ropls.model = x,
+                          size.ls = size.ls,
+                          title.c = title.c)
+            
+          })
+
+.gg_scoreplot <- function(data.df,
+                          color.c,
+                          components.vi,
+                          ellipse.l,
+                          info.vc,
+                          label.c,
+                          legend.c,
+                          model.c,
+                          palette.c,
+                          plotly.l,
+                          ropls.model,
+                          size.ls,
+                          title.c) {
+  
+  ## plotly info
+  
+  if (plotly.l) {
+    if (length(info.vc) == 1 && info.vc == "all") {
+      text.df <- data.df
+    } else if (length(info.vc) == 1 && info.vc == "sample_names") {
+      text.df <- data.df[, ".names", drop = FALSE]
+      colnames(text.df) <- "name"
+    } else {
+      info_in_metadata.vl <- info.vc %in% colnames(data.df)
+      if (any(!info_in_metadata.vl)) {
+        if (all(!info_in_metadata.vl)) {
+          stop("None of the selected info.vc names was found in the sampleMetadata:\n",
+               paste(info.vc, collapse = ", "))
+        } else {
+          warning("The following columns were not found in the sampleMetadata:\n",
+                  paste(info.vc[!info_in_metadata.vl], collapse = ", "))
+        }
+      }
+      text.df <- data.df[, info.vc[info_in_metadata.vl], drop = FALSE]
+    }
+    text.vc <- apply(text.df, 1,
+                     function(row.vc)
+                       paste(paste0(colnames(text.df), " = ", row.vc), collapse = "\n"))
+  } else
+    text.vc <- rep("", nrow(data.df))
+  
+  
+  ## score vectors
+  
+  score.mn <- ropls::getScoreMN(ropls.model)
+  stopifnot(length(components.vi) == 2)
+  stopifnot(max(components.vi) <= ncol(score.mn))
+  colnames.vc <- colnames(score.mn)
+  colnames.vc[components.vi[1]] <- ".comp1"
+  colnames.vc[components.vi[2]] <- ".comp2"
+  colnames(score.mn) <- colnames.vc
+  
+  data.df <- cbind.data.frame(data.df,
+                              .text = text.vc,
+                              score.mn)
+  
+  ## labels
+  
+  stopifnot(length(label.c) == 1)
+  
+  if (label.c != "") {
+    
+    if (label.c == "sample_names")
+      label.c <- ".names"
+    
+    stopifnot(label.c %in% colnames(data.df))
+  }
+  
+  ## colors
+  
+  stopifnot(length(color.c) == 1)
+  
+  if (color.c != "") {
+    stopifnot(color.c %in% colnames(data.df))
+    if (is.factor(data.df[, color.c]) || is.character(data.df[, color.c])) {
+      color_type.c <- "qualitative"
+    } else
+      color_type.c <- "quantitative"
+  }
+  
+  ## title
+  
+  # title.c <- paste0(title.c, " [", model.c, "]")
+  subtitle.c <- ropls.model@typeC
+  summary.df <- ropls::getSummaryDF(ropls.model)
+  summary.df <- summary.df[, colnames(summary.df) != "RMSEE"]
+  if ("ort" %in% colnames(summary.df) && summary.df[, "ort"] < 1)
+    summary.df <- summary.df[, colnames(summary.df) != "ort"]
+  colnames(summary.df) <- gsub("(cum)", "", colnames(summary.df), fixed = TRUE)
+  caption.c <- paste(paste(names(summary.df), summary.df["Total", ],
+                           sep = " = "),
+                     collapse = "   ")
+  
+  ## sizes
+  
+  size_default.vi <- c(axis_lab.i = 16,
+                       axis_text.i = 14,
+                       point.i = 3,
+                       label.i = 5,
+                       title.i = 20,                      
+                       legend_title.i = 15,
+                       legend_text.i = 15)
+  
+  for (size.c in names(size_default.vi)) {
+    if (!(size.c %in% names(size.ls)))
+      size.ls[[size.c]] <- size_default.vi[size.c]
+  }
+  
+  # starting the plot [ggplot]
+  
+  p <- eval(parse(text = paste0("ggplot2::ggplot(data.df, ggplot2::aes(x = .comp1, y = .comp2",
+                                ifelse(color.c != "",
+                                       paste0(", color = ", color.c),
+                                       ""),
+                                ifelse(label.c != "",
+                                       paste0(", label = ", label.c),
+                                       ""),
+                                ", text = .text))")))
+  
+  ## text/points [geom_text/geom_point]
+  
+  if (label.c != "") {
+    p <- p + ggplot2::geom_text(size = size.ls[["label.i"]], ggplot2::aes(fontface = "bold"))
+  } else {
+    p <- p + ggplot2::geom_point(size = size.ls[["point.i"]])
+  }
+  
+  ## horizontal and vertical lines [geom_hline, geom_vline]
+  
+  p <- p + ggplot2::geom_hline(ggplot2::aes(yintercept = 0)) +
+    ggplot2::geom_vline(ggplot2::aes(xintercept = 0))
+  
+  ## ellipses [stat_ellipse]
+  
+  p <- p + ggplot2::stat_ellipse(ggplot2::aes(x = .comp1, y = .comp2, group = 1), type = "norm")
+  
+  if (ellipse.l && color.c != "" && color_type.c == "qualitative")
+    p <- p + eval(parse(text = paste0("ggplot2::stat_ellipse(ggplot2::aes(x = .comp1, y = .comp2",
+                                      ", group = ",
+                                      ifelse(color.c != "", color.c, 1),
+                                      "), type = 'norm')")))
+  
+  # title and axis labels [labs]
+  
+  p <- p + ggplot2::labs(title = title.c,
+                         subtitle = subtitle.c,
+                         caption = caption.c,
+                         x = paste0("t", components.vi[1],
+                                    " (",
+                                    round(ropls.model@modelDF[components.vi[1], "R2X"] * 100),
+                                    "%)"),
+                         y = paste0("t", components.vi[2],
+                                    " (",
+                                    round(ropls.model@modelDF[components.vi[2], "R2X"] * 100),
+                                    "%)"))
+  
+  # theme [them_bw, theme]
+  
+  p <- p + ggplot2::theme_bw() +
+    ggplot2::theme(plot.title = ggplot2::element_text(size = size.ls[["title.i"]], face = "bold"),
+                   plot.caption = ggplot2::element_text(size = round(size.ls[["axis_lab.i"]] * 0.8), hjust = 0),
+                   axis.title.x = ggplot2::element_text(size = size.ls[["axis_lab.i"]], face = "bold"),
+                   axis.title.y = ggplot2::element_text(size = size.ls[["axis_lab.i"]], face = "bold"),
+                   axis.text = ggplot2::element_text(size = size.ls[["axis_text.i"]]),
+                   legend.position = legend.c,
+                   legend.title = ggplot2::element_text(face = "bold", size = size.ls[["legend_title.i"]]),
+                   legend.text = ggplot2::element_text(face = "bold", size = size.ls[["legend_text.i"]]))
+  
+  # palette [scale_colour_brewer, scale_colour_gradientn]
+  
+  if (color.c != "") {
+    if (color_type.c == "qualitative") {
+      if (palette.c != "")
+        p <- p + ggplot2::scale_colour_brewer(palette = palette.c)
+    } else
+      p <- p + ggplot2::scale_colour_gradientn(colours = rev(rainbow(100, end = 4/6)))
+  }
+  
+  # display/saving [plotly::ggplotly, plotly::layout, htmlwidgets::saveWidget, plotly::as_widget]
+  
+  if (plotly.l) {
+    
+    p <- plotly::ggplotly(p, tooltip = "text")
+    
+    p <- plotly::layout(p,
+                        hoverlabel = list(font = list(size = 20)),
+                        title = list(text = paste0(title.c,
+                                                   '<br>',
+                                                   '<sup>',
+                                                   caption.c,
+                                                   '</sup>')))
+    
+  }
+  
+  return(p)
+  
+}
+
+
 ####    plot  (oplsMultiDataSet)  ####
 
 #' @rdname plot

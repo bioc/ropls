@@ -1,3 +1,7 @@
+Changes in version 1.29.24 (2022-08-30)
++ gg_scoreplot
+  o minor modification
+
 Changes in version 1.29.22 (2022-08-30)
 + gg_scoreplot
   o generic method to be applied either to a SummarizedExperiment or an opls object

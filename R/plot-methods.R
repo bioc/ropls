@@ -133,7 +133,6 @@ setMethod("gg_scoreplot", signature(x = "opls"),
       text.df <- data.df
     } else if (length(info.vc) == 1 && info.vc == "sample_names") {
       text.df <- data.df[, ".names", drop = FALSE]
-      colnames(text.df) <- "name"
     } else {
       info_in_metadata.vl <- info.vc %in% colnames(data.df)
       if (any(!info_in_metadata.vl)) {
@@ -147,9 +146,11 @@ setMethod("gg_scoreplot", signature(x = "opls"),
       }
       text.df <- data.df[, info.vc[info_in_metadata.vl], drop = FALSE]
     }
+    colnames(text.df) <- gsub(".names", "name", colnames(text.df), fixed = TRUE)
     text.vc <- apply(text.df, 1,
                      function(row.vc)
-                       paste(paste0(colnames(text.df), " = ", row.vc), collapse = "\n"))
+                       paste(paste0(colnames(text.df), " = ", row.vc),
+                             collapse = "\n"))
   } else
     text.vc <- rep("", nrow(data.df))
   
@@ -294,7 +295,7 @@ setMethod("gg_scoreplot", signature(x = "opls"),
   
   if (plotly.l) {
     
-    p <- plotly::ggplotly(p, tooltip = "text")
+    p <- plotly::ggplotly(p, tooltip = ".text")
     
     p <- plotly::layout(p,
                         hoverlabel = list(font = list(size = 20)),

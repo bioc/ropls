@@ -571,7 +571,7 @@
         prsN <- sum(prkVn)
         
         modelDF[hN, "Q2"] <- 1 - prsN / rssN
-        
+
         if(modelDF[hN, "R2Y"] < 0.01) {
           modelDF[hN, "Signif."] <- "N4"
         } else if(modelDF[hN, "Q2"] < ru1ThrN) {

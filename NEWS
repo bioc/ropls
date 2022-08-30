@@ -1,3 +1,7 @@
+Changes in version 1.29.20 (2022-08-30)
++ gg_scoreplot
+  o modification of the info to display with plotly
+
 CHANGES IN VERSION 1.29.18
 ------------------------------
 

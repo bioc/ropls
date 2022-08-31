@@ -1,14 +1,22 @@
-Changes in version 1.29.24 (2022-08-30)
-+ gg_scoreplot
-  o minor modification
+CHANGES IN VERSION 1.29.26
+------------------------------
 
-Changes in version 1.29.22 (2022-08-30)
-+ gg_scoreplot
-  o generic method to be applied either to a SummarizedExperiment or an opls object
+  o gg_scoreplot: minor modification
+
+CHANGES IN VERSION 1.29.24
+------------------------------
+
+  o gg_scoreplot: minor modification
+
+CHANGES IN VERSION 1.29.22
+------------------------------
+
+  o gg_scoreplot: generic method to be applied either to a SummarizedExperiment or an opls object
   
-Changes in version 1.29.20 (2022-08-30)
-+ gg_scoreplot
-  o modification of the info to display with plotly
+CHANGES IN VERSION 1.29.20
+------------------------------
+
+  o gg_scoreplot: modification of the info to display with plotly
 
 CHANGES IN VERSION 1.29.18
 ------------------------------

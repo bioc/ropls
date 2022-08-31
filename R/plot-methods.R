@@ -202,9 +202,12 @@ setMethod("gg_scoreplot", signature(x = "opls"),
   if ("ort" %in% colnames(summary.df) && summary.df[, "ort"] < 1)
     summary.df <- summary.df[, colnames(summary.df) != "ort"]
   colnames(summary.df) <- gsub("(cum)", "", colnames(summary.df), fixed = TRUE)
+  
+  ## caption
+  
   caption.c <- paste(paste(names(summary.df), summary.df["Total", ],
-                           sep = " = "),
-                     collapse = "   ")
+                           sep = "="),
+                     collapse = ", ")
   
   ## sizes
   

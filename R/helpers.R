@@ -231,9 +231,9 @@ setMethod("view", signature(x = "data.frame"),
               
               if (cumprod(dim(x))[2] == 0) {
                 
-                warning("Data frame with no row and/or no column cannot be plotted.",
-                        immediate. = TRUE,
-                        call. = FALSE)
+                warning("Data frame with no row and/or no column 
+                        cannot be plotted.",
+                        immediate. = TRUE)
                 
               } else {
                 
@@ -242,13 +242,15 @@ setMethod("view", signature(x = "data.frame"),
                 
                 if ("logical" %in% class.vuc) {
                   logical.vi <- which(class.vc == "logical")
-                  message(length(logical.vi), " data.frame 'logical' column(s) converted to 'numeric' for plotting.")
+                  message(length(logical.vi), " data.frame 'logical' column(s) 
+                          converted to 'numeric' for plotting.")
                   for (j in logical.vi)
                     x[, j] <- as.numeric(x[, j])
                 }
                 if ("character" %in% class.vuc) {
                   character.vi <- which(class.vc == "character")
-                  message(length(character.vi), " data.frame 'character' column(s) converted to 'numeric' for plotting.")
+                  message(length(character.vi), " data.frame 'character' 
+                          column(s) converted to 'numeric' for plotting.")
                   for (j in character.vi) {
                     x.fc <- factor(x[, j])
                     x[, j] <- as.numeric(x.fc)
@@ -256,37 +258,44 @@ setMethod("view", signature(x = "data.frame"),
                 }
                 if ("factor" %in% class.vuc) {
                   factor.vi <- which(class.vc == "factor")
-                  message(length(factor.vi), " data.frame 'factor' column(s) converted to 'numeric' for plotting.")
+                  message(length(factor.vi), " data.frame 'factor' column(s) 
+                          converted to 'numeric' for plotting.")
                   for (j in factor.vi) {
                     x[, j] <- as.numeric(x[, j])
                   }
                 }
                 
                 if (all(sapply(x, data.class) == "numeric")) {
-                  imageF(x = as.matrix(x),
-                         mainC = mainC,
-                         subC = subC,
-                         paletteC = paletteC,
-                         rowAllL = rowAllL,
-                         rowCexN = rowCexN,
-                         rowMarN = rowMarN,
-                         rowLabC = rowLabC,
-                         rowTruncI = rowTruncI,
-                         colAllL = colAllL,
-                         colCexN = colCexN,
-                         colMarN = colMarN,
-                         colLabC = colLabC,
-                         colTruncI = colTruncI,
-                         drawScaleL = drawScaleL,
-                         delimitReplicatesL = delimitReplicatesL,
-                         standardizeL = standardizeL,
-                         fig.pdfC = fig.pdfC)
+                  x <- as.matrix(x)
                 } else {
-                  warning("Data frame could not be plotted because some columns could not be converted to 'numeric'.",
-                          call. = FALSE)
+                  warning("Data frame could not be plotted because some columns 
+                          could not be converted to 'numeric'.")
                 }
+                
+                imageF(x = x,
+                       mainC = mainC,
+                       subC = subC,
+                       paletteC = paletteC,
+                       rowAllL = rowAllL,
+                       rowCexN = rowCexN,
+                       rowMarN = rowMarN,
+                       rowLabC = rowLabC,
+                       rowTruncI = rowTruncI,
+                       colAllL = colAllL,
+                       colCexN = colCexN,
+                       colMarN = colMarN,
+                       colLabC = colLabC,
+                       colTruncI = colTruncI,
+                       drawScaleL = drawScaleL,
+                       delimitReplicatesL = delimitReplicatesL,
+                       standardizeL = standardizeL,
+                       fig.pdfC = fig.pdfC)
+                
               }
             }
+            
+            invisible(x)
+            
           })
 
 
@@ -329,20 +338,17 @@ setMethod("view", signature(x = "matrix"),
               if (cumprod(dim(x))[2] == 0) {
                 
                 warning("Matrix with no row and/or no column cannot be plotted.",
-                        immediate. = TRUE,
-                        call. = FALSE)
+                        immediate. = TRUE)
                 
               } else {
                 
                 if (mode(x) == "logical") {
                   warning("Matrix converted from 'logical' to 'numeric' mode for plotting.",
-                          immediate. = TRUE,
-                          call. = FALSE)
+                          immediate. = TRUE)
                   mode(x) <- "numeric"
                 } else if (mode(x) == "character") {
                   warning("Matrix converted from 'character' to 'numeric' mode for plotting.",
-                          immediate. = TRUE,
-                          call. = FALSE)
+                          immediate. = TRUE)
                   x <- apply(x, 2, function(y) {
                     y <- factor(y)
                     levels(y) <- seq_along(levels(y))
@@ -371,7 +377,7 @@ setMethod("view", signature(x = "matrix"),
               
             }
             
-            invisible(NA)
+            invisible(x)
             
           })
 
@@ -720,10 +726,21 @@ imageF <- function(x,
   
   if (!is.matrix(x) || mode(x) != "numeric")
     # if (class(x) != "matrix" || mode(x) != "numeric")
-    stop("'x must be a matrix of numerics for the 'image' plot type", call. = FALSE)
+    stop("'x must be a matrix of numerics for the 'image' plot type")
+  
+  isna.vl <- apply(x, 2, function(col.vn) all(is.na(col.vn)))
+  isna.i <- sum(isna.vl, na.rm = TRUE)
+  if (isna.i > 0) {
+    
+    warning(isna.i, " variables containing only NA values will
+                            be discarded in the plot")
+    
+    x <- x[, !isna.vl, drop = FALSE]
+    
+  }
   
   if (delimitReplicatesL && (length(rownames(x)) * length(colnames(x))) == 0)
-    stop("Rownames and colnames are required when the delimitReplicatesL argument is TRUE", call. = FALSE)
+    stop("Rownames and colnames are required when the delimitReplicatesL argument is TRUE")
   
   if (standardizeL) {
     message("Standardization of the columns for plotting.")

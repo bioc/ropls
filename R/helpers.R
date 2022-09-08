@@ -32,7 +32,7 @@ setMethod("view", signature(x = "SummarizedExperiment"),
             ropls::view(SummarizedExperiment::assay(x),
                         printL = printL,
                         plotL = plotL,
-                        mainC = paste0(mainC, "[assay]"),
+                        mainC = paste0(mainC, " [assay]"),
                         subC = "",
                         paletteC = paletteC,
                         rowAllL = rowAllL,
@@ -53,7 +53,7 @@ setMethod("view", signature(x = "SummarizedExperiment"),
             ropls::view(as.data.frame(SummarizedExperiment::colData(x)),
                         printL = printL,
                         plotL = plotL,
-                        mainC = paste0(mainC, "[colData]"),
+                        mainC = paste0(mainC, " [colData]"),
                         subC = "",
                         paletteC = paletteC,
                         rowAllL = rowAllL,
@@ -74,7 +74,7 @@ setMethod("view", signature(x = "SummarizedExperiment"),
             ropls::view(as.data.frame(SummarizedExperiment::rowData(x)),
                         printL = printL,
                         plotL = plotL,
-                        mainC = paste0(mainC, "[rowData]"),
+                        mainC = paste0(mainC, " [rowData]"),
                         subC = "",
                         paletteC = paletteC,
                         rowAllL = rowAllL,
@@ -131,7 +131,7 @@ setMethod("view", signature(x = "ExpressionSet"),
             ropls::view(Biobase::exprs(x),
                         printL = printL,
                         plotL = plotL,
-                        mainC = paste0(mainC, "[exprs]"),
+                        mainC = paste0(mainC, " [exprs]"),
                         subC = "",
                         paletteC = paletteC,
                         rowAllL = rowAllL,
@@ -152,7 +152,7 @@ setMethod("view", signature(x = "ExpressionSet"),
             ropls::view(Biobase::pData(x),
                         printL = printL,
                         plotL = plotL,
-                        mainC = paste0(mainC, "[pData]"),
+                        mainC = paste0(mainC, " [pData]"),
                         subC = "",
                         paletteC = paletteC,
                         rowAllL = rowAllL,
@@ -173,7 +173,7 @@ setMethod("view", signature(x = "ExpressionSet"),
             ropls::view(Biobase::fData(x),
                         printL = printL,
                         plotL = plotL,
-                        mainC = paste0(mainC, "[fData]"),
+                        mainC = paste0(mainC, " [fData]"),
                         subC = "",
                         paletteC = paletteC,
                         rowAllL = rowAllL,
@@ -225,15 +225,14 @@ setMethod("view", signature(x = "data.frame"),
                    fig.pdfC = "interactive") {
             
             if (printL)
-              ropls::strF(x)
+              strF(x)
             
             if (plotL) {
               
               if (cumprod(dim(x))[2] == 0) {
                 
-                warning("Data frame with no row and/or no column 
-                        cannot be plotted.",
-                        immediate. = TRUE)
+                warning("Data frame with no row and/or no column cannot be plotted.",
+                        immediate. = TRUE, .call = FALSE)
                 
               } else {
                 
@@ -242,15 +241,15 @@ setMethod("view", signature(x = "data.frame"),
                 
                 if ("logical" %in% class.vuc) {
                   logical.vi <- which(class.vc == "logical")
-                  message(length(logical.vi), " data.frame 'logical' column(s) 
-                          converted to 'numeric' for plotting.")
+                  message(length(logical.vi),
+                          " data.frame 'logical' column(s) converted to 'numeric' for plotting.")
                   for (j in logical.vi)
                     x[, j] <- as.numeric(x[, j])
                 }
                 if ("character" %in% class.vuc) {
                   character.vi <- which(class.vc == "character")
-                  message(length(character.vi), " data.frame 'character' 
-                          column(s) converted to 'numeric' for plotting.")
+                  message(length(character.vi),
+                          " data.frame 'character' column(s) converted to 'numeric' for plotting.")
                   for (j in character.vi) {
                     x.fc <- factor(x[, j])
                     x[, j] <- as.numeric(x.fc)
@@ -258,38 +257,40 @@ setMethod("view", signature(x = "data.frame"),
                 }
                 if ("factor" %in% class.vuc) {
                   factor.vi <- which(class.vc == "factor")
-                  message(length(factor.vi), " data.frame 'factor' column(s) 
-                          converted to 'numeric' for plotting.")
+                  message(length(factor.vi),
+                          " data.frame 'factor' column(s) converted to 'numeric' for plotting.")
                   for (j in factor.vi) {
                     x[, j] <- as.numeric(x[, j])
                   }
                 }
                 
                 if (all(sapply(x, data.class) == "numeric")) {
+                  
                   x <- as.matrix(x)
+                  
+                  imageF(x = x,
+                         mainC = mainC,
+                         subC = subC,
+                         paletteC = paletteC,
+                         rowAllL = rowAllL,
+                         rowCexN = rowCexN,
+                         rowMarN = rowMarN,
+                         rowLabC = rowLabC,
+                         rowTruncI = rowTruncI,
+                         colAllL = colAllL,
+                         colCexN = colCexN,
+                         colMarN = colMarN,
+                         colLabC = colLabC,
+                         colTruncI = colTruncI,
+                         drawScaleL = drawScaleL,
+                         delimitReplicatesL = delimitReplicatesL,
+                         standardizeL = standardizeL,
+                         fig.pdfC = fig.pdfC)
+                  
                 } else {
-                  warning("Data frame could not be plotted because some columns 
-                          could not be converted to 'numeric'.")
+                  warning("Data frame could not be plotted because some columns could not be converted to 'numeric'.",
+                       immediate. = TRUE, .call = FALSE)
                 }
-                
-                imageF(x = x,
-                       mainC = mainC,
-                       subC = subC,
-                       paletteC = paletteC,
-                       rowAllL = rowAllL,
-                       rowCexN = rowCexN,
-                       rowMarN = rowMarN,
-                       rowLabC = rowLabC,
-                       rowTruncI = rowTruncI,
-                       colAllL = colAllL,
-                       colCexN = colCexN,
-                       colMarN = colMarN,
-                       colLabC = colLabC,
-                       colTruncI = colTruncI,
-                       drawScaleL = drawScaleL,
-                       delimitReplicatesL = delimitReplicatesL,
-                       standardizeL = standardizeL,
-                       fig.pdfC = fig.pdfC)
                 
               }
             }
@@ -338,17 +339,17 @@ setMethod("view", signature(x = "matrix"),
               if (cumprod(dim(x))[2] == 0) {
                 
                 warning("Matrix with no row and/or no column cannot be plotted.",
-                        immediate. = TRUE)
+                        immediate. = TRUE, .call = FALSE)
                 
               } else {
                 
                 if (mode(x) == "logical") {
                   warning("Matrix converted from 'logical' to 'numeric' mode for plotting.",
-                          immediate. = TRUE)
+                          immediate. = TRUE, .call = FALSE)
                   mode(x) <- "numeric"
                 } else if (mode(x) == "character") {
                   warning("Matrix converted from 'character' to 'numeric' mode for plotting.",
-                          immediate. = TRUE)
+                          immediate. = TRUE, .call = FALSE)
                   x <- apply(x, 2, function(y) {
                     y <- factor(y)
                     levels(y) <- seq_along(levels(y))
@@ -726,21 +727,24 @@ imageF <- function(x,
   
   if (!is.matrix(x) || mode(x) != "numeric")
     # if (class(x) != "matrix" || mode(x) != "numeric")
-    stop("'x must be a matrix of numerics for the 'image' plot type")
+    stop("'x must be a matrix of numerics for the 'image' plot type",
+         .call = FALSE)
   
   isna.vl <- apply(x, 2, function(col.vn) all(is.na(col.vn)))
   isna.i <- sum(isna.vl, na.rm = TRUE)
   if (isna.i > 0) {
     
-    warning(isna.i, " variables containing only NA values will
-                            be discarded in the plot")
+    warning(isna.i,
+            " variables containing only NA values will be discarded in the plot",
+            .call = FALSE)
     
     x <- x[, !isna.vl, drop = FALSE]
     
   }
   
   if (delimitReplicatesL && (length(rownames(x)) * length(colnames(x))) == 0)
-    stop("Rownames and colnames are required when the delimitReplicatesL argument is TRUE")
+    stop("Rownames and colnames are required when the delimitReplicatesL argument is TRUE",
+         .call = FALSE)
   
   if (standardizeL) {
     message("Standardization of the columns for plotting.")

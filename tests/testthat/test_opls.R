@@ -2,10 +2,6 @@ library(ropls)
 
 context("Testing 'ropls'")
 
-
-
-
-
 #### PCA ####
 
 test_that("PCA", {
@@ -114,7 +110,8 @@ test_that("PLS_multiple", {
   data(sacurine)
   
   agebmiPls <- opls(sacurine[["dataMatrix"]],
-                    as.matrix(sacurine[["sampleMetadata"]][, c("age","bmi")]))
+                    as.matrix(sacurine[["sampleMetadata"]][, c("age","bmi")]),
+                    fig.pdfC = "none", info.txtC = "none")
   agebmiPreMN <- predict(agebmiPls)
   testthat::expect_identical(colnames(agebmiPreMN),
                              c("age", "bmi"))
@@ -243,7 +240,8 @@ test_that("PLSDA_multiclass", {
   sacMN <- sacurine[["dataMatrix"]][!is.na(ageVc), ]
   ageVc <- ageVc[!is.na(ageVc)]
   
-  oplsda.mul <- opls(sacMN, ageVc, predI = 2)
+  oplsda.mul <- opls(sacMN, ageVc, predI = 2,
+                     fig.pdfC = "none", info.txtC = "none")
   
   testthat::expect_equivalent(getSummaryDF(oplsda.mul)[, "Q2(cum)"],
                               0.0394,
@@ -253,12 +251,14 @@ test_that("PLSDA_multiclass", {
                               0,
                               tolerance = 1e-10)
   
-  testthat::expect_error(opls(sacMN, ageVc, orthoI = NA),
+  testthat::expect_error(opls(sacMN, ageVc, predI = 1, orthoI = NA,
+                              fig.pdfC = "none", info.txtC = "none"),
                          silent = TRUE)
   
   oplsda.mul.par <- opls(sacMN, ageVc,
                          predI = 2,
-                         scaleC = "pareto")
+                         scaleC = "pareto",
+                         fig.pdfC = "none", info.txtC = "none")
   
   testthat::expect_equivalent(oplsda.mul.par@modelDF["p2", "R2Y(cum)"],
                               0.442,
@@ -342,9 +342,11 @@ test_that("OPLSDA_subset", {
   dimnames(tiagoMN) <- list(1:20, letters[1:8])
   tiagoFc <- rep(c("P", "F"), each = 10)
   
-  opls(tiagoMN, tiagoFc, predI = 1, orthoI = 1, subset = "odd")
+  opls(tiagoMN, tiagoFc, predI = 1, orthoI = 1, subset = "odd",
+       fig.pdfC = "none", info.txtC = "none")
   
-  oplExc <- opls(tiagoMN, tiagoFc, subset = seq(1, 20, by = 2))
+  oplExc <- opls(tiagoMN, tiagoFc, subset = seq(1, 20, by = 2),
+                 fig.pdfC = "none", info.txtC = "none")
   testthat::expect_error(plot(oplExc, parLabVc = paste0("s", seq(1, 20, by = 2))),
                          silent = TRUE)
   
@@ -396,7 +398,7 @@ test_that("SummarizedExperiment", {
   
   ## PCA
   
-  sac.se <- opls(sac.se)
+  sac.se <- opls(sac.se, fig.pdfC = "none", info.txtC = "none")
   sac.pca <- getOpls(sac.se)[["PCA"]]
   
   testthat::expect_equivalent(getSummaryDF(sac.pca)["Total", "R2X(cum)"],
@@ -405,7 +407,7 @@ test_that("SummarizedExperiment", {
   
   ## PLS-DA
   
-  sac.se <- opls(sac.se, "gender")
+  sac.se <- opls(sac.se, "gender", fig.pdfC = "none", info.txtC = "none")
   sac_gender.plsda <- getOpls(sac.se)[["gender_PLSDA"]]
   
   testthat::expect_equivalent(getSummaryDF(sac_gender.plsda)["Total", "Q2(cum)"],
@@ -421,7 +423,8 @@ test_that("SummarizedExperiment", {
   
   ## OPLS-DA
   
-  sac.se <- opls(sac.se, "gender", predI = 1, orthoI = NA)
+  sac.se <- opls(sac.se, "gender", predI = 1, orthoI = NA,
+                 fig.pdfC = "none", info.txtC = "none")
   sac_gender.oplsda <- getOpls(sac.se)[["gender_OPLSDA"]]
   
   testthat::expect_equivalent(getSummaryDF(sac_gender.oplsda)["Total", "Q2(cum)"],
@@ -455,7 +458,7 @@ test_that("MultiAssayExperiment", {
   
   ## PLS-DA
   
-  nci.mae <- opls(nci.mae, "cancer")
+  nci.mae <- opls(nci.mae, "cancer", fig.pdfC = "none", info.txtC = "none")
   
   testthat::expect_equivalent(getSummaryDF(getOpls(nci.mae[["agilent"]])[["cancer_PLSDA"]])["Total", "Q2(cum)"],
                               0.906,
@@ -478,7 +481,7 @@ test_that("ExpressionSet", {
   
   ## PCA
   
-  sacPca <- opls(sacSet)
+  sacPca <- opls(sacSet, fig.pdfC = "none", info.txtC = "none")
   
   testthat::expect_equivalent(getSummaryDF(sacPca)["Total", "R2X(cum)"],
                               0.501,
@@ -486,7 +489,7 @@ test_that("ExpressionSet", {
   
   ## PLS-DA
   
-  sacPlsda <- opls(sacSet, "gender")
+  sacPlsda <- opls(sacSet, "gender", fig.pdfC = "none", info.txtC = "none")
   
   testthat::expect_equivalent(getSummaryDF(sacPlsda)["Total", "Q2(cum)"],
                               0.584,
@@ -503,7 +506,8 @@ test_that("ExpressionSet", {
   
   ## OPLS-DA
   
-  sacOplsda <- opls(sacSet, "gender", predI = 1, orthoI = NA)
+  sacOplsda <- opls(sacSet, "gender", predI = 1, orthoI = NA,
+                    fig.pdfC = "none", info.txtC = "none")
   
   testthat::expect_equivalent(getSummaryDF(sacOplsda)["Total", "Q2(cum)"],
                               0.602,
@@ -527,7 +531,7 @@ test_that("MultiDataSet", {
   nci.mds <- nci.mds[sampleNamesVc[cancerTypeVc %in% c("ME", "LE")], ]  
 
   # Principal Component Analysis of each data set
-  nciPca <- opls(nci.mds)
+  nciPca <- opls(nci.mds, fig.pdfC = "none", info.txtC = "none")
   
   testthat::expect_equivalent(getSummaryDF(nciPca@oplsLs[["agilent"]])["Total", "R2X(cum)"],
                               0.521,
@@ -572,20 +576,17 @@ test_that("plot", {
                  subset = subset,
                  fig.pdfC = "none", info.txtC = "none")
     
-    plot(opLs, typeVc = typeC,
-         fig.pdfC = "test.pdf")
+    plot(opLs, typeVc = typeC)
     
   }
   
   ## (O)PLS-DA: Turning display of ellipses off in case parAsColFcVn is numeric
   plot(opLs,
-       parAsColFcVn = sacurine[["sampleMetadata"]][, "age"],
-       fig.pdfC = "test.pdf")
+       parAsColFcVn = sacurine[["sampleMetadata"]][, "age"])
   
   ## Converting 'parAsColFcVn' character into a factor (with warning)
   plot(opLs,
-       parAsColFcVn = as.character(sacurine[["sampleMetadata"]][, "gender"]),
-       fig.pdfC = "test.pdf")
+       parAsColFcVn = as.character(sacurine[["sampleMetadata"]][, "gender"]))
   
 })
 
@@ -609,7 +610,7 @@ test_that("print", {
 
 test_that("fromW4M",{
   
-  sacSet <- fromW4M(system.file("extdata/", package="ropls"))
+  sacSet <- fromW4M(system.file("extdata/", package = "ropls"))
   
   testthat::expect_equivalent(Biobase::exprs(sacSet)["Tryptophan", "HU_020"], 4.594285, tol = 1e-6)
   
@@ -630,8 +631,7 @@ test_that("fromW4M",{
 
 test_that("imageF", {
   data(sacurine)
-  imageF(sacurine[['dataMatrix']],
-         fig.pdfC = "test.pdf")
+  imageF(sacurine[['dataMatrix']])
 })
 
 #### strF ####

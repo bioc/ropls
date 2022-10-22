@@ -473,12 +473,12 @@
         cMN[, hN] <- cVn
         uMN[, hN] <- uVn
         
-        if(naxL)
+        if (naxL)
           modelDF[hN, "R2X"] <- sum((tcrossprod(tMN[, hN], pMN[, hN])[!is.na(xMN)])^2) / ssxTotN
         else
           modelDF[hN, "R2X"] <- sum(tcrossprod(tMN[, hN], pMN[, hN])^2) / ssxTotN
         
-        if(nayL)
+        if (nayL)
           modelDF[hN, "R2Y"] <- sum((tcrossprod(tMN[, hN], cMN[, hN])[!is.na(yMN)])^2) / ssyTotN
         else
           modelDF[hN, "R2Y"] <- sum(tcrossprod(tMN[, hN], cMN[, hN])^2) / ssyTotN
@@ -486,7 +486,7 @@
         
         ## cross-validation (PRESS computation)
         
-        for(k in 1:crossvalI) {
+        for (k in 1:crossvalI) {
           
           ckxMN <- xnMN[-cvfOutLs[[k]], , drop = FALSE]
           ckyMN <- ynMN[-cvfOutLs[[k]], , drop = FALSE]
@@ -501,9 +501,9 @@
           
           repeat {
             
-            if(nkxL || nkyL) {
+            if (nkxL || nkyL) {
               ckwVn <- numeric(ncol(ckxMN))
-              for(j in 1:ncol(ckxMN)) {
+              for (j in 1:ncol(ckxMN)) {
                 comVl <- complete.cases(ckxMN[, j]) &
                   complete.cases(ckuVn)
                 ## ckwVn[j] <- crossprod(ckxMN[comVl, j], ckuVn[comVl])
@@ -514,9 +514,9 @@
             
             ckwVn <- ckwVn / sqrt(drop(crossprod(ckwVn)))
             
-            if(nkxL) {
+            if (nkxL) {
               cktVn <- numeric(nrow(ckxMN))
-              for(i in 1:nrow(ckxMN)) {
+              for (i in 1:nrow(ckxMN)) {
                 comVl <- complete.cases(ckxMN[i, ])
                 cktVn[i] <- crossprod(ckxMN[i, comVl], ckwVn[comVl]) / drop(crossprod(ckwVn[comVl]))
                 ## cktVn[i] <- crossprod(ckxMN[i, comVl], ckwVn[comVl])
@@ -524,25 +524,25 @@
             } else
               cktVn <- ckxMN %*% ckwVn
             
-            if(nkyL) {
+            if (nkyL) {
               ckcVn <- numeric(ncol(ckyMN))
-              for(j in 1:ncol(ckyMN)) {
+              for (j in 1:ncol(ckyMN)) {
                 comVl <- complete.cases(ckyMN[, j])
                 ckcVn[j] <- crossprod(ckyMN[comVl, j], cktVn[comVl]) / drop(crossprod(cktVn[comVl]))
               }
             } else
               ckcVn <- crossprod(ckyMN, cktVn) / drop(crossprod(cktVn))
             
-            if(ncol(ckyMN) == 1 ||
+            if (ncol(ckyMN) == 1 ||
                drop(sqrt(crossprod((cktOldVn - cktVn) / cktVn))) < 1e-6) {
               
               break
               
             } else {
               
-              if(nkyL) {
+              if (nkyL) {
                 ckuVn <- numeric(nrow(ckxMN))
-                for(i in 1:nrow(ckxMN)) {
+                for (i in 1:nrow(ckxMN)) {
                   comVl <- complete.cases(ckyMN[i, ])
                   ckuVn[i] <- crossprod(ckyMN[i, comVl], ckcVn[comVl]) / drop(crossprod(ckcVn[comVl]))
                 }
@@ -555,9 +555,9 @@
             
           }
           
-          if(any(is.na(xnMN[cvfOutLs[[k]], ]))) {
+          if (any(is.na(xnMN[cvfOutLs[[k]], ]))) {
             prxVn <- numeric(length(cvfOutLs[[k]]))
-            for(r in 1:length(prxVn)) {
+            for (r in 1:length(prxVn)) {
               comVl <- complete.cases(xnMN[cvfOutLs[[k]][r], ])
               ## prxVn[r] <- crossprod(xnMN[cvfOutLs[[k]][r], comVl], ckwVn[comVl])
               prxVn[r] <- crossprod(xnMN[cvfOutLs[[k]][r], comVl], ckwVn[comVl]) / drop(crossprod(ckwVn[comVl]))
@@ -572,14 +572,14 @@
         
         modelDF[hN, "Q2"] <- 1 - prsN / rssN
 
-        if(modelDF[hN, "R2Y"] < 0.01) {
+        if (modelDF[hN, "R2Y"] < 0.01) {
           modelDF[hN, "Signif."] <- "N4"
-        } else if(modelDF[hN, "Q2"] < ru1ThrN) {
+        } else if (modelDF[hN, "Q2"] < ru1ThrN) {
           modelDF[hN, "Signif."] <- "NS"
         } else
           modelDF[hN, "Signif."] <- "R1"
         
-        if(autNcpL && modelDF[hN, "Signif."] != "R1" && hN >= 1)
+        if (autNcpL && modelDF[hN, "Signif."] != "R1" && hN >= 1)
           break
         
         rssN <- sum((ynMN - tcrossprod(tVn, cVn))^2, na.rm = TRUE)
@@ -598,11 +598,11 @@
       modelDF[, "R2Y(cum)"] <- cumsum(modelDF[, "R2Y"])
       modelDF[, "Q2(cum)"] <- 1 - cumprod(1 - modelDF[, "Q2"])
       
-      if(autNcpL) {
+      if (autNcpL) {
         
         hN <- hN - 1
         
-        if(hN == 0) {
+        if (hN == 0) {
           if (info.txtC != "none")
             cat("No model was built because the first predictive component was already not significant.\n", sep = "")
           opl <- new("opls")
@@ -1272,7 +1272,7 @@
     
     ## VIP (specific implementation required for OPLS(-DA))
     
-    if(orthoI == 0) { ## sum(vipVn^2) == nrow(wMN) [number of features]
+    if (orthoI == 0) { ## sum(vipVn^2) == nrow(wMN) [number of features]
       
       ssyVn <-  sapply(1:ncol(tMN),
                        function(j) sum(drop(tcrossprod(tMN[, j], cMN[, j])^2)))

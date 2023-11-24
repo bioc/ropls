@@ -158,6 +158,12 @@ setMethod("gg_scoreplot", signature(x = "opls"),
   ## score vectors
   
   score.mn <- ropls::getScoreMN(ropls.model)
+  
+  if (grepl("OPLS", model.c)) {
+    score_ortho.mn <- ropls::getScoreMN(ropls.model, orthoL = TRUE)
+    score.mn <- cbind(score.mn, score_ortho.mn)
+  }
+  
   stopifnot(length(components.vi) == 2)
   stopifnot(max(components.vi) <= ncol(score.mn))
   colnames.vc <- colnames(score.mn)
@@ -195,8 +201,14 @@ setMethod("gg_scoreplot", signature(x = "opls"),
   
   ## title
   
-  # title.c <- paste0(title.c, " [", model.c, "]")
-  subtitle.c <- ropls.model@typeC
+  if (title.c == "") {
+    model.vc <- unlist(strsplit(model.c, split = "_"))
+    if (model.vc[1] != "PCA") {
+    title.c <- paste0(model.vc[1], " [", model.vc[2], "]")
+    } else
+      title.c <- "PCA"
+  }
+  # subtitle.c <- ropls.model@typeC
   summary.df <- ropls::getSummaryDF(ropls.model)
   summary.df <- summary.df[, colnames(summary.df) != "RMSEE"]
   if ("ort" %in% colnames(summary.df) && summary.df[, "ort"] < 1)
@@ -226,19 +238,22 @@ setMethod("gg_scoreplot", signature(x = "opls"),
   
   # starting the plot [ggplot]
   
-  p <- eval(parse(text = paste0("ggplot2::ggplot(data.df, ggplot2::aes(x = .comp1, y = .comp2",
-                                ifelse(color.c != "",
-                                       paste0(", color = ", color.c),
-                                       ""),
-                                ifelse(label.c != "",
-                                       paste0(", label = ", label.c),
-                                       ""),
-                                ", text = .text))")))
-  
+  if (color.c != "") {
+      p <- ggplot2::ggplot(data.df,
+                           ggplot2::aes(x = .comp1, y = .comp2,
+                                        color = .data[[color.c]],
+                                        text = .text))
+  } else {
+      p <- ggplot2::ggplot(data.df,
+                           ggplot2::aes(x = .comp1, y = .comp2,
+                                        text = .text))
+  }
+
   ## text/points [geom_text/geom_point]
   
   if (label.c != "") {
-    p <- p + ggplot2::geom_text(size = size.ls[["label.i"]], ggplot2::aes(fontface = "bold"))
+    p <- p + ggplot2::geom_text(size = size.ls[["label.i"]], ggplot2::aes(label = .data[[label.c]],
+                                                                          fontface = "bold"))
   } else {
     p <- p + ggplot2::geom_point(size = size.ls[["point.i"]])
   }
@@ -250,24 +265,27 @@ setMethod("gg_scoreplot", signature(x = "opls"),
   
   ## ellipses [stat_ellipse]
   
-  p <- p + ggplot2::stat_ellipse(ggplot2::aes(x = .comp1, y = .comp2, group = 1), type = "norm")
+  p <- p + ggplot2::stat_ellipse(ggplot2::aes(color = NULL, text = NULL))
   
   if (ellipse.l && color.c != "" && color_type.c == "qualitative")
-    p <- p + eval(parse(text = paste0("ggplot2::stat_ellipse(ggplot2::aes(x = .comp1, y = .comp2",
-                                      ", group = ",
-                                      ifelse(color.c != "", color.c, 1),
-                                      "), type = 'norm')")))
+      p <- p + ggplot2::stat_ellipse(ggplot2::aes(color = .data[[color.c]], text = NULL))
   
   # title and axis labels [labs]
   
+  if (grepl("OPLS", model.c)) {
+    t2.c <- paste0("o", components.vi[2] - 1)
+  } else {
+    t2.c <- paste0("t", components.vi[2])
+  }
+  
   p <- p + ggplot2::labs(title = title.c,
-                         subtitle = subtitle.c,
+                         # subtitle = subtitle.c,
                          caption = caption.c,
                          x = paste0("t", components.vi[1],
                                     " (",
                                     round(ropls.model@modelDF[components.vi[1], "R2X"] * 100),
                                     "%)"),
-                         y = paste0("t", components.vi[2],
+                         y = paste0(t2.c,
                                     " (",
                                     round(ropls.model@modelDF[components.vi[2], "R2X"] * 100),
                                     "%)"))

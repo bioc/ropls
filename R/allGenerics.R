@@ -373,6 +373,10 @@ setGeneric("getWeightMN",
 #' sac.se <- ropls::opls(sac.se, "gender")
 #' gg_scoreplot(sac.se, "gender_PLSDA", color.c = "gender")
 #' gg_scoreplot(sac.se, "gender_PLSDA", color.c = "gender", plotly.l = TRUE)
+#' ## OPLS-DA modeling
+#' sac.se <- ropls::opls(sac.se, "gender", predI = 1, orthoI = NA)
+#' gg_scoreplot(sac.se, "gender_OPLSDA", color.c = "gender")
+#' gg_scoreplot(sac.se, "gender_OPLSDA", color.c = "gender", plotly.l = TRUE, info.vc = "all")
 #' # ExpressionSet
 #' sacurine.eset <- sacurine[["eset"]]
 #' ## PCA

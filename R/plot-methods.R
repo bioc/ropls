@@ -81,6 +81,12 @@ setMethod("gg_scoreplot", signature(x = "opls"),
             
             # checking arguments and preparing data
             
+            type.c <- x@typeC
+            if (model.c != "" && model.c != type.c) {
+              stop("The only model contained in the provided 'opls' object is: ", type.c)
+            }
+            model.c <- type.c
+            
             ## dataset [ExpressionSet]
             
             eset <- ropls::getEset(x)

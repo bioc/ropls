@@ -119,7 +119,7 @@ gg_scoreplot(sac.se, "gender_OPLSDA", color.c = "gender", plotly.l = TRUE, info.
 sacurine.eset <- sacurine[["eset"]]
 ## PCA
 sacurine.pca <- ropls::opls(sacurine.eset)
-## score plot
+## score plot (model.c does not need to be specified here since 'opls' objects contain only one model)
 gg_scoreplot(sacurine.pca)
 gg_scoreplot(sacurine.pca, color.c = "age")
 }

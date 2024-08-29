@@ -24,7 +24,7 @@ setMethod("gg_scoreplot", signature(x = "SummarizedExperiment"),
             
             ## model
             
-            ropls_model.ls <- ropls::getOpls(x)
+            ropls_model.ls <- getOpls(x)
             stopifnot(model.c %in% names(ropls_model.ls))
             ropls.model <- ropls_model.ls[[model.c]]
             
@@ -132,6 +132,27 @@ setMethod("gg_scoreplot", signature(x = "opls"),
                           size.ls,
                           title.c) {
   
+  ## checks
+  
+  stopifnot(length(components.vi) == 2)
+  
+  ## dimension of the plot
+  
+  summary.df <- getSummaryDF(ropls.model)
+
+  if (nrow(summary.df) == 0) {
+    plot_dim.i <- 0 # empty plot
+  } else {
+    pred_dim.i <- summary.df[, "pre"]
+    if ("ort" %in% colnames(summary.df))
+      pred_dim.i <- pred_dim.i + summary.df[, "ort"]
+    if (pred_dim.i == 1) {
+      plot_dim.i <- 1 # 1D plot
+    } else {
+      plot_dim.i <- 2 # 2D plot
+    }
+  } 
+
   ## plotly info
   
   if (plotly.l) {
@@ -160,26 +181,36 @@ setMethod("gg_scoreplot", signature(x = "opls"),
   } else
     text.vc <- rep("", nrow(data.df))
   
-  
   ## score vectors
   
-  score.mn <- ropls::getScoreMN(ropls.model)
-  
-  if (grepl("OPLS", model.c)) {
-    score_ortho.mn <- ropls::getScoreMN(ropls.model, orthoL = TRUE)
-    score.mn <- cbind(score.mn, score_ortho.mn)
+  if (plot_dim.i > 0) {
+    
+    score.mn <- getScoreMN(ropls.model)
+    
+    if (grepl("OPLS", model.c)) {
+      score_ortho.mn <- getScoreMN(ropls.model, orthoL = TRUE)
+      score.mn <- cbind(score.mn, score_ortho.mn)
+    }
+    
+    if (plot_dim.i == 1) {
+      
+      colnames(score.mn) <- ".comp1"
+      
+    } else if (plot_dim.i == 2) {
+      
+      stopifnot(max(components.vi) <= ncol(score.mn))
+      colnames.vc <- colnames(score.mn)
+      colnames.vc[components.vi[1]] <- ".comp1"
+      colnames.vc[components.vi[2]] <- ".comp2"
+      colnames(score.mn) <- colnames.vc
+      
+    }
+    
+    data.df <- cbind.data.frame(data.df,
+                                .text = text.vc,
+                                score.mn[, grep(".comp", colnames(score.mn), fixed = TRUE), drop = FALSE])
+    
   }
-  
-  stopifnot(length(components.vi) == 2)
-  stopifnot(max(components.vi) <= ncol(score.mn))
-  colnames.vc <- colnames(score.mn)
-  colnames.vc[components.vi[1]] <- ".comp1"
-  colnames.vc[components.vi[2]] <- ".comp2"
-  colnames(score.mn) <- colnames.vc
-  
-  data.df <- cbind.data.frame(data.df,
-                              .text = text.vc,
-                              score.mn)
   
   ## labels
   
@@ -201,8 +232,11 @@ setMethod("gg_scoreplot", signature(x = "opls"),
     stopifnot(color.c %in% colnames(data.df))
     if (is.factor(data.df[, color.c]) || is.character(data.df[, color.c])) {
       color_type.c <- "qualitative"
-    } else
+    } else {
       color_type.c <- "quantitative"
+    }
+  } else {
+    color_type.c <- "none"
   }
   
   ## title
@@ -215,17 +249,23 @@ setMethod("gg_scoreplot", signature(x = "opls"),
       title.c <- "PCA"
   }
   # subtitle.c <- ropls.model@typeC
-  summary.df <- ropls::getSummaryDF(ropls.model)
-  summary.df <- summary.df[, colnames(summary.df) != "RMSEE"]
-  if ("ort" %in% colnames(summary.df) && summary.df[, "ort"] < 1)
-    summary.df <- summary.df[, colnames(summary.df) != "ort"]
-  colnames(summary.df) <- gsub("(cum)", "", colnames(summary.df), fixed = TRUE)
+  
+  if (nrow(summary.df) > 0) {
+    summary.df <- summary.df[, colnames(summary.df) != "RMSEE"]
+    if ("ort" %in% colnames(summary.df) && summary.df[, "ort"] < 1)
+      summary.df <- summary.df[, colnames(summary.df) != "ort"]
+    colnames(summary.df) <- gsub("(cum)", "", colnames(summary.df), fixed = TRUE)
+  }
   
   ## caption
   
+  if (nrow(summary.df) > 0) {
   caption.c <- paste(paste(names(summary.df), summary.df["Total", ],
                            sep = "="),
                      collapse = ", ")
+  } else {
+    caption.c <- "No plot was drawn because the model is empty."
+  }
   
   ## sizes
   
@@ -244,37 +284,100 @@ setMethod("gg_scoreplot", signature(x = "opls"),
   
   # starting the plot [ggplot]
   
-  if (color.c != "") {
+  if (plot_dim.i == 0) { # empty ggplot
+    
+    p <- ggplot2::ggplot()
+    
+  } else if (plot_dim.i == 1) { # 1D plot (except for quantitative colors)
+    
+    if (color.c != "") {
+      if (color_type.c == "qualitative") {
+        p <- ggplot2::ggplot(data.df,
+                             ggplot2::aes(x = .data[[color.c]],
+                                          y = .comp1,
+                                          color = .data[[color.c]],
+                                          text = .text))
+      } else { # quantitative
+        p <- ggplot2::ggplot(data.df,
+                             ggplot2::aes(x = .comp1,
+                                          y = .data[[color.c]],
+                                          # color = .data[[color.c]],
+                                          text = .text))
+      }
+    } else { # no color
+      p <- ggplot2::ggplot(data.df,
+                           ggplot2::aes(x = "",
+                                        y = .comp1,
+                                        text = .text))
+    }
+    
+    if (color_type.c != "quantitative")
+      p <- p + ggplot2::geom_violin() +
+        ggplot2::geom_boxplot(width = 0.1)
+    
+  } else if (plot_dim.i == 2) { # 2D plot
+    
+    if (color.c != "") {
       p <- ggplot2::ggplot(data.df,
                            ggplot2::aes(x = .comp1, y = .comp2,
                                         color = .data[[color.c]],
                                         text = .text))
-  } else {
+    } else {
       p <- ggplot2::ggplot(data.df,
                            ggplot2::aes(x = .comp1, y = .comp2,
                                         text = .text))
+    }
+    
   }
 
   ## text/points [geom_text/geom_point]
   
-  if (label.c != "") {
-    p <- p + ggplot2::geom_text(size = size.ls[["label.i"]], ggplot2::aes(label = .data[[label.c]],
-                                                                          fontface = "bold"))
-  } else {
-    p <- p + ggplot2::geom_point(size = size.ls[["point.i"]])
+  if (plot_dim.i > 0) {
+    
+    if (label.c != "") {
+      if (plot_dim.i == 1 && color_type.c != "quantitative") {
+        p <- p + ggplot2::geom_text(size = size.ls[["label.i"]],
+                                    hjust = -0.2,
+                                    ggplot2::aes(label = .data[[label.c]],
+                                                 fontface = "bold"))
+      } else {
+      p <- p + ggplot2::geom_text(size = size.ls[["label.i"]],
+                                  ggplot2::aes(label = .data[[label.c]],
+                                               fontface = "bold"))
+      }
+    } else if (plot_dim.i > 1 || color_type.c == "quantitative") {
+      p <- p + ggplot2::geom_point(size = size.ls[["point.i"]])
+    }
+    
   }
   
   ## horizontal and vertical lines [geom_hline, geom_vline]
   
-  p <- p + ggplot2::geom_hline(ggplot2::aes(yintercept = 0)) +
-    ggplot2::geom_vline(ggplot2::aes(xintercept = 0))
+  if (plot_dim.i > 1) {
+    
+    p <- p + ggplot2::geom_hline(ggplot2::aes(yintercept = 0)) +
+      ggplot2::geom_vline(ggplot2::aes(xintercept = 0))
+    
+  }
   
   ## ellipses [stat_ellipse]
+  
+  if (plot_dim.i > 1) {
   
   p <- p + ggplot2::stat_ellipse(ggplot2::aes(color = NULL, text = NULL))
   
   if (ellipse.l && color.c != "" && color_type.c == "qualitative")
       p <- p + ggplot2::stat_ellipse(ggplot2::aes(color = .data[[color.c]], text = NULL))
+  
+  }
+  
+  ## loess smoothing line (1D quantitative)
+  
+  if (plot_dim.i == 1 && color_type.c == "quantitative") {
+    
+    p <- p + ggplot2::geom_smooth(method = "loess")
+    
+  }
   
   # title and axis labels [labs]
   
@@ -284,17 +387,40 @@ setMethod("gg_scoreplot", signature(x = "opls"),
     t2.c <- paste0("t", components.vi[2])
   }
   
-  p <- p + ggplot2::labs(title = title.c,
-                         # subtitle = subtitle.c,
-                         caption = caption.c,
-                         x = paste0("t", components.vi[1],
-                                    " (",
-                                    round(ropls.model@modelDF[components.vi[1], "R2X"] * 100),
-                                    "%)"),
-                         y = paste0(t2.c,
-                                    " (",
-                                    round(ropls.model@modelDF[components.vi[2], "R2X"] * 100),
-                                    "%)"))
+  if (plot_dim.i == 0) {
+    
+    p <- p + ggplot2::labs(title = title.c,
+                           # subtitle = subtitle.c,
+                           caption = caption.c,
+                           x = NULL,
+                           y = NULL)
+    
+    
+  } else if (plot_dim.i == 1) {
+    
+    p <- p + ggplot2::labs(title = title.c,
+                           # subtitle = subtitle.c,
+                           caption = caption.c,
+                           x = ifelse(color.c != "" && color_type.c == "qualitative",
+                                      color.c, ""),
+                           y = paste0("t1 (",
+                                      round(ropls.model@modelDF[1, "R2X"] * 100),
+                                      "%)"))
+    
+  } else {
+    
+    p <- p + ggplot2::labs(title = title.c,
+                           # subtitle = subtitle.c,
+                           caption = caption.c,
+                           x = paste0("t", components.vi[1],
+                                      " (",
+                                      round(ropls.model@modelDF[components.vi[1], "R2X"] * 100),
+                                      "%)"),
+                           y = paste0(t2.c,
+                                      " (",
+                                      round(ropls.model@modelDF[components.vi[2], "R2X"] * 100),
+                                      "%)"))
+  }
   
   # theme [them_bw, theme]
   
@@ -310,18 +436,20 @@ setMethod("gg_scoreplot", signature(x = "opls"),
   
   # palette [scale_colour_brewer, scale_colour_gradientn]
   
-  if (color.c != "") {
-    if (color_type.c == "qualitative") {
-      if (palette.c != "")
-        p <- p + ggplot2::scale_colour_brewer(palette = palette.c)
-    } else
-      p <- p + ggplot2::scale_colour_gradientn(colours = rev(rainbow(100, end = 4/6)))
+  if (plot_dim.i > 0) {
+    if (color.c != "") {
+      if (color_type.c == "qualitative") {
+        if (palette.c != "")
+          p <- p + ggplot2::scale_colour_brewer(palette = palette.c)
+      } else
+        p <- p + ggplot2::scale_colour_gradientn(colours = rev(rainbow(100, end = 4/6)))
+    }
   }
   
   # display/saving [plotly::ggplotly, plotly::layout, htmlwidgets::saveWidget, plotly::as_widget]
   
   if (plotly.l) {
-    
+
     p <- plotly::ggplotly(p, tooltip = ".text")
     
     p <- plotly::layout(p,

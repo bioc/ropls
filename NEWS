@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.37.2
+------------------------------
+
+  o gg_scoreplot: now handling the 1D or empty models
+
 CHANGES IN VERSION 1.35.4
 ------------------------------
 

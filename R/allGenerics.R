@@ -364,23 +364,33 @@ setGeneric("getWeightMN",
 #' # SummarizedExperiment
 #' sac.se <- sacurine[["se"]]
 #' ## computing the PCA
-#' sac.se <- ropls::opls(sac.se)
+#' sac.se <- opls(sac.se)
 #' ## score plot
 #' gg_scoreplot(sac.se, "PCA")
 #' gg_scoreplot(sac.se, "PCA", color.c = "age")
 #' gg_scoreplot(sac.se, "PCA", color.c = "gender", plotly.l = TRUE, info.vc = "all")
 #' ## PLS-DA modeling
-#' sac.se <- ropls::opls(sac.se, "gender")
+#' sac.se <- opls(sac.se, "gender")
 #' gg_scoreplot(sac.se, "gender_PLSDA", color.c = "gender")
 #' gg_scoreplot(sac.se, "gender_PLSDA", color.c = "gender", plotly.l = TRUE)
 #' ## OPLS-DA modeling
-#' sac.se <- ropls::opls(sac.se, "gender", predI = 1, orthoI = NA)
+#' sac.se <- opls(sac.se, "gender", predI = 1, orthoI = NA)
 #' gg_scoreplot(sac.se, "gender_OPLSDA", color.c = "gender")
 #' gg_scoreplot(sac.se, "gender_OPLSDA", color.c = "gender", plotly.l = TRUE, info.vc = "all")
+#' # empty plot (in case no model was built)
+#' rand.se <- sac.se
+#' rand.se$gender <- sample(rand.se$gender)
+#' rand.se <- opls(rand.se, "gender")
+#' gg_scoreplot(rand.se, "gender_PLSDA")
+#' # 1D plot (in case of a single predicted component)
+#' single.se <- opls(sac.se, predI = 1, fig.pdfC = "none")
+#' gg_scoreplot(single.se, "PCA", label.c = "")
+#' single.se <- opls(sac.se, "gender", predI = 1, fig.pdfC = "none")
+#' gg_scoreplot(single.se, "gender_PLSDA", color.c = "gender")
 #' # ExpressionSet
 #' sacurine.eset <- sacurine[["eset"]]
 #' ## PCA
-#' sacurine.pca <- ropls::opls(sacurine.eset)
+#' sacurine.pca <- opls(sacurine.eset)
 #' ## score plot (model.c does not need to be specified here since 'opls' objects contain only one model)
 #' gg_scoreplot(sacurine.pca)
 #' gg_scoreplot(sacurine.pca, color.c = "age")

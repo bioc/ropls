@@ -371,12 +371,12 @@ setGeneric("getWeightMN",
 #' gg_scoreplot(sac.se, "PCA", color.c = "gender", plotly.l = TRUE, info.vc = "all")
 #' ## PLS-DA modeling
 #' sac.se <- opls(sac.se, "gender")
-#' gg_scoreplot(sac.se, "gender_PLSDA", color.c = "gender")
-#' gg_scoreplot(sac.se, "gender_PLSDA", color.c = "gender", plotly.l = TRUE)
+#' gg_scoreplot(sac.se, "gender_PLSDA")
+#' gg_scoreplot(sac.se, "gender_PLSDA", plotly.l = TRUE)
 #' ## OPLS-DA modeling
 #' sac.se <- opls(sac.se, "gender", predI = 1, orthoI = NA)
-#' gg_scoreplot(sac.se, "gender_OPLSDA", color.c = "gender")
-#' gg_scoreplot(sac.se, "gender_OPLSDA", color.c = "gender", plotly.l = TRUE, info.vc = "all")
+#' gg_scoreplot(sac.se, "gender_OPLSDA")
+#' gg_scoreplot(sac.se, "gender_OPLSDA", plotly.l = TRUE, info.vc = "all")
 #' # empty plot (in case no model was built)
 #' rand.se <- sac.se
 #' rand.se$gender <- sample(rand.se$gender)
@@ -386,7 +386,7 @@ setGeneric("getWeightMN",
 #' single.se <- opls(sac.se, predI = 1, fig.pdfC = "none")
 #' gg_scoreplot(single.se, "PCA", label.c = "")
 #' single.se <- opls(sac.se, "gender", predI = 1, fig.pdfC = "none")
-#' gg_scoreplot(single.se, "gender_PLSDA", color.c = "gender")
+#' gg_scoreplot(single.se, "gender_PLSDA")
 #' # ExpressionSet
 #' sacurine.eset <- sacurine[["eset"]]
 #' ## PCA

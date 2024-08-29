@@ -228,6 +228,12 @@ setMethod("gg_scoreplot", signature(x = "opls"),
   
   stopifnot(length(color.c) == 1)
   
+  if (color.c == "" && grepl("PLS", model.c)) {
+    guessed_color.c <- unlist(strsplit(model.c, split = "_"))[1]
+    if (guessed_color.c %in% colnames(data.df))
+      color.c <- guessed_color.c
+  }
+  
   if (color.c != "") {
     stopifnot(color.c %in% colnames(data.df))
     if (is.factor(data.df[, color.c]) || is.character(data.df[, color.c])) {

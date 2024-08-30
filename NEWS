@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.37.4
+------------------------------
+
+  o plot_score new name of the previous gg_scoreplot method
+
 CHANGES IN VERSION 1.37.2
 ------------------------------
 

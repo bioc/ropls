@@ -328,7 +328,7 @@ setGeneric("getVipVn",
 setGeneric("getWeightMN",
            function(object, orthoL = FALSE) {standardGeneric("getWeightMN")})
 
-#### gg_scoreplot ####
+#### plot_score ####
 
 #' PCA and (O)PLS(-DA) score plots
 #'
@@ -366,37 +366,37 @@ setGeneric("getWeightMN",
 #' ## computing the PCA
 #' sac.se <- opls(sac.se)
 #' ## score plot
-#' gg_scoreplot(sac.se, "PCA")
-#' gg_scoreplot(sac.se, "PCA", color.c = "age")
-#' gg_scoreplot(sac.se, "PCA", color.c = "gender", plotly.l = TRUE, info.vc = "all")
+#' plot_score(sac.se, "PCA")
+#' plot_score(sac.se, "PCA", color.c = "age")
+#' plot_score(sac.se, "PCA", color.c = "gender", plotly.l = TRUE, info.vc = "all")
 #' ## PLS-DA modeling
 #' sac.se <- opls(sac.se, "gender")
-#' gg_scoreplot(sac.se, "gender_PLSDA")
-#' gg_scoreplot(sac.se, "gender_PLSDA", plotly.l = TRUE)
+#' plot_score(sac.se, "gender_PLSDA")
+#' plot_score(sac.se, "gender_PLSDA", plotly.l = TRUE)
 #' ## OPLS-DA modeling
 #' sac.se <- opls(sac.se, "gender", predI = 1, orthoI = NA)
-#' gg_scoreplot(sac.se, "gender_OPLSDA")
-#' gg_scoreplot(sac.se, "gender_OPLSDA", plotly.l = TRUE, info.vc = "all")
+#' plot_score(sac.se, "gender_OPLSDA")
+#' plot_score(sac.se, "gender_OPLSDA", plotly.l = TRUE, info.vc = "all")
 #' # empty plot (in case no model was built)
 #' rand.se <- sac.se
 #' rand.se$gender <- sample(rand.se$gender)
 #' rand.se <- opls(rand.se, "gender")
-#' gg_scoreplot(rand.se, "gender_PLSDA")
+#' plot_score(rand.se, "gender_PLSDA")
 #' # 1D plot (in case of a single predicted component)
 #' single.se <- opls(sac.se, predI = 1, fig.pdfC = "none")
-#' gg_scoreplot(single.se, "PCA", label.c = "")
+#' plot_score(single.se, "PCA", label.c = "")
 #' single.se <- opls(sac.se, "gender", predI = 1, fig.pdfC = "none")
-#' gg_scoreplot(single.se, "gender_PLSDA")
+#' plot_score(single.se, "gender_PLSDA")
 #' # ExpressionSet
 #' sacurine.eset <- sacurine[["eset"]]
 #' ## PCA
 #' sacurine.pca <- opls(sacurine.eset)
 #' ## score plot (model.c does not need to be specified here since 'opls' objects contain only one model)
-#' gg_scoreplot(sacurine.pca)
-#' gg_scoreplot(sacurine.pca, color.c = "age")
-#' @rdname gg_scoreplot
+#' plot_score(sacurine.pca)
+#' plot_score(sacurine.pca, color.c = "age")
+#' @rdname plot_score
 #' @export
-setGeneric("gg_scoreplot",
+setGeneric("plot_score",
            function(x,
                     model.c = "",
                     components.vi = c(1, 2),
@@ -414,7 +414,7 @@ setGeneric("gg_scoreplot",
                                    label.i = 5,
                                    title.i = 20,
                                    legend_title.i = 15,
-                                   legend_text.i = 15)) standardGeneric("gg_scoreplot"))
+                                   legend_text.i = 15)) standardGeneric("plot_score"))
 
 
 #### opls ####

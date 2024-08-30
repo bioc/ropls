@@ -2,8 +2,8 @@ Package: ropls
 Type: Package
 Title: PCA, PLS(-DA) and OPLS(-DA) for multivariate analysis and
         feature selection of omics data
-Version: 1.37.2
-Date: 2024-08-29
+Version: 1.37.4
+Date: 2024-08-30
 Authors@R:
     person("Etienne A.", "Thevenot", email = "etienne.thevenot@cea.fr", role = c("aut", "cre"), comment = c(ORCID = "0000-0003-1019-4577"))
 biocViews: Regression, Classification, PrincipalComponent,
@@ -25,7 +25,7 @@ Depends: R (>= 3.5.0)
 Imports: Biobase, ggplot2, graphics, grDevices, methods, plotly, stats,
         MultiAssayExperiment, MultiDataSet, SummarizedExperiment, utils
 Suggests: BiocGenerics, BiocStyle, knitr, multtest, omicade4,
-        rmarkdown, testthat
+        phenomis, rmarkdown, testthat
 VignetteBuilder: knitr
 License: CeCILL
 Encoding: UTF-8

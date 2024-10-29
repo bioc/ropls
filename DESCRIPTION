@@ -2,7 +2,7 @@ Package: ropls
 Type: Package
 Title: PCA, PLS(-DA) and OPLS(-DA) for multivariate analysis and
         feature selection of omics data
-Version: 1.37.6
+Version: 1.38.0
 Date: 2024-09-13
 Authors@R:
     person("Etienne A.", "Thevenot", email = "etienne.thevenot@cea.fr", role = c("aut", "cre"), comment = c(ORCID = "0000-0003-1019-4577"))
